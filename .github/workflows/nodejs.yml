@@ -1,0 +1,21 @@
+name: NodeJS
+
+on:
+  push:
+    branches: [ "main", "feature/ci-cd" ]
+  pull_request:
+    branches: [ "main", "feature/ci-cd" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.5.1'
+      - run: npm install
+      - run: npm run build dev
+      - run: npm test
