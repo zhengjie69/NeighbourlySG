@@ -100,18 +100,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Install Snyk CLI
-      run: npm install -g snyk
-
-    - name: Authenticate Snyk
-      run: snyk auth ${{ secrets.SNYK_TOKEN }}
-
-    - name: Run Snyk on Maven project
-      run: snyk test --all-projects
-      # If you have multiple projects or want more detailed output
-      # run: snyk test --all-projects --json
-
-    - name: Run Snyk on npm project
-      run: snyk test
-      # To scan both npm and Maven dependencies together, use `snyk test --all-projects`
+    - name: Run Snyk to test Maven and npm
+      uses: snyk/actions@v2
+      with:
+        args: test --all-projects
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
