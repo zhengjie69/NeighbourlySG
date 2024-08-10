@@ -16,6 +16,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22.5.1'
+      - run: cd neighbourlysg-frontend
       - run: npm install
       - run: npm run build dev
       - run: npm test
