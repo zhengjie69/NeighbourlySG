@@ -19,5 +19,5 @@ jobs:
       - run: cd /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend
       - run: npm init
       - run: npm --prefix /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend install
-      - run: npm run build
-      - run: npm test
+      - run: npm --prefix /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend run build
+      - run: npm --prefix /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend test
