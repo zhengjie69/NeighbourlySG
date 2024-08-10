@@ -101,7 +101,7 @@ jobs:
 
     steps:
     - name: Run Snyk to test Maven and npm
-      uses: snyk/actions@v2
+      uses: snyk/actions@v1
       with:
         args: test --all-projects
       env:
