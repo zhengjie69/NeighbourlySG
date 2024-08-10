@@ -20,9 +20,6 @@ jobs:
       - name: Change directory to frontend
         run: cd /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend
 
-      - name: Initialise package.json 
-        run: npm init
-
       - name: Install dependencies
         run: npm --prefix /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend install
 
