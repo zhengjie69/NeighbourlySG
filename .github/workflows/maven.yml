@@ -95,13 +95,22 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=zhengjie69_NeighbourlySG --file neighbourlysg-backend/pom.xml
 
-  snyk:
-      needs: build
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@master
-        - name: Run Snyk to check for vulnerabilities
-          uses: snyk/actions/maven@master
-          continue-on-error: true # To make sure that SARIF upload gets called
-          env:
-            SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+  snyk-scan:
+    name: Snyk Vulnerability Scan
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Install Snyk CLI
+      run: npm install -g snyk
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+    - name: Run Snyk on Maven project
+      run: snyk test --all-projects
+      # If you have multiple projects or want more detailed output
+      # run: snyk test --all-projects --json
+
+    - name: Run Snyk on npm project
+      run: snyk test
+      # To scan both npm and Maven dependencies together, use `snyk test --all-projects`
+
