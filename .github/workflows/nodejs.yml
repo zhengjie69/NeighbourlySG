@@ -17,6 +17,6 @@ jobs:
         with:
           node-version: '22.5.1'
       - run: cd neighbourlysg-frontend
-      - run: npm --prefix /neighbourly-frontend/package.json install 
+      - run: npm --prefix ~/neighbourly-frontend/package.json install
       - run: npm run build dev
       - run: npm test
