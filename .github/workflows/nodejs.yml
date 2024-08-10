@@ -18,6 +18,6 @@ jobs:
           node-version: '22.5.1'
       - run: cd /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend
       - run: npm init
-      - run: npm install
+      - run: npm --prefix /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend install
       - run: npm build dev
       - run: npm test
