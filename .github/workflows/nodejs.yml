@@ -26,6 +26,9 @@ jobs:
       - name: Build Project
         run: npm --prefix /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend run build
 
+      - name: List build directory
+        run: ls -R /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend/dist
+
       - name: Upload production-ready build files
         uses: actions/upload-artifact@v2
         with:
@@ -48,5 +51,5 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ GITHUB_TOKEN }}
           publish_dir: ./home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend/dist
