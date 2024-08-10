@@ -100,11 +100,8 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@master
-        - uses: actions/setup@master
-        - uses: snyk/actions/setup-go@v1
-          with:
-            go-version: '1.19'
-        - name: Snyk Test
-          run: synk test
+        - name: Run Snyk to check for vulnerabilities
+          uses: snyk/actions/maven@master
+          continue-on-error: true # To make sure that SARIF upload gets called
           env:
             SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
