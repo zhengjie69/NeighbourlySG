@@ -15,7 +15,7 @@ on:
     branches: [ "main", "feature/ci-cd" ]
 
 jobs:
-  buildBackEnd:
+  BuildBackEnd:
     runs-on: ubuntu-latest
     
     services:
@@ -49,7 +49,7 @@ jobs:
       run: 
         ./neighbourlysg-backend/mvnw -B package --file neighbourlysg-backend/pom.xml
 
-  buildFrontEnd:
+  BuildFrontEnd:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -77,8 +77,8 @@ jobs:
         publish_dir: /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend/dist  # Ensure this matches your build output directory
         publish_branch: gh-pages
     
-  sonar:
-    needs: [buildBackEnd, buildFrontEnd]
+  SonarCloud:
+    needs: [BuildBackEnd, BuildFrontEnd]
     runs-on: ubuntu-latest
 
     services:
@@ -126,8 +126,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=zhengjie69_NeighbourlySG --file neighbourlysg-backend/pom.xml
 
-  snyk:
-    needs: [buildBackEnd, buildFrontEnd]
+  SNYK:
+    needs: [BuildBackEnd, BuildFrontEnd]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
