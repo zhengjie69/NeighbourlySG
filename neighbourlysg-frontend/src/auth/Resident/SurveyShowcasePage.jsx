@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Modal, Button, Form } from 'react-bootstrap';
 import SGLogo from '../../assets/SGLogo.avif';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
@@ -17,6 +17,8 @@ const SurveyShowcasePage = () => {
   const [selectedSurvey, setSelectedSurvey] = useState(null);
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
+  
+  const navigate = useNavigate(); // Import navigate function
 
   const handleShowModal = (survey) => {
     setSelectedSurvey(survey);
@@ -93,7 +95,7 @@ const SurveyShowcasePage = () => {
               Participate in our surveys and share your valuable feedback with the community.
             </p>
           </div>
-          <Button variant="primary" onClick={() => alert('Create Survey functionality to be implemented')}>
+          <Button variant="primary" onClick={() => navigate('/CreateSurveyForm')}>
             Create Survey
           </Button>
         </div>
