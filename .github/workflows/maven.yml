@@ -49,6 +49,33 @@ jobs:
       run: 
         ./neighbourlysg-backend/mvnw -B package --file neighbourlysg-backend/pom.xml
 
+  steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.5.1'
+
+    - name: Change directory to frontend
+      run: cd /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend
+
+    - name: Install dependencies
+      run: npm --prefix /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend install
+
+    - name: Build Project
+      run: npm --prefix /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend run build
+
+    - name: List build directory
+      run: ls -R /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend/dist
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GIT_HUB_TOKEN }}
+        publish_dir: /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend/dist  # Ensure this matches your build output directory
+        publish_branch: gh-pages
+    
+
   sonar:
     needs: build
     runs-on: ubuntu-latest
