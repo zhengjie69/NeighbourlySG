@@ -15,7 +15,7 @@ class SwaggerConfigTest {
     private OpenAPI openAPI;
 
     @Test
-    public void testOpenAPIConfiguration() {
+    void testOpenAPIConfiguration() {
         assertEquals("Swagger API Docs Howtofixthebugs", openAPI.getInfo().getTitle());
         assertEquals("Howtofixthebugs API Description", openAPI.getInfo().getDescription());
         assertEquals("1.0", openAPI.getInfo().getVersion());
