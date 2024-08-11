@@ -1,7 +1,25 @@
+import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useNavigate } from 'react-router-dom';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 
 function ResidentLogin() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [warning, setWarning] = useState('');
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Dummy login validation for demonstration
+    if (email === 'user@example.com' && password === 'password123') {
+      // Navigate to ResidentMainPage on successful login
+      navigate('/ResidentMainPage');
+    } else {
+      setWarning('Invalid email or password');
+    }
+  };
+
   return (
     <div 
       className="d-flex justify-content-center align-items-center vh-100" 
@@ -19,7 +37,8 @@ function ResidentLogin() {
             Access community surveys, events, and more by logging in.
           </p>
         </div>
-        <form>
+        {warning && <div className="alert alert-danger" role="alert">{warning}</div>}
+        <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label htmlFor="email" className="form-label" style={{ fontSize: '1rem', color: '#495057' }}>Email Address</label>
             <input 
@@ -27,6 +46,8 @@ function ResidentLogin() {
               className="form-control" 
               id="email" 
               placeholder="Enter your email" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               style={{ height: '45px', fontSize: '1rem', borderRadius: '8px' }} 
             />
           </div>
@@ -37,6 +58,8 @@ function ResidentLogin() {
               className="form-control" 
               id="password" 
               placeholder="Enter your password" 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               style={{ height: '45px', fontSize: '1rem', borderRadius: '8px' }} 
             />
           </div>
