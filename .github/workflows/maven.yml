@@ -47,7 +47,7 @@ jobs:
         chmod +x neighbourlysg-backend/mvnw
     - name: Build with Maven
       run: 
-        mvn -B package --file neighbourlysg-backend/pom.xml
+        ./neighbourlysg-backend/mvnw -B package --file neighbourlysg-backend/pom.xml
 
   sonar:
     needs: build
@@ -96,7 +96,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_HUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=zhengjie69_NeighbourlySG --file neighbourlysg-backend/pom.xml
+        run: ./neighbourlysg-backend/mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=zhengjie69_NeighbourlySG --file neighbourlysg-backend/pom.xml
 
   snyk:
     needs: build
@@ -106,11 +106,10 @@ jobs:
         uses: actions/checkout@v3
       - name: Install Snyk CLI
         run: npm install -g snyk
-      - name: Ensure Maven Dependency Plugin is installed
-        run: ./mvnw dependency:resolve
-        working-directory: neighbourlysg-backend
-      - name: Set execute permission for Maven Wrapper in frontend
+      - name: Set execute permission for Maven Wrapper in backend
         run: chmod +x neighbourlysg-backend/mvnw
+      - name: Run Snyk for Maven (Java)
+        run: snyk test --file=neighbourlysg-backend/pom.xml
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       - name: Run Snyk for npm (Node.js)
