@@ -99,9 +99,9 @@ jobs:
       needs: build
       runs-on: ubuntu-latest
       steps:
-        - uses: actions/checkout@v3
+        - uses: actions/checkout@master
         - name: Run Snyk to check for vulnerabilities
-          uses: snyk/actions/maven@v3
+          uses: snyk/actions/maven@master
           with:
             args: --file=neighbourlysg-backend/pom.xml
           continue-on-error: true # To make sure that SARIF upload gets called
