@@ -99,9 +99,11 @@ jobs:
       needs: build
       runs-on: ubuntu-latest
       steps:
-        - uses: actions/checkout@master
+        - uses: actions/checkout@v3
         - name: Run Snyk to check for vulnerabilities
-          uses: snyk/actions/maven@master
+          uses: snyk/actions/maven@v3
+          with:
+            args: --file=neighbourlysg-backend/pom.xml
           continue-on-error: true # To make sure that SARIF upload gets called
           env:
             SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
