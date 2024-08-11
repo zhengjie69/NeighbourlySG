@@ -123,7 +123,7 @@ const ResidentMainPage = () => {
                 </Link>
               ))}
               <div className="d-flex justify-content-end">
-                <Link to="/surveys" className="btn btn-primary">View More</Link>
+                <Link to="/surveys" className="btn btn-primary">View More</Link> {/* Redirects to /surveys */}
               </div>
             </div>
 

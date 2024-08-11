@@ -5,6 +5,8 @@ import ResidentLogin from './auth/Resident/ResidentLogin';
 import RegisterPage from './auth/Resident/RegisterPage';
 import ResidentMainPage from './auth/Resident/ResidentMainPage';
 import ProfileSettingsPage from './auth/Resident/ProfileSettingsPage';
+import SurveyShowcasePage from './auth/Resident/SurveyShowcasePage';
+
 
 const App = () => {
     return (
@@ -15,6 +17,7 @@ const App = () => {
                 <Route path="/Register" element={<RegisterPage />} />
                 <Route path="/ResidentMainPage" element={<ResidentMainPage />} />
                 <Route path="/ProfileSettings" element={<ProfileSettingsPage />} />
+                <Route path="/surveys" element={<SurveyShowcasePage />} /> {/* Add the route for the SurveyShowcasePage */}
                 <Route path="*" element={<Navigate to="/" />} /> {/* Fallback for undefined routes */}
             </Routes>
         </Router>

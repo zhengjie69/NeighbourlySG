@@ -1,6 +1,8 @@
 // eslint-disable-next-line no-unused-vars
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { Modal, Button } from 'react-bootstrap';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 
 function RegisterPage() {
@@ -10,6 +12,9 @@ function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [selectedConstituency, setSelectedConstituency] = useState('');
   const [errors, setErrors] = useState({});
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  const navigate = useNavigate(); // Initialize useNavigate hook
 
   const grcSmcOptions = [
     'Aljunied GRC', 'Ang Mo Kio GRC', 'Bishan-Toa Payoh GRC', 'Chua Chu Kang GRC',
@@ -53,9 +58,21 @@ function RegisterPage() {
       setErrors(validationErrors);
     } else {
       setErrors({});
+      setShowSuccessModal(true); // Show success modal
       // Handle form submission logic here
     }
   };
+
+  useEffect(() => {
+    if (showSuccessModal) {
+      const timer = setTimeout(() => {
+        setShowSuccessModal(false);
+        navigate('/ResidentMainPage'); // Redirect to ResidentMainPage after 3 seconds
+      }, 3000); // 3 seconds
+
+      return () => clearTimeout(timer); // Cleanup timer if component unmounts
+    }
+  }, [showSuccessModal, navigate]);
 
   return (
     <div 
@@ -155,6 +172,21 @@ function RegisterPage() {
           </a>
         </div>
       </div>
+
+      {/* Success Modal */}
+      <Modal show={showSuccessModal} onHide={() => setShowSuccessModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Success</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Your account has been created successfully! Redirecting to the main page...
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={() => navigate('/ResidentMainPage')}>
+            Go to Main Page Now
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }
