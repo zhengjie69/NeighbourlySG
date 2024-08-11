@@ -81,9 +81,6 @@ const ResidentMainPage = () => {
                 <Link className="nav-link" to="/profile">Profile</Link>
               </li>
               <li className="nav-item dropdown">
-                <Link className="nav-link dropdown-toggle" to="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  More
-                </Link>
                 <ul className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                   <li><Link className="dropdown-item" to="/settings">Settings</Link></li>
                   <li><Link className="dropdown-item" to="/help">Help</Link></li>
@@ -124,6 +121,9 @@ const ResidentMainPage = () => {
                   </div>
                 </Link>
               ))}
+              <div className="d-flex justify-content-end">
+                <Link to="/surveys" className="btn btn-primary">View More</Link>
+              </div>
             </div>
 
             <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
@@ -139,6 +139,9 @@ const ResidentMainPage = () => {
                   </div>
                 </Link>
               ))}
+              <div className="d-flex justify-content-end">
+                <Link to="/events" className="btn btn-primary">View More</Link>
+              </div>
             </div>
 
             {/* Community News Feed with Clickable Containers */}
@@ -155,6 +158,9 @@ const ResidentMainPage = () => {
                   </div>
                 </Link>
               ))}
+              <div className="d-flex justify-content-end">
+                <Link to="/posts" className="btn btn-primary">View More</Link>
+              </div>
             </div>
           </div>
 
