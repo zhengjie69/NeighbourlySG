@@ -1,3 +1,4 @@
+// ResidentMainPage.jsx
 // eslint-disable-next-line no-unused-vars
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -78,7 +79,7 @@ const ResidentMainPage = () => {
                 <Link className="nav-link" to="/posts">Community Posts</Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to="/profile">Profile</Link>
+                <Link className="nav-link" to="/ProfileSettings">Profile</Link> {/* Link updated to point to /ProfileSettings */}
               </li>
               <li className="nav-item dropdown">
                 <ul className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
@@ -169,7 +170,7 @@ const ResidentMainPage = () => {
               <h4>Your Profile</h4>
               <p>Update your profile details and manage your account settings.</p>
               <div className="d-flex justify-content-center">
-                <Link to="/profile" className="btn btn-secondary" style={{ maxWidth: '200px', width: '100%' }}>Edit Profile</Link>
+                <Link to="/ProfileSettings" className="btn btn-secondary" style={{ maxWidth: '200px', width: '100%' }}>Edit Profile</Link> {/* Link updated to point to /ProfileSettings */}
               </div>
             </div>
           </div>
