@@ -6,7 +6,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Java CI with Maven
+name: Pipeline
 
 on:
   push:
@@ -15,7 +15,7 @@ on:
     branches: [ "main", "feature/ci-cd" ]
 
 jobs:
-  build:
+  buildBackEnd:
     runs-on: ubuntu-latest
     
     services:
@@ -49,6 +49,9 @@ jobs:
       run: 
         ./neighbourlysg-backend/mvnw -B package --file neighbourlysg-backend/pom.xml
 
+  buildFrontEnd:
+    runs-on: ubuntu-latest
+    steps:
     - uses: actions/checkout@v4
     - name: Use Node.js
       uses: actions/setup-node@v4
@@ -75,7 +78,7 @@ jobs:
         publish_branch: gh-pages
     
   sonar:
-    needs: build
+    needs: [buildBackEnd, buildFrontEnd]
     runs-on: ubuntu-latest
 
     services:
@@ -124,7 +127,7 @@ jobs:
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=zhengjie69_NeighbourlySG --file neighbourlysg-backend/pom.xml
 
   snyk:
-    needs: build
+    needs: [buildBackEnd, buildFrontEnd]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
