@@ -49,7 +49,7 @@ function ResidentLogin() {
         </div>
         <div className="mt-3 text-center">
           <a href="/register" className="text-primary" style={{ fontSize: '0.9rem', textDecoration: 'none' }}>
-            Don't have an account? <span style={{ fontWeight: 'bold' }}>Register here</span>
+            Don&apos;t have an account? <span style={{ fontWeight: 'bold' }}>Register here</span>
           </a>
         </div>
       </div>
