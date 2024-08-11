@@ -137,11 +137,13 @@ jobs:
       - name: Set execute permission for Maven Wrapper in backend
         run: chmod +x neighbourlysg-backend/mvnw
       - name: Run Snyk for Maven (Java)
-        run: snyk test --file=neighbourlysg-backend/pom.xml
+        working-directory: neighbourlysg-backend
+        run: snyk test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       - name: Run Snyk for npm (Node.js)
-        run: snyk test --file=/home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend/package.json
+        working-directory: neighbourlysg-frontend
+        run: snyk test
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
