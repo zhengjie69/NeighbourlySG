@@ -138,7 +138,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       - name: Run Snyk for npm (Node.js)
-        run: snyk test --file=neighbourlysg-frontend/package.json
+        run: snyk test --file=/home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend/package.json
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
