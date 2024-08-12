@@ -6,7 +6,8 @@ import RegisterPage from './auth/Resident/RegisterPage';
 import ResidentMainPage from './auth/Resident/ResidentMainPage';
 import ProfileSettingsPage from './auth/Resident/ProfileSettingsPage';
 import SurveyShowcasePage from './auth/Resident/SurveyShowcasePage';
-import CreateSurveyForm from './auth/Resident/CreateSurveyForm'; // Import the CreateSurveyPage
+import CreateSurveyForm from './auth/Resident/CreateSurveyForm';
+import EventShowcasePage from './auth/Resident/EventShowcasePage'; // Import the ResidentEventPage
 
 const App = () => {
     return (
@@ -17,8 +18,9 @@ const App = () => {
                 <Route path="/Register" element={<RegisterPage />} />
                 <Route path="/ResidentMainPage" element={<ResidentMainPage />} />
                 <Route path="/ProfileSettings" element={<ProfileSettingsPage />} />
-                <Route path="/surveys" element={<SurveyShowcasePage />} /> {/* Add the route for the SurveyShowcasePage */}
-                <Route path="/CreateSurveyForm" element={<CreateSurveyForm />} /> {/* Add the route for the CreateSurveyPage */}
+                <Route path="/surveys" element={<SurveyShowcasePage />} /> {/* Route for SurveyShowcasePage */}
+                <Route path="/CreateSurveyForm" element={<CreateSurveyForm />} /> {/* Route for CreateSurveyPage */}
+                <Route path="/events" element={<EventShowcasePage />} /> {/* Route for ResidentEventPage */}
                 {/* Remove or adjust this fallback route temporarily */}
                 {/* <Route path="*" element={<Navigate to="/" />} /> */}
             </Routes>
