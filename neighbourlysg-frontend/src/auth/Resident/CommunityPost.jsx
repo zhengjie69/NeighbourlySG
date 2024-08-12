@@ -1,4 +1,4 @@
-// eslint-disable-next-line no-unused-vars
+/* eslint-disable no-unused-vars */
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Modal, Button, Form } from "react-bootstrap";
@@ -35,7 +35,6 @@ function CommunityPost() {
   const [selectedPost, setSelectedPost] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-
   const handleCreatePost = () => {
     const newPost = {
       id: posts.length + 1,
@@ -59,8 +58,6 @@ function CommunityPost() {
       )
     );
   };
-
-  
 
   const handleSharePost = (postId) => {
     console.log(`Post ${postId} shared!`);
@@ -182,12 +179,14 @@ function CommunityPost() {
       </nav>
 
       <div className="container mt-5 flex-grow-1">
-        <h2
-          className="mb-4 text-dark bg-white bg-opacity-75 p-2 rounded"
-          style={{ display: "inline-block" }}
-        >
-          Community News Feed
-        </h2>
+        <div className="mb-4" style={{ maxWidth: "600px", width: "100%", margin: "0 auto" }}>
+          <h2
+            className="text-dark bg-white bg-opacity-75 p-2 rounded text-center"
+            style={{ display: "inline-block", width: "100%" }}
+          >
+            Community News Feed
+          </h2>
+        </div>
 
         <div
           className="card mb-4"

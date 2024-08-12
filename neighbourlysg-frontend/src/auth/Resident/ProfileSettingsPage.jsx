@@ -122,7 +122,7 @@ function ProfileSettingsPage() {
                 <Link className="nav-link" to="/posts">Community Posts</Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to="/profile">Profile</Link>
+                <Link className="nav-link" to="/ProfileSettings">Profile</Link>
               </li>
               <li className="nav-item dropdown">
                 <ul className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
