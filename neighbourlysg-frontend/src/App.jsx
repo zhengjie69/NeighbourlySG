@@ -7,7 +7,8 @@ import ResidentMainPage from './auth/Resident/ResidentMainPage';
 import ProfileSettingsPage from './auth/Resident/ProfileSettingsPage';
 import SurveyShowcasePage from './auth/Resident/SurveyShowcasePage';
 import CreateSurveyForm from './auth/Resident/CreateSurveyForm';
-import EventShowcasePage from './auth/Resident/EventShowcasePage'; // Import the ResidentEventPage
+import EventShowcasePage from './auth/Resident/EventShowcasePage';
+import CommunityPost from './auth/Resident/CommunityPost'; // Import the CommunityPost component
 
 const App = () => {
     return (
@@ -21,6 +22,7 @@ const App = () => {
                 <Route path="/surveys" element={<SurveyShowcasePage />} /> {/* Route for SurveyShowcasePage */}
                 <Route path="/CreateSurveyForm" element={<CreateSurveyForm />} /> {/* Route for CreateSurveyPage */}
                 <Route path="/events" element={<EventShowcasePage />} /> {/* Route for ResidentEventPage */}
+                <Route path="/posts" element={<CommunityPost />} /> {/* Route for CommunityPost */}
                 {/* Remove or adjust this fallback route temporarily */}
                 {/* <Route path="*" element={<Navigate to="/" />} /> */}
             </Routes>
