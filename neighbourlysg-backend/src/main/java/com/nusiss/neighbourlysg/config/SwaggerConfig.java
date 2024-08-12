@@ -1,4 +1,4 @@
-package com.nusiss.neighbourlysg;
+package com.nusiss.neighbourlysg.config;
 
 
 import io.swagger.v3.oas.models.OpenAPI;
