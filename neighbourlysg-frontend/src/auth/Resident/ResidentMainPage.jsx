@@ -60,7 +60,7 @@ const ResidentMainPage = () => {
       {/* Navigation Bar */}
       <nav className="navbar navbar-expand-lg navbar-light bg-light" style={{ zIndex: 2, padding: '10px 20px' }}>
         <div className="container-fluid">
-          <Link className="navbar-brand" to="/">
+          <Link className="navbar-brand" to="/ResidentMainPage">
             <img src={SGLogo} alt="SG Logo" style={{ marginRight: '10px', width: '50px', height: '35px' }} />
             NeighbourlySG
           </Link>
