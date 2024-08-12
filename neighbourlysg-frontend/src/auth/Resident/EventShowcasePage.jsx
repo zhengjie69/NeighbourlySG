@@ -63,7 +63,7 @@ function ResidentEventPage() {
         location: 'Ang Mo Kio Garden',
         image: 'https://via.placeholder.com/600x400',
         area: 'Ang Mo Kio GRC',
-        rsvp: true,
+        rsvp: false,
         rsvpCount: 30,
       },
       {
@@ -85,7 +85,7 @@ function ResidentEventPage() {
         location: 'Marine Parade Library',
         image: 'https://via.placeholder.com/600x400',
         area: 'Marine Parade GRC',
-        rsvp: true,
+        rsvp: false,
         rsvpCount: 20,
       },
       {
@@ -107,7 +107,7 @@ function ResidentEventPage() {
         location: 'Jalan Besar Park',
         image: 'https://via.placeholder.com/600x400',
         area: 'Jalan Besar GRC',
-        rsvp: true,
+        rsvp: false,
         rsvpCount: 35,
       },
       {
@@ -129,7 +129,7 @@ function ResidentEventPage() {
         location: 'Sembawang Park',
         image: 'https://via.placeholder.com/600x400',
         area: 'Sembawang GRC',
-        rsvp: true,
+        rsvp: false,
         rsvpCount: 60,
       },
       {
@@ -155,7 +155,7 @@ function ResidentEventPage() {
     setNotifications(['Don\'t miss the Fall Festival on September 15, 2024!']);
   }, []);
 
-  const handleRSVP = (eventId, eventTitle, eventDate) => {
+  const handleRSVP = (eventId, eventTitle, eventDate, eventLocation) => {
     setUpcomingEvents(prevEvents => {
       const updatedEvents = prevEvents.map(event => {
         if (event.id === eventId && !event.rsvp) {
@@ -177,7 +177,7 @@ function ResidentEventPage() {
       ]);
       setReminders(prevReminders => [
         ...prevReminders,
-        { eventTitle, eventDate }
+        { eventTitle, eventDate, eventLocation }
       ]);
     }
   };
@@ -297,7 +297,7 @@ function ResidentEventPage() {
           <h5>Reminder</h5>
           <ul>
             {reminders.map((reminder, index) => (
-              <li key={index}>{reminder.eventTitle} - {reminder.eventDate}</li>
+              <li key={index}>{reminder.eventTitle} - {reminder.eventDate} at {reminder.eventLocation}</li>
             ))}
           </ul>
         </div>
@@ -337,11 +337,11 @@ function ResidentEventPage() {
                     <p className="card-text text-truncate" style={{ maxHeight: '50px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{event.description}</p>
                     <p><strong>RSVP Count:</strong> {event.rsvpCount}</p>
                     {!event.rsvp ? (
-                      <button className="btn btn-primary" onClick={(e) => { e.stopPropagation(); handleRSVP(event.id, event.title, event.date); }}>
+                      <button className="btn btn-primary" onClick={(e) => { e.stopPropagation(); handleRSVP(event.id, event.title, event.date, event.location); }}>
                         RSVP
                       </button>
                     ) : (
-                      <button className="btn btn-success" onClick={(e) => { e.stopPropagation(); handleRSVP(event.id, event.title, event.date); }}>
+                      <button className="btn btn-success" onClick={(e) => { e.stopPropagation(); handleRSVP(event.id, event.title, event.date, event.location); }}>
                         RSVP&apos;d
                       </button>
                     )}
@@ -396,11 +396,11 @@ function ResidentEventPage() {
               Close
             </Button>
             {!selectedEvent.rsvp ? (
-              <Button variant="primary" onClick={() => handleRSVP(selectedEvent.id, selectedEvent.title, selectedEvent.date)}>
+              <Button variant="primary" onClick={() => handleRSVP(selectedEvent.id, selectedEvent.title, selectedEvent.date, selectedEvent.location)}>
                 RSVP
               </Button>
             ) : (
-              <Button variant="success" onClick={() => handleRSVP(selectedEvent.id, selectedEvent.title, selectedEvent.date)}>
+              <Button variant="success" onClick={() => handleRSVP(selectedEvent.id, selectedEvent.title, selectedEvent.date, selectedEvent.location)}>
                 RSVP&apos;d
               </Button>
             )}
