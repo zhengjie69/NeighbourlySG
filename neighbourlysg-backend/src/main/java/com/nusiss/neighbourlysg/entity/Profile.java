@@ -17,68 +17,69 @@ public class Profile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_name")
-    private String userName;
-
-    @Column(name = "first_name", nullable = false)
-    private String firstName;
-
-    @Column(name = "last_name", nullable = false)
-    private String lastName;
+    @Column(name = "name")
+    private String name;
 
     @Column(name = "email", unique = true)
     private String email;
+    
+    @Column(name = "password")
+    private String password;
+    
+    
+    @Column(name = "constituency")
+    private String constituency;
 
-    @Column(name = "contact_number", length = 8)
-    private Long contactNumber;
 
 	public Long getId() {
 		return id;
 	}
 
+
 	public void setId(Long id) {
 		this.id = id;
 	}
 
-	public String getUserName() {
-		return userName;
+
+	public String getName() {
+		return name;
 	}
 
-	public void setUserName(String userName) {
-		this.userName = userName;
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
-	public String getFirstName() {
-		return firstName;
-	}
-
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-
-	public String getLastName() {
-		return lastName;
-	}
-
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
 
 	public String getEmail() {
 		return email;
 	}
 
+
 	public void setEmail(String email) {
 		this.email = email;
 	}
 
-	public Long getContactNumber() {
-		return contactNumber;
+
+	public String getPassword() {
+		return password;
 	}
 
-	public void setContactNumber(Long contactNumber) {
-		this.contactNumber = contactNumber;
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
+
+
+	public String getConstituency() {
+		return constituency;
+	}
+
+
+	public void setConstituency(String constituency) {
+		this.constituency = constituency;
+	}
+
     
     
 }
