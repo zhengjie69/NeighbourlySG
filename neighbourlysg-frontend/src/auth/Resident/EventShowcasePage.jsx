@@ -8,7 +8,7 @@ import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 import SGLogo from '../../assets/SGLogo.avif';
 
 const grcSmcOptions = [
-  'Aljunied GRC', 'Ang Mo Kio GRC', 'Bishan-Toa Payoh GRC', 'Chua Chu Kang GRC',
+  'All Locations', 'Aljunied GRC', 'Ang Mo Kio GRC', 'Bishan-Toa Payoh GRC', 'Chua Chu Kang GRC',
   'East Coast GRC', 'Holland-Bukit Timah GRC', 'Jalan Besar GRC', 'Jurong GRC',
   'Marine Parade GRC', 'Marsiling-Yew Tee GRC', 'Nee Soon GRC', 'Pasir Ris-Punggol GRC',
   'Sembawang GRC', 'Tampines GRC', 'Tanjong Pagar GRC', 'West Coast GRC',
@@ -25,7 +25,7 @@ function ResidentEventPage() {
   const [notifications, setNotifications] = useState([]);
   const [reminders, setReminders] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedArea, setSelectedArea] = useState('');
+  const [selectedArea, setSelectedArea] = useState('All Locations');
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -38,6 +38,7 @@ function ResidentEventPage() {
         title: 'Neighborhood Cleanup',
         date: 'August 20, 2024 10:00 AM',
         description: 'Join us for a community cleanup event.',
+        location: 'Jurong Park',
         image: 'https://via.placeholder.com/600x400',
         area: 'Jurong GRC',
         rsvp: false,
@@ -48,6 +49,7 @@ function ResidentEventPage() {
         title: 'Fall Festival',
         date: 'September 15, 2024 2:00 PM',
         description: 'Celebrate the season with food, games, and fun!',
+        location: 'Tampines Central',
         image: 'https://via.placeholder.com/600x400',
         area: 'Tampines GRC',
         rsvp: false,
@@ -58,6 +60,7 @@ function ResidentEventPage() {
         title: 'Community Garden Workshop',
         date: 'July 15, 2024 9:00 AM',
         description: 'Learn about community gardening and sustainability.',
+        location: 'Ang Mo Kio Garden',
         image: 'https://via.placeholder.com/600x400',
         area: 'Ang Mo Kio GRC',
         rsvp: true,
@@ -68,6 +71,7 @@ function ResidentEventPage() {
         title: 'Health and Wellness Fair',
         date: 'October 10, 2024 11:00 AM',
         description: 'A fair dedicated to promoting health and wellness in the community.',
+        location: 'East Coast Park',
         image: 'https://via.placeholder.com/600x400',
         area: 'East Coast GRC',
         rsvp: false,
@@ -78,6 +82,7 @@ function ResidentEventPage() {
         title: 'Book Club Meeting',
         date: 'November 2, 2024 3:00 PM',
         description: 'Join us for a discussion on the latest bestsellers.',
+        location: 'Marine Parade Library',
         image: 'https://via.placeholder.com/600x400',
         area: 'Marine Parade GRC',
         rsvp: true,
@@ -88,6 +93,7 @@ function ResidentEventPage() {
         title: 'Community Sports Day',
         date: 'December 5, 2024 9:30 AM',
         description: 'Participate in various sports activities and competitions.',
+        location: 'Holland Village',
         image: 'https://via.placeholder.com/600x400',
         area: 'Holland-Bukit Timah GRC',
         rsvp: false,
@@ -98,6 +104,7 @@ function ResidentEventPage() {
         title: 'Music in the Park',
         date: 'January 14, 2024 5:00 PM',
         description: 'Enjoy live music performances in the park.',
+        location: 'Jalan Besar Park',
         image: 'https://via.placeholder.com/600x400',
         area: 'Jalan Besar GRC',
         rsvp: true,
@@ -108,6 +115,7 @@ function ResidentEventPage() {
         title: 'Cultural Food Festival',
         date: 'February 25, 2024 12:00 PM',
         description: 'Taste cuisines from around the world at our cultural food festival.',
+        location: 'Chua Chu Kang Community Center',
         image: 'https://via.placeholder.com/600x400',
         area: 'Chua Chu Kang GRC',
         rsvp: false,
@@ -118,6 +126,7 @@ function ResidentEventPage() {
         title: 'Art in the Community',
         date: 'March 15, 2024 10:00 AM',
         description: 'A showcase of local artists and their work.',
+        location: 'Sembawang Park',
         image: 'https://via.placeholder.com/600x400',
         area: 'Sembawang GRC',
         rsvp: true,
@@ -128,6 +137,7 @@ function ResidentEventPage() {
         title: 'Technology Expo',
         date: 'April 5, 2024 9:00 AM',
         description: 'Explore the latest in technology and innovation.',
+        location: 'Pasir Ris Convention Center',
         image: 'https://via.placeholder.com/600x400',
         area: 'Pasir Ris-Punggol GRC',
         rsvp: false,
@@ -210,7 +220,7 @@ function ResidentEventPage() {
         event.title.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-    if (area) {
+    if (area && area !== 'All Locations') {
       filtered = filtered.filter(event => event.area === area);
     }
     setFilteredEvents(filtered);
@@ -305,7 +315,6 @@ function ResidentEventPage() {
           </div>
           <div className="col-md-6">
             <select className="form-control" value={selectedArea} onChange={handleAreaChange}>
-              <option value="">Select Area/Location</option>
               {grcSmcOptions.map(option => (
                 <option key={option} value={option}>{option}</option>
               ))}
@@ -324,6 +333,7 @@ function ResidentEventPage() {
                   <div className="card-body">
                     <h4 className="card-title">{event.title}</h4>
                     <h6 className="card-subtitle mb-2 text-muted">{event.date}</h6>
+                    <p className="card-text">{event.location}</p>
                     <p className="card-text text-truncate" style={{ maxHeight: '50px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{event.description}</p>
                     <p><strong>RSVP Count:</strong> {event.rsvpCount}</p>
                     {!event.rsvp ? (
@@ -355,6 +365,7 @@ function ResidentEventPage() {
                   <div className="card-body">
                     <h4 className="card-title">{event.title}</h4>
                     <h6 className="card-subtitle mb-2 text-muted">{event.date}</h6>
+                    <p className="card-text">{event.location}</p>
                     <p className="card-text text-truncate" style={{ maxHeight: '50px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{event.description}</p>
                     <p><strong>RSVP Count:</strong> {event.rsvpCount}</p>
                   </div>
@@ -376,6 +387,7 @@ function ResidentEventPage() {
           <Modal.Body>
             <img src={selectedEvent.image} className="img-fluid mb-3" alt={selectedEvent.title} />
             <h5>{selectedEvent.date}</h5>
+            <p>{selectedEvent.location}</p>
             <p>{selectedEvent.description}</p>
             <p><strong>RSVP Count:</strong> {selectedEvent.rsvpCount}</p>
           </Modal.Body>
