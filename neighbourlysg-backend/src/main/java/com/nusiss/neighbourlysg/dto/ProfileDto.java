@@ -15,6 +15,7 @@ public class ProfileDto {
     private String email;
     private String password;
     private String constituency;
+	private Boolean isAdmin = false;
     
 	public Long getId() {
 		return id;
@@ -46,6 +47,11 @@ public class ProfileDto {
 	public void setConstituency(String constituency) {
 		this.constituency = constituency;
 	}
-	
+	public Boolean getIsAdmin() {
+		return isAdmin;
+	}
+	public void setIsAdmin(Boolean isAdmin) {
+		this.isAdmin = isAdmin;
+	}
 
 }

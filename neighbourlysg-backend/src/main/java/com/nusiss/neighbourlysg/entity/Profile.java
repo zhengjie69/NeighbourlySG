@@ -30,6 +30,9 @@ public class Profile {
     @Column(name = "constituency")
     private String constituency;
 
+	@Column(name = "isAdmin")
+	private Boolean isAdmin;
+
 
 	public Long getId() {
 		return id;
@@ -80,6 +83,13 @@ public class Profile {
 		this.constituency = constituency;
 	}
 
-    
-    
+
+	public Boolean getIsAdmin() {
+		return isAdmin;
+	}
+
+
+	public void setIsAdmin(Boolean isAdmin) {
+		this.isAdmin = isAdmin;
+	}
 }
