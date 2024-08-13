@@ -58,10 +58,10 @@ function RegisterPage() {
 
     try {
       const response = await axios.post('http://localhost:8080/api/ProfileService/register', {
-        name,
-        email,
-        password,
-        selectedConstituency,
+        name: name,
+        email: email,
+        password: password,
+        constituency: selectedConstituency,
       });
 
       // Handle success response
