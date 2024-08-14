@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useNavigate } from 'react-router-dom';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 import axios from 'axios'; // Import axios for making HTTP requests
 
@@ -58,6 +59,8 @@ function ResidentLogin() {
               className="form-control" 
               id="email" 
               placeholder="Enter your email" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               style={{ height: '45px', fontSize: '1rem', borderRadius: '8px' }} 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -70,6 +73,8 @@ function ResidentLogin() {
               className="form-control" 
               id="password" 
               placeholder="Enter your password" 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               style={{ height: '45px', fontSize: '1rem', borderRadius: '8px' }} 
               value={password}
               onChange={(e) => setPassword(e.target.value)}
