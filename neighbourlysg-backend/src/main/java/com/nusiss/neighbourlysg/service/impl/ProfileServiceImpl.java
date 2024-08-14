@@ -2,6 +2,7 @@ package com.nusiss.neighbourlysg.service.impl;
 
 import java.util.Optional;
 
+import com.nusiss.neighbourlysg.exception.ProfileNotFoundException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +43,33 @@ public class ProfileServiceImpl implements ProfileService {
 
         return profileMapper.toDto(savedProfile);
     }
+
+    @Override
+    public ProfileDto updateProfile(Long id, ProfileDto profileDto) {
+        Profile existingProfile = profileRepository.findById(id)
+                .orElseThrow(() -> new ProfileNotFoundException("Profile not found with id: " + id));
+
+        // Update fields only if they are present in the DTO
+        if (profileDto.getName() != null) {
+            existingProfile.setName(profileDto.getName());
+        }
+        if (profileDto.getEmail() != null) {
+            existingProfile.setEmail(profileDto.getEmail());
+        }
+        if (profileDto.getConstituency() != null) {
+            existingProfile.setConstituency(profileDto.getConstituency());
+        }
+        if (profileDto.getPassword() != null && !profileDto.getPassword().isEmpty()) {
+            existingProfile.setPassword(profileDto.getPassword());
+        }
+
+        // Save the updated profile
+        Profile updatedProfile = profileRepository.save(existingProfile);
+
+        return profileMapper.toDto(updatedProfile);
+    }
+
+
     
     @Override
     public ProfileDto login(LoginRequestDTO loginRequestDTO) {
