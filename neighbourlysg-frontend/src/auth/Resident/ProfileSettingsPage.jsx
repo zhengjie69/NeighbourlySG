@@ -5,6 +5,7 @@ import { Tab, Tabs, Form, Button, Alert, Modal } from 'react-bootstrap';
 import { Link } from 'react-router-dom'; // Import Link from react-router-dom
 import SGLogo from '../../assets/SGLogo.avif'; // Import the Singapore logo
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
+import axios from 'axios'; // Import axios for making HTTP requests
 
 const grcSmcOptions = [
   'Aljunied GRC', 'Ang Mo Kio GRC', 'Bishan-Toa Payoh GRC', 'Chua Chu Kang GRC',
@@ -62,17 +63,34 @@ function ProfileSettingsPage() {
     return errors;
   };
 
-  const handleProfileUpdate = (e) => {
+  const handleProfileUpdate = async (e) => {
     e.preventDefault();
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       setSuccessMessage('');
     } else {
-      setErrors({});
-      setSuccessMessage('Profile updated successfully!');
+      // setErrors({});
+      // setSuccessMessage('Profile updated successfully!');
       // Handle profile update logic here
-      console.log('Profile updated:', { name, email, oldPassword, newPassword, constituency });
+      // console.log('Profile updated:', { name, email, oldPassword, newPassword, constituency });
+      if(Object.keys(errors).length === 0){
+        try {
+          const response = await axios.put('http://localhost:8080/api/ProfileService/updateProfile/1', {
+            name,
+            email,
+            password: newPassword,
+            isAdmin: null,
+            constituency,
+          });
+          setSuccessMessage('Profile updated successfully!');
+          console.log('Profile updated:', response.data);
+        } catch (error) {
+          setErrors('Failed to update profile. Please try again later.');
+        }
+      } else {
+          setErrors('Failed to update profile. Please try again later.');
+      }
     }
   };
 
