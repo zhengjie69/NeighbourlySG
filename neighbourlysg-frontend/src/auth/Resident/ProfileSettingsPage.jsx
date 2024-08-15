@@ -91,6 +91,10 @@ function ProfileSettingsPage() {
       } else {
           setErrors('Failed to update profile. Please try again later.');
       }
+      setErrors({});
+      setSuccessMessage('Profile updated successfully!');
+      // Handle profile update logic here
+      console.log('Profile updated:', { name, email, oldPassword, newPassword, constituency });
     }
   };
 
@@ -121,7 +125,7 @@ function ProfileSettingsPage() {
       {/* Navigation Bar */}
       <nav className="navbar navbar-expand-lg navbar-light bg-light" style={{ zIndex: 2, padding: '10px 20px', width: '100%' }}>
         <div className="container-fluid">
-          <Link className="navbar-brand" to="/">
+          <Link className="navbar-brand" to="/ResidentMainPage">
             <img src={SGLogo} alt="SG Logo" style={{ marginRight: '10px', width: '50px', height: '35px' }} />
             NeighbourlySG
           </Link>
@@ -140,7 +144,7 @@ function ProfileSettingsPage() {
                 <Link className="nav-link" to="/posts">Community Posts</Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to="/profile">Profile</Link>
+                <Link className="nav-link" to="/ProfileSettings">Profile</Link>
               </li>
               <li className="nav-item dropdown">
                 <ul className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">

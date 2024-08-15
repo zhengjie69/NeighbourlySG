@@ -1,8 +1,10 @@
 // eslint-disable-next-line no-unused-vars
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 import axios from 'axios'; // Import axios
+import { Modal, Button } from 'react-bootstrap';
+import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 
 function RegisterPage() {
   const [name, setName] = useState('');
@@ -13,6 +15,9 @@ function RegisterPage() {
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState(''); // State for success or error message
   const [isError, setIsError] = useState(false); // New state to track error vs success
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  const navigate = useNavigate(); // Initialize useNavigate hook
 
   const grcSmcOptions = [
     'Aljunied GRC', 'Ang Mo Kio GRC', 'Bishan-Toa Payoh GRC', 'Chua Chu Kang GRC',
@@ -48,6 +53,7 @@ function RegisterPage() {
 
     return errors;
   };
+
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -86,6 +92,17 @@ function RegisterPage() {
   }
   };
 
+  useEffect(() => {
+    if (showSuccessModal) {
+      const timer = setTimeout(() => {
+        setShowSuccessModal(false);
+        navigate('/ResidentMainPage'); // Redirect to ResidentMainPage after 3 seconds
+      }, 3000); // 3 seconds
+
+      return () => clearTimeout(timer); // Cleanup timer if component unmounts
+    }
+  }, [showSuccessModal, navigate]);
+
   return (
     <div 
       className="d-flex justify-content-center align-items-center vh-100" 
@@ -104,7 +121,6 @@ function RegisterPage() {
           <p style={{ fontSize: '1rem', color: '#6c757d', marginBottom: '30px' }}>
             Join our community and get started!
           </p>
-          
         </div>
         <form onSubmit={handleRegister}>
           <div className="mb-3">
@@ -183,13 +199,27 @@ function RegisterPage() {
                     <div className={`alert ${isError ? 'alert-danger' : 'alert-success'} mt-4`} role="alert">
                         {message}
                     </div>
-                )}
+        )}
         <div className="mt-4 text-center">
           <a href="/ResidentLogin" className="text-primary" style={{ fontSize: '0.9rem', textDecoration: 'none', transition: 'color 0.3s ease' }}>
             Already have an account? <span style={{ fontWeight: 'bold' }}>Login here</span>
           </a>
         </div>
       </div>
+      {/* Success Modal */}
+      <Modal show={showSuccessModal} onHide={() => setShowSuccessModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Success</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Your account has been created successfully! Redirecting to the main page...
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={() => navigate('/ResidentMainPage')}>
+            Go to Main Page Now
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }

@@ -1,42 +1,39 @@
+// eslint-disable-next-line no-unused-vars
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
-import axios from 'axios'; // Import axios for making HTTP requests
 
 function ResidentLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false); 
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:8080/login', { email, password });
       // Handle successful login
       setMessage('Login successful!');
       setIsError(false); // Clear error state
-      setErrors({});
       // Redirect to home or dashboard
-      //window.location.href = '/home';
+      navigate('/home');
     } catch (error) {
-      console.error('Registration error:', error); 
-      console.error('Registration error msg:', error.response.data.errorDetails); 
-      
+      console.error('Login error:', error); 
       if (error.response && error.response.data && error.response.data.errorDetails) {
           setMessage(error.response.data.errorDetails); // Display the backend error message
       } else {
         setMessage('Login failed. Please try again.'); // Fallback message
       }
       setIsError(true); // Set error state
+    }
   }
-  };
 
   return (
     <div 
-      className="d-flex justify-content-center align-items-center vh-100" 
+      className="d-flex justify-content-center align-items-center flex-column vh-100" 
       style={{ 
         backgroundImage: `url(${neighbourlySGbackground})`, 
         backgroundSize: 'cover', 
@@ -84,10 +81,10 @@ function ResidentLogin() {
             Login
           </button>
           {message && (
-                    <div className={`alert ${isError ? 'alert-danger' : 'alert-success'} mt-4`} role="alert">
-                        {message}
-                    </div>
-                )}
+            <div className={`alert ${isError ? 'alert-danger' : 'alert-success'} mt-4`} role="alert">
+              {message}
+            </div>
+          )}
         </form>
         <div className="mt-4 text-center">
           <a href="/forgot-password" className="text-primary" style={{ fontSize: '0.9rem', textDecoration: 'none' }}>Forgot Password?</a>
