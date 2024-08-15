@@ -1,24 +1,37 @@
-// eslint-disable-next-line no-unused-vars
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
+import axios from 'axios'; // Import axios for making HTTP requests
 
 function ResidentLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [warning, setWarning] = useState('');
-  const navigate = useNavigate();
+  const [message, setMessage] = useState('');
+  const [isError, setIsError] = useState(false); 
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Dummy login validation for demonstration
-    if (email === 'user@example.com' && password === 'password123') {
-      // Navigate to ResidentMainPage on successful login
-      navigate('/ResidentMainPage');
-    } else {
-      setWarning('Invalid email or password');
-    }
+
+    try {
+      const response = await axios.post('http://localhost:8080/login', { email, password });
+      // Handle successful login
+      setMessage('Login successful!');
+      setIsError(false); // Clear error state
+      setErrors({});
+      // Redirect to home or dashboard
+      //window.location.href = '/home';
+    } catch (error) {
+      console.error('Registration error:', error); 
+      console.error('Registration error msg:', error.response.data.errorDetails); 
+      
+      if (error.response && error.response.data && error.response.data.errorDetails) {
+          setMessage(error.response.data.errorDetails); // Display the backend error message
+      } else {
+        setMessage('Login failed. Please try again.'); // Fallback message
+      }
+      setIsError(true); // Set error state
+  }
   };
 
   return (
@@ -38,7 +51,6 @@ function ResidentLogin() {
             Access community surveys, events, and more by logging in.
           </p>
         </div>
-        {warning && <div className="alert alert-danger" role="alert">{warning}</div>}
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label htmlFor="email" className="form-label" style={{ fontSize: '1rem', color: '#495057' }}>Email Address</label>
@@ -50,6 +62,8 @@ function ResidentLogin() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               style={{ height: '45px', fontSize: '1rem', borderRadius: '8px' }} 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <div className="mb-4">
@@ -62,11 +76,18 @@ function ResidentLogin() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               style={{ height: '45px', fontSize: '1rem', borderRadius: '8px' }} 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
           <button type="submit" className="btn btn-primary w-100" style={{ height: '50px', fontSize: '1rem', borderRadius: '8px' }}>
             Login
           </button>
+          {message && (
+                    <div className={`alert ${isError ? 'alert-danger' : 'alert-success'} mt-4`} role="alert">
+                        {message}
+                    </div>
+                )}
         </form>
         <div className="mt-4 text-center">
           <a href="/forgot-password" className="text-primary" style={{ fontSize: '0.9rem', textDecoration: 'none' }}>Forgot Password?</a>
