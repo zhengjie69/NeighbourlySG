@@ -6,16 +6,16 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Java CI with Maven
+name: Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "feature/ci-cd" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "feature/ci-cd" ]
 
 jobs:
-  build:
+  BuildBackEnd:
     runs-on: ubuntu-latest
     
     services:
@@ -42,12 +42,43 @@ jobs:
         java-version: '22'
         distribution: 'temurin'
         cache: maven
+    - name: Set execute permission for Maven Wrapper
+      run: 
+        chmod +x neighbourlysg-backend/mvnw
     - name: Build with Maven
       run: 
-        mvn -B package --file neighbourlysg-backend/pom.xml
+        ./neighbourlysg-backend/mvnw -B package --file neighbourlysg-backend/pom.xml
 
-  sonar:
-    needs: build
+  BuildFrontEnd:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.5.1'
+
+    - name: Change directory to frontend
+      run: cd /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend
+
+    - name: Install dependencies
+      run: npm --prefix /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend install
+
+    - name: Build Project
+      run: npm --prefix /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend run build
+
+    - name: List build directory
+      run: ls -R /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend/dist
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GIT_HUB_TOKEN }}
+        publish_dir: /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend/dist  # Ensure this matches your build output directory
+        publish_branch: gh-pages
+    
+  SonarCloud:
+    needs: [BuildBackEnd, BuildFrontEnd]
     runs-on: ubuntu-latest
 
     services:
@@ -94,3 +125,25 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GIT_HUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=zhengjie69_NeighbourlySG --file neighbourlysg-backend/pom.xml
+
+  SNYK:
+    needs: [BuildBackEnd, BuildFrontEnd]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+      - name: Set execute permission for Maven Wrapper in backend
+        run: chmod +x neighbourlysg-backend/mvnw
+      - name: Run Snyk for Maven (Java)
+        working-directory: neighbourlysg-backend
+        run: snyk test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Run Snyk for npm (Node.js)
+        working-directory: neighbourlysg-frontend
+        run: snyk test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
