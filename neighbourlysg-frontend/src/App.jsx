@@ -20,6 +20,7 @@ const App = () => {
                 <Route path="/Register" element={<RegisterPage />} />
                 <Route path="/ResidentMainPage" element={<ResidentMainPage />} />
                 <Route path="/ProfileSettings" element={<ProfileSettingsPage />} />
+                <Route path="*" element={<Navigate to="/" />} /> {/* Fallback for undefined routes */}
                 <Route path="/surveys" element={<SurveyShowcasePage />} /> {/* Route for SurveyShowcasePage */}
                 <Route path="/CreateSurveyForm" element={<CreateSurveyForm />} /> {/* Route for CreateSurveyPage */}
                 <Route path="/events" element={<EventShowcasePage />} /> {/* Route for ResidentEventPage */}

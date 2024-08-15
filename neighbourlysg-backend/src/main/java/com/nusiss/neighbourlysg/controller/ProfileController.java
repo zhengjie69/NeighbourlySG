@@ -1,10 +1,14 @@
 package com.nusiss.neighbourlysg.controller;
 
 import com.nusiss.neighbourlysg.dto.ProfileDto;
+import com.nusiss.neighbourlysg.exception.ErrorResponse;
 import com.nusiss.neighbourlysg.service.ProfileService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.nusiss.neighbourlysg.exception.ProfileNotFoundException;
+
 
 import java.util.List;
 
@@ -26,6 +30,22 @@ public class ProfileController {
     public ResponseEntity<ProfileDto> createProfile(@RequestBody ProfileDto profileDto) {
         ProfileDto profile = profileService.createProfile(profileDto);
         return ResponseEntity.ok(profile);
+    }
+
+    @PutMapping("/updateProfile/{id}")
+    public ResponseEntity<ProfileDto> updateProfile(
+            @PathVariable("id") Long id,
+            @RequestBody ProfileDto updatedProfile) {
+
+        try {
+            ProfileDto profileDto = profileService.updateProfile(id, updatedProfile);
+            return ResponseEntity.ok(profileDto);
+        } catch (ProfileNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            // Handle other exceptions as needed
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
     
 
