@@ -1,39 +1,44 @@
-// eslint-disable-next-line no-unused-vars
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useNavigate } from 'react-router-dom';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
+import { Link } from 'react-router-dom';
+import axios from 'axios'; // Import axios for making HTTP requests
 
 function ResidentLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false); 
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    
     try {
-      // Handle successful login
-      setMessage('Login successful!');
-      setIsError(false); // Clear error state
-      // Redirect to home or dashboard
-      navigate('/home');
+      const response = await axios.post('http://localhost:8080/login', { email, password });
+      if(response.status === 200){
+        // Handle successful login
+        setMessage('Login successful!');
+        setIsError(false); // Clear error state
+        setErrors({});
+        // Redirect to home or dashboard
+        //window.location.href = '/home';
+      }
     } catch (error) {
-      console.error('Login error:', error); 
+      console.error('Registration error:', error); 
+      console.error('Registration error msg:', error.response.data.errorDetails); 
+      
       if (error.response && error.response.data && error.response.data.errorDetails) {
           setMessage(error.response.data.errorDetails); // Display the backend error message
       } else {
         setMessage('Login failed. Please try again.'); // Fallback message
       }
       setIsError(true); // Set error state
-    }
   }
+  };
 
   return (
     <div 
-      className="d-flex justify-content-center align-items-center flex-column vh-100" 
+      className="d-flex justify-content-center align-items-center vh-100" 
       style={{ 
         backgroundImage: `url(${neighbourlySGbackground})`, 
         backgroundSize: 'cover', 
@@ -59,8 +64,6 @@ function ResidentLogin() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               style={{ height: '45px', fontSize: '1rem', borderRadius: '8px' }} 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <div className="mb-4">
@@ -73,26 +76,24 @@ function ResidentLogin() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               style={{ height: '45px', fontSize: '1rem', borderRadius: '8px' }} 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
           <button type="submit" className="btn btn-primary w-100" style={{ height: '50px', fontSize: '1rem', borderRadius: '8px' }}>
             Login
           </button>
           {message && (
-            <div className={`alert ${isError ? 'alert-danger' : 'alert-success'} mt-4`} role="alert">
-              {message}
-            </div>
-          )}
+                    <div className={`alert ${isError ? 'alert-danger' : 'alert-success'} mt-4`} role="alert">
+                        {message}
+                    </div>
+                )}
         </form>
         <div className="mt-4 text-center">
           <a href="/forgot-password" className="text-primary" style={{ fontSize: '0.9rem', textDecoration: 'none' }}>Forgot Password?</a>
         </div>
         <div className="mt-3 text-center">
-          <a href="/register" className="text-primary" style={{ fontSize: '0.9rem', textDecoration: 'none' }}>
+          <Link to="/register" className="text-primary" style={{ fontSize: '0.9rem', textDecoration: 'none' }}>
             Don&apos;t have an account? <span style={{ fontWeight: 'bold' }}>Register here</span>
-          </a>
+          </Link>
         </div>
       </div>
     </div>

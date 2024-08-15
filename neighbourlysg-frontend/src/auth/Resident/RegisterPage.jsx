@@ -5,6 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios'; // Import axios
 import { Modal, Button } from 'react-bootstrap';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
+import { Link } from 'react-router-dom';
 
 function RegisterPage() {
   const [name, setName] = useState('');
@@ -201,9 +202,9 @@ function RegisterPage() {
                     </div>
         )}
         <div className="mt-4 text-center">
-          <a href="/ResidentLogin" className="text-primary" style={{ fontSize: '0.9rem', textDecoration: 'none', transition: 'color 0.3s ease' }}>
+          <Link to="/ResidentLogin" className="text-primary" style={{ fontSize: '0.9rem', textDecoration: 'none', transition: 'color 0.3s ease' }}>
             Already have an account? <span style={{ fontWeight: 'bold' }}>Login here</span>
-          </a>
+          </Link>
         </div>
       </div>
       {/* Success Modal */}
