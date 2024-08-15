@@ -1,7 +1,38 @@
+import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
+import axios from 'axios'; // Import axios for making HTTP requests
 
 function ResidentLogin() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
+  const [isError, setIsError] = useState(false); 
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await axios.post('http://localhost:8080/login', { email, password });
+      // Handle successful login
+      setMessage('Login successful!');
+      setIsError(false); // Clear error state
+      setErrors({});
+      // Redirect to home or dashboard
+      //window.location.href = '/home';
+    } catch (error) {
+      console.error('Registration error:', error); 
+      console.error('Registration error msg:', error.response.data.errorDetails); 
+      
+      if (error.response && error.response.data && error.response.data.errorDetails) {
+          setMessage(error.response.data.errorDetails); // Display the backend error message
+      } else {
+        setMessage('Login failed. Please try again.'); // Fallback message
+      }
+      setIsError(true); // Set error state
+  }
+  };
+
   return (
     <div 
       className="d-flex justify-content-center align-items-center vh-100" 
@@ -19,7 +50,7 @@ function ResidentLogin() {
             Access community surveys, events, and more by logging in.
           </p>
         </div>
-        <form>
+        <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label htmlFor="email" className="form-label" style={{ fontSize: '1rem', color: '#495057' }}>Email Address</label>
             <input 
@@ -28,6 +59,8 @@ function ResidentLogin() {
               id="email" 
               placeholder="Enter your email" 
               style={{ height: '45px', fontSize: '1rem', borderRadius: '8px' }} 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <div className="mb-4">
@@ -38,11 +71,18 @@ function ResidentLogin() {
               id="password" 
               placeholder="Enter your password" 
               style={{ height: '45px', fontSize: '1rem', borderRadius: '8px' }} 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
           <button type="submit" className="btn btn-primary w-100" style={{ height: '50px', fontSize: '1rem', borderRadius: '8px' }}>
             Login
           </button>
+          {message && (
+                    <div className={`alert ${isError ? 'alert-danger' : 'alert-success'} mt-4`} role="alert">
+                        {message}
+                    </div>
+                )}
         </form>
         <div className="mt-4 text-center">
           <a href="/forgot-password" className="text-primary" style={{ fontSize: '0.9rem', textDecoration: 'none' }}>Forgot Password?</a>
