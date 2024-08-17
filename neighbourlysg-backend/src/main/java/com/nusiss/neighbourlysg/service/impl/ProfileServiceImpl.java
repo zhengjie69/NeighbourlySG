@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.nusiss.neighbourlysg.dto.RoleAssignmentDto;
 import com.nusiss.neighbourlysg.dto.RoleDto;
@@ -115,7 +116,14 @@ public class ProfileServiceImpl implements ProfileService {
         
         return profileMapper.toDto(profileOp.get());
 
-        
+    }
+
+    @Override
+    public List<ProfileDto> getAllProfiles() {
+        List<Profile> profiles = profileRepository.findAll(); // Fetch all profiles from the repository
+        return profiles.stream()
+                .map(profileMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     @Override

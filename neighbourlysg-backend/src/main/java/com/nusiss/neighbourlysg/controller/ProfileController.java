@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import com.nusiss.neighbourlysg.exception.ProfileNotFoundException;
 
 import javax.management.relation.RoleNotFoundException;
+import java.util.List;
 
 
 @RestController
@@ -22,6 +23,13 @@ public class ProfileController {
     public ProfileController(ProfileService profileService) {
     	this.profileService=profileService;
     	
+    }
+
+    //Get All Profiles/Users
+    @GetMapping("/profiles")
+    public ResponseEntity<List<ProfileDto>> getAllProfiles() {
+        List<ProfileDto> profiles = profileService.getAllProfiles();
+        return ResponseEntity.ok(profiles); // Return the list of profiles with 200 OK status
     }
 
     //Create Profile REST API

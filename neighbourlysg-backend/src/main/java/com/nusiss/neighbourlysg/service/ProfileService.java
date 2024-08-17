@@ -6,11 +6,14 @@ import com.nusiss.neighbourlysg.dto.RoleAssignmentDto;
 import com.nusiss.neighbourlysg.exception.ProfileNotFoundException;
 
 import javax.management.relation.RoleNotFoundException;
+import java.util.List;
 
 public interface ProfileService {
     ProfileDto createProfile(ProfileDto profileDto) throws RoleNotFoundException;
 
     ProfileDto login(LoginRequestDTO loginRequestDTO);
+
+    List<ProfileDto> getAllProfiles();
 
     ProfileDto updateProfile(Long id, ProfileDto profileDto) throws RoleNotFoundException;
 
