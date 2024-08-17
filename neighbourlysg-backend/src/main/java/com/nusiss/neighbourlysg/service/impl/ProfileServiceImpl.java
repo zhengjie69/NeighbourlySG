@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.nusiss.neighbourlysg.dto.RoleAssignmentDto;
+import com.nusiss.neighbourlysg.dto.RoleDto;
 import com.nusiss.neighbourlysg.entity.Role;
 import com.nusiss.neighbourlysg.exception.ProfileNotFoundException;
 import com.nusiss.neighbourlysg.repository.RoleRepository;
@@ -96,8 +98,6 @@ public class ProfileServiceImpl implements ProfileService {
         return profileMapper.toDto(updatedProfile);
     }
 
-
-    
     @Override
     public ProfileDto login(LoginRequestDTO loginRequestDTO) {
     	// Check if user with email, check password
@@ -116,6 +116,27 @@ public class ProfileServiceImpl implements ProfileService {
         return profileMapper.toDto(profileOp.get());
 
         
+    }
+
+    @Override
+    @Transactional
+    public ProfileDto assignRoleToUser(RoleAssignmentDto roleAssignmentDto) throws RoleNotFoundException, ProfileNotFoundException {
+        Profile profile = profileRepository.findById(roleAssignmentDto.getUserId())
+                .orElseThrow(() -> new ProfileNotFoundException("Profile not found with id: " + roleAssignmentDto.getUserId()));
+
+        Role role = roleRepository.findById(roleAssignmentDto.getRoleId())
+                .orElseThrow(() -> new RoleNotFoundException("Role not found with id: " + roleAssignmentDto.getRoleId()));
+
+        // Check if the profile already has the role
+        if (profile.getRoles().contains(role)) {
+            throw new RuntimeException("User already has this role");
+        }
+
+        // Add the new role to the profile
+        profile.getRoles().add(role);
+        Profile updatedProfile = profileRepository.save(profile);
+
+        return profileMapper.toDto(updatedProfile);
     }
 
     private List<Role> findRoleByIds(List<Integer> roleIds) throws RoleNotFoundException {

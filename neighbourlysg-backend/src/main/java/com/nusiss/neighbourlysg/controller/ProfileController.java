@@ -1,6 +1,7 @@
 package com.nusiss.neighbourlysg.controller;
 
 import com.nusiss.neighbourlysg.dto.ProfileDto;
+import com.nusiss.neighbourlysg.dto.RoleAssignmentDto;
 import com.nusiss.neighbourlysg.service.ProfileService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,6 +49,19 @@ public class ProfileController {
         } catch (Exception e) {
             // Handle other exceptions as needed
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @PostMapping("/assign-role")
+    public ResponseEntity<ProfileDto> assignRoleToUser(@RequestBody RoleAssignmentDto roleAssignmentDto) {
+        try {
+            ProfileDto updatedProfile = profileService.assignRoleToUser(roleAssignmentDto);
+            return ResponseEntity.ok(updatedProfile);
+        } catch (RoleNotFoundException | ProfileNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        } catch (RuntimeException e) {
+            // Handle specific exception for already existing role
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
     

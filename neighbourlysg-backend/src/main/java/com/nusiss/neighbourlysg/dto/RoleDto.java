@@ -9,7 +9,7 @@ public class RoleDto {
     private int id;
     private String name;
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
