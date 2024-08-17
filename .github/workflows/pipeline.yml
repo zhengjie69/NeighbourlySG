@@ -65,7 +65,7 @@ jobs:
       run: npm --prefix /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend install
 
     - name: Build Project
-      run: npm --prefix /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend run dev
+      run: npm --prefix /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend run build
 
     - name: List build directory
       run: ls -R /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend/dist
