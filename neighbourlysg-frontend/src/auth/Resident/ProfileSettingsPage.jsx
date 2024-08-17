@@ -80,7 +80,6 @@ function ProfileSettingsPage() {
             name,
             email,
             password: newPassword,
-            isAdmin: null,
             constituency,
           });
           setSuccessMessage('Profile updated successfully!');

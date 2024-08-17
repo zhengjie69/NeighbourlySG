@@ -1,16 +1,14 @@
 package com.nusiss.neighbourlysg.controller;
 
 import com.nusiss.neighbourlysg.dto.ProfileDto;
-import com.nusiss.neighbourlysg.exception.ErrorResponse;
 import com.nusiss.neighbourlysg.service.ProfileService;
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.nusiss.neighbourlysg.exception.ProfileNotFoundException;
 
+import javax.management.relation.RoleNotFoundException;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/ProfileService")
@@ -27,9 +25,14 @@ public class ProfileController {
 
     //Create Profile REST API
     @PostMapping("/register")
-    public ResponseEntity<ProfileDto> createProfile(@RequestBody ProfileDto profileDto) {
-        ProfileDto profile = profileService.createProfile(profileDto);
-        return ResponseEntity.ok(profile);
+    public ResponseEntity<?> createProfile(@RequestBody ProfileDto profileDto) {
+        try {
+            ProfileDto profile = profileService.createProfile(profileDto);
+            return ResponseEntity.ok(profile);
+        } catch (RoleNotFoundException e) {
+            // Return a response with a 400 Bad Request status and error message
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Role not found: " + e.getMessage());
+        }
     }
 
     @PutMapping("/updateProfile/{id}")
