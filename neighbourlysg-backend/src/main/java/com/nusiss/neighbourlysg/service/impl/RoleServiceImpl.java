@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.management.relation.RoleNotFoundException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class RoleServiceImpl implements RoleService {
@@ -39,15 +40,18 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    public List<RoleDto> getAllRoles() {
+        List<Role> roles = roleRepository.findAll(); // Fetch all roles from the repository
+        return roles.stream()
+                .map(roleMapper::toDto) // Convert each Role to RoleDto using the mapper
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public RoleDto getRoleById(Integer id) throws RoleNotFoundException {
         Role role = roleRepository.findById(id)
                 .orElseThrow(() -> new RoleNotFoundException("Role not found with id: " + id));
         return roleMapper.toDto(role);
-    }
-
-    @Override
-    public List<RoleDto> getAllRoles() {
-        return List.of();
     }
 
     @Override
