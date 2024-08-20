@@ -3,21 +3,22 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 import SGLogo from '../../assets/SGLogo.avif';
 import { Link } from 'react-router-dom';
-import axios from 'axios'; 
+import axios from 'axios';
 
 const ManageUsers = () => {
   const [profiles, setProfiles] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProfileId, setSelectedProfileId] = useState(null);
 
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
         const response = await axios.get('http://localhost:8080/api/ProfileService/profiles');
-        
         if (response.status === 200) {
           setProfiles(response.data);
         }
       } catch (error) {
-        console.error(error); 
+        console.error(error);
       }
     };
 
@@ -25,25 +26,27 @@ const ManageUsers = () => {
   }, []);
 
   const editRole = (profileId) => {
-    // setSelectedProfileId(profileId);
-    // const modal = new window.bootstrap.Modal(document.getElementById('editRoleModal'));
-    // modal.show();
+    setSelectedProfileId(profileId);
+    setIsModalOpen(true);
+    console.log("Button clicked for profile ID:", profileId);
+  };
 
+  const closeModal = () => {
+    setIsModalOpen(false);
   };
 
   return (
-    <div 
-      className="d-flex flex-column align-items-center vh-100" 
-      style={{ 
-        backgroundImage: `url(${neighbourlySGbackground})`, 
-        backgroundSize: 'cover', 
+    <div
+      className="d-flex flex-column align-items-center vh-100"
+      style={{
+        backgroundImage: `url(${neighbourlySGbackground})`,
+        backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
         backdropFilter: 'blur(5px)',
       }}
     >
-
       {/* Navigation Bar */}
       <nav className="navbar navbar-expand-lg navbar-light bg-light" style={{ zIndex: 2, padding: '10px 20px', width: '100%' }}>
         <div className="container-fluid">
@@ -93,32 +96,84 @@ const ManageUsers = () => {
         </div>
 
         <div className="table-responsive bg-white bg-opacity-80 p-2 rounded shadow">
-          <table className="table table-hover ">
+          <table className="table table-hover">
             <thead className="table-dark">
               <tr>
                 <th scope="col">ID</th>
                 <th scope="col">Name</th>
                 <th scope="col">Email</th>
                 <th scope="col">Constituency</th>
-                <th Scope = "col"></th>
+                <th scope="col"></th>
               </tr>
             </thead>
             <tbody>
-              {profiles.map((profile, index) => (
-                <tr key={index}>
-                    <th scope="row">{profile.id}</th>
-                    <td>{profile.name}</td>
-                    <td>{profile.email}</td>
-                    <td>{profile.constituency}</td>
-                    <td style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <button type="button" className="btn btn-primary" onClick={editRole(profile.id)}>Edit Role</button>
-                    </td>
+              {profiles.map((profile) => (
+                <tr key={profile.id}>
+                  <th scope="row">{profile.id}</th>
+                  <td>{profile.name}</td>
+                  <td>{profile.email}</td>
+                  <td>{profile.constituency}</td>
+                  <td style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={() => editRole(profile.id)}
+                    >
+                      Edit Role
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </div>
+
+      {isModalOpen && (
+        <div
+          className="modal fade show"
+          style={{
+            display: 'block',
+            position: 'fixed',
+            top: '0',
+            left: '0',
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            zIndex: '1050',
+          }}
+          tabIndex="-1"
+          aria-labelledby="editRoleModalLabel"
+          aria-hidden="true"
+        >
+          <div
+            className="modal-dialog"
+            style={{
+              margin: '10% auto',
+              width: '80%',
+            }}
+          >
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title" id="editRoleModalLabel">Edit Role</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={closeModal}
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div className="modal-body">
+                <p>Assigning of role here</p>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={closeModal}>Close</button>
+                <button type="button" className="btn btn-primary">Save changes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
