@@ -10,9 +10,9 @@ name: Pipeline
 
 on:
   push:
-    branches: [ "main", "feature/*" ]
+    branches: [ "main", "feature/*", "Event" ]
   pull_request:
-    branches: [ "main", "feature/*" ]
+    branches: [ "main", "feature/*", "Event" ]
 
 jobs:
   BuildBackEnd:
