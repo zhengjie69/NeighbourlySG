@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,8 +17,8 @@ public class ProfileDto {
     private String email;
     private String password;
     private String constituency;
-	private Boolean isAdmin = false;
-    
+	private List<Integer> roles;
+
 	public Long getId() {
 		return id;
 	}
@@ -47,11 +49,12 @@ public class ProfileDto {
 	public void setConstituency(String constituency) {
 		this.constituency = constituency;
 	}
-	public Boolean getIsAdmin() {
-		return isAdmin;
-	}
-	public void setIsAdmin(Boolean isAdmin) {
-		this.isAdmin = isAdmin;
+
+	public List<Integer> getRoles() {
+		return roles;
 	}
 
+	public void setRoles(List<Integer> roles) {
+		this.roles = roles;
+	}
 }

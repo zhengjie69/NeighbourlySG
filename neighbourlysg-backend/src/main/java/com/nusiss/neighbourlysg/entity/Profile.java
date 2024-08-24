@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,14 +28,14 @@ public class Profile {
     
     @Column(name = "password")
     private String password;
-    
-    
+
     @Column(name = "constituency")
     private String constituency;
 
-	@Column(name = "isAdmin")
-	private Boolean isAdmin;
-
+	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+			inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+	private List<Role> roles = new ArrayList<>();
 
 	public Long getId() {
 		return id;
@@ -83,13 +86,11 @@ public class Profile {
 		this.constituency = constituency;
 	}
 
-
-	public Boolean getIsAdmin() {
-		return isAdmin;
+	public List<Role> getRoles() {
+		return roles;
 	}
 
-
-	public void setIsAdmin(Boolean isAdmin) {
-		this.isAdmin = isAdmin;
+	public void setRoles(List<Role> roles) {
+		this.roles = roles;
 	}
 }
