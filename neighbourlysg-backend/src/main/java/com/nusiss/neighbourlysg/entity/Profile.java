@@ -37,10 +37,12 @@ public class Profile {
 			inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
 	private List<Role> roles = new ArrayList<>();
 
+	@OneToMany(mappedBy = "profile")
+	private List<Event> events;
+
 	public Long getId() {
 		return id;
 	}
-
 
 	public void setId(Long id) {
 		this.id = id;
@@ -93,4 +95,5 @@ public class Profile {
 	public void setRoles(List<Role> roles) {
 		this.roles = roles;
 	}
+
 }
