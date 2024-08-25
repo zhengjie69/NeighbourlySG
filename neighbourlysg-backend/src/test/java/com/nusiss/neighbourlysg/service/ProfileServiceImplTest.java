@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 import com.nusiss.neighbourlysg.NeighbourlysgBackendApplication;
@@ -15,6 +16,7 @@ import com.nusiss.neighbourlysg.controller.ProfileController;
 import com.nusiss.neighbourlysg.dto.LoginRequestDTO;
 import com.nusiss.neighbourlysg.exception.PasswordWrongException;
 import com.nusiss.neighbourlysg.exception.UserNotExistedException;
+import com.nusiss.neighbourlysg.repository.RoleRepository;
 import com.nusiss.neighbourlysg.util.MasterDTOTestUtil;
 import com.nusiss.neighbourlysg.util.MasterEntityTestUtil;
 import com.nusiss.neighbourlysg.util.TestUtil;
@@ -38,6 +40,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import javax.management.relation.RoleNotFoundException;
+
 @SpringBootTest(classes = NeighbourlysgBackendApplication.class)
 class ProfileServiceImplTest {
 
@@ -45,6 +49,8 @@ class ProfileServiceImplTest {
 	ProfileRepository profileRepository;
 	@Autowired
 	ProfileMapper profileMapper;
+	@Mock
+	RoleRepository roleRepository;
 
 	private ProfileService profileService;
 	
@@ -52,12 +58,13 @@ class ProfileServiceImplTest {
 	@BeforeEach
 	void setup() {
 		MockitoAnnotations.initMocks(this);
-		profileService = new ProfileServiceImpl(profileRepository, profileMapper);
+		profileService = new ProfileServiceImpl(profileRepository, profileMapper,roleRepository);
 	}
 	
 	@Test
-	void createProfileSuccess() {
+	void createProfileSuccess() throws RoleNotFoundException {
 		Mockito.when(profileRepository.findByEmail(Mockito.any())).thenReturn(Optional.empty());
+		Mockito.when(roleRepository.findById(Mockito.any())).thenReturn(Optional.of(MasterEntityTestUtil.createRoleEntity()));
 		Mockito.when(profileRepository.save(Mockito.any())).thenReturn(MasterEntityTestUtil.createProfileEntity());
 		final ProfileDto dto = profileMapper.toDto(MasterEntityTestUtil.createProfileEntity());
 		ProfileDto result = profileService.createProfile(MasterDTOTestUtil.createProfileDTO());
