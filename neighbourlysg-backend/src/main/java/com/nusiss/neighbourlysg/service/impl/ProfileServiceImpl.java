@@ -111,7 +111,14 @@ public class ProfileServiceImpl implements ProfileService {
 
         return profileMapper.toDto(updatedProfile);
     }
+    @Override
+    public void deleteProfile(Long profileId) {
 
+        profileRepository.findById(profileId)
+                .orElseThrow(() -> new ProfileNotFoundException("Profile with ID " + profileId + " cannot be found"));
+
+        profileRepository.deleteById(profileId);
+    }
 
 
     @Override
@@ -131,15 +138,6 @@ public class ProfileServiceImpl implements ProfileService {
         
         return profileMapper.toDto(profileOp.get());
 
-    }
-
-    @Override
-    public void deleteProfile(Long profileId) {
-
-        Profile profile = profileRepository.findById(profileId)
-                .orElseThrow(() -> new ProfileNotFoundException("Profile with ID " + profileId + " cannot be found"));
-
-        profileRepository.deleteById(profileId);
     }
 
     @Override
