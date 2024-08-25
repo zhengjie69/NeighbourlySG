@@ -2,6 +2,9 @@ package com.nusiss.neighbourlysg.util;
 
 import com.nusiss.neighbourlysg.dto.LoginRequestDTO;
 import com.nusiss.neighbourlysg.dto.ProfileDto;
+import com.nusiss.neighbourlysg.dto.RoleDto;
+
+import java.util.Arrays;
 
 public final class MasterDTOTestUtil {
 
@@ -17,10 +20,17 @@ public final class MasterDTOTestUtil {
         profile.setConstituency("con");
         profile.setEmail("email");
         profile.setId(1L);
-        profile.setIsAdmin(true);
+        profile.setRoles(Arrays.asList(1));
         profile.setName("name");
         profile.setPassword("password");
         return profile;
+    }
+
+    public static RoleDto createRoleDTO() {
+        RoleDto roleDto = new RoleDto();
+        roleDto.setId(1);
+        roleDto.setName("USER");
+        return roleDto;
     }
 
 }
