@@ -7,12 +7,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.nusiss.neighbourlysg.dto.RoleAssignmentDto;
-import com.nusiss.neighbourlysg.dto.RoleDto;
 import com.nusiss.neighbourlysg.entity.Role;
 import com.nusiss.neighbourlysg.exception.ProfileNotFoundException;
+import com.nusiss.neighbourlysg.exception.ResourceNotFoundException;
 import com.nusiss.neighbourlysg.repository.RoleRepository;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.nusiss.neighbourlysg.dto.LoginRequestDTO;
@@ -69,6 +68,20 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
+    public ProfileDto getProfileById(Long profileId) {
+        if(profileId == null) {
+            throw new IllegalArgumentException("No Profile Id is inputted");
+        }
+        Optional<Profile> profile = profileRepository.findById(profileId);
+
+        if(profile.isPresent()) {
+            return profileMapper.toDto(profile.get());
+        }else{
+            throw new ProfileNotFoundException("Profile not found with id: " + profileId);
+        }
+    }
+
+    @Override
     public ProfileDto updateProfile(Long id, ProfileDto profileDto) throws RoleNotFoundException {
         Profile existingProfile = profileRepository.findById(id)
                 .orElseThrow(() -> new ProfileNotFoundException("Profile not found with id: " + id));
@@ -99,6 +112,8 @@ public class ProfileServiceImpl implements ProfileService {
         return profileMapper.toDto(updatedProfile);
     }
 
+
+
     @Override
     public ProfileDto login(LoginRequestDTO loginRequestDTO) {
     	// Check if user with email, check password
@@ -116,6 +131,15 @@ public class ProfileServiceImpl implements ProfileService {
         
         return profileMapper.toDto(profileOp.get());
 
+    }
+
+    @Override
+    public void deleteProfile(Long profileId) {
+
+        Profile profile = profileRepository.findById(profileId)
+                .orElseThrow(() -> new ProfileNotFoundException("Profile with ID " + profileId + " cannot be found"));
+
+        profileRepository.deleteById(profileId);
     }
 
     @Override
