@@ -44,7 +44,7 @@ public class ProfileController {
         }
     }
     //Get Profile By Id REST API
-    @GetMapping("{id}")
+    @GetMapping("/profile/{id}")
     public ResponseEntity<ProfileDto> getProfileById(@PathVariable("id") Long id) {
 
         try {
@@ -88,7 +88,7 @@ public class ProfileController {
     }
 
     //Delete Profile REST API
-    @DeleteMapping("{id}")
+    @DeleteMapping("/profile/{id}")
     public ResponseEntity<String> deleteProfile(@PathVariable("id") Long id) {
         try {
             profileService.deleteProfile(id);
