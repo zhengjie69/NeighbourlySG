@@ -43,6 +43,20 @@ public class ProfileController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Role not found: " + e.getMessage());
         }
     }
+    //Get Profile By Id REST API
+    @GetMapping("/profile/{id}")
+    public ResponseEntity<ProfileDto> getProfileById(@PathVariable("id") Long id) {
+
+        try {
+            ProfileDto retrievedProfile = profileService.getProfileById(id);
+            return ResponseEntity.ok(retrievedProfile);
+        } catch (ProfileNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            // Handle other exceptions as needed
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 
     @PutMapping("/updateProfile/{id}")
     public ResponseEntity<ProfileDto> updateProfile(
@@ -72,34 +86,18 @@ public class ProfileController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
-    
 
-//    //Get Profile By Id REST API
-//    @GetMapping("{id}")
-//    public ResponseEntity<ProfileDto> getProfileById(@PathVariable("id") Long id) {
-//        ProfileDto retrievedProfile = profileService.getProfileById(id);
-//        return ResponseEntity.ok(retrievedProfile);
-//    }
-//
-//    //Get All Profile REST API
-//    @GetMapping
-//    public ResponseEntity<List<ProfileDto>> getAllProfile() {
-//        List<ProfileDto> listOfRetrievedProfile = profileService.getAllProfile();
-//        return ResponseEntity.ok(listOfRetrievedProfile);
-//    }
-//
-//    //Update Profile REST API
-//    @PutMapping("{id}")
-//    public ResponseEntity<ProfileDto> updateProfile(@PathVariable("id") Long id,
-//                                                    @RequestBody ProfileDto updatedProfile) {
-//        ProfileDto profileDto = profileService.updateProfile(id, updatedProfile);
-//        return ResponseEntity.ok(profileDto);
-//    }
-//
-//    //Delete Profile REST API
-//    @DeleteMapping("{id}")
-//    public ResponseEntity<String> deleteProfile(@PathVariable("id") Long id) {
-//        profileService.deleteProfile(id);
-//        return ResponseEntity.ok("Profile deleted successfully!");
-//    }
+    //Delete Profile REST API
+    @DeleteMapping("/profile/{id}")
+    public ResponseEntity<String> deleteProfile(@PathVariable("id") Long id) {
+        try {
+            profileService.deleteProfile(id);
+            return ResponseEntity.ok("Profile deleted successfully!");
+        } catch (ProfileNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            // Handle other exceptions as needed
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 }

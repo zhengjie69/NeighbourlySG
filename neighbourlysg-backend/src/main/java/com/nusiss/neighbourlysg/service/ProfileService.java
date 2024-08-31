@@ -13,9 +13,15 @@ public interface ProfileService {
 
     ProfileDto login(LoginRequestDTO loginRequestDTO);
 
+    void deleteProfile(Long profileId);
+
     List<ProfileDto> getAllProfiles();
+
+    ProfileDto getProfileById(Long profileId);
 
     ProfileDto updateProfile(Long id, ProfileDto profileDto) throws RoleNotFoundException;
 
     ProfileDto assignRoleToUser(RoleAssignmentDto roleAssignmentDto) throws RoleNotFoundException, ProfileNotFoundException;
+
+
 }
