@@ -3,6 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 import { Link } from 'react-router-dom';
 import axios from 'axios'; // Import axios for making HTTP requests
+import { useNavigate } from 'react-router-dom';
 
 function ResidentLogin() {
   const [email, setEmail] = useState('');
@@ -10,31 +11,23 @@ function ResidentLogin() {
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false); 
 
+  const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
       const response = await axios.post('http://localhost:8080/login', { email, password });
-      if(response.status === 200){
-        // Handle successful login
-        setMessage('Login successful!');
-        setIsError(false); // Clear error state
-        setErrors({});
-        // Redirect to home or dashboard
-        //window.location.href = '/home';
+      
+      if (response.status === 200) {
+        navigate('/ResidentMainPage');
       }
     } catch (error) {
-      console.error('Registration error:', error); 
-      console.error('Registration error msg:', error.response.data.errorDetails); 
-      
-      if (error.response && error.response.data && error.response.data.errorDetails) {
-          setMessage(error.response.data.errorDetails); // Display the backend error message
-      } else {
-        setMessage('Login failed. Please try again.'); // Fallback message
-      }
-      setIsError(true); // Set error state
-  }
-  };
+      console.error('Login error:', error); 
+      setIsError(true);
+      setMessage('Login failed. Please try again.');
+    }
+};
 
   return (
     <div 

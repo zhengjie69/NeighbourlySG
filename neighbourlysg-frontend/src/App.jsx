@@ -9,6 +9,7 @@ import SurveyShowcasePage from './auth/Resident/SurveyShowcasePage';
 import CreateSurveyForm from './auth/Resident/CreateSurveyForm';
 import EventShowcasePage from './auth/Resident/EventShowcasePage';
 import CommunityPost from './auth/Resident/CommunityPost'; // Import the CommunityPost component
+import ManageUsers from './auth/Admin/ManageUsers';
 
 const App = () => {
     return (
@@ -25,6 +26,7 @@ const App = () => {
                 <Route path="/CreateSurveyForm" element={<CreateSurveyForm />} /> {/* Route for CreateSurveyPage */}
                 <Route path="/events" element={<EventShowcasePage />} /> {/* Route for ResidentEventPage */}
                 <Route path="/posts" element={<CommunityPost />} /> {/* Route for CommunityPost */}
+                <Route path='/manageusers' element={<ManageUsers />} />
                 {/* Remove or adjust this fallback route temporarily */}
                 {/* <Route path="*" element={<Navigate to="/" />} /> */}
             </Routes>

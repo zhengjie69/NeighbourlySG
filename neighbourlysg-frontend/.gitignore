@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# profiling files
+chrome-profiler-events*.json
+speed-measure-plugin*.json
+package-lock.json
