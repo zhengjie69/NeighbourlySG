@@ -1,6 +1,7 @@
 package com.nusiss.neighbourlysg.controller;
 
 import com.nusiss.neighbourlysg.dto.EventDto;
+import com.nusiss.neighbourlysg.dto.EventParticipantDto;
 import com.nusiss.neighbourlysg.service.EventService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,6 +45,28 @@ public class EventController {
         }
     }
 
+    @GetMapping("/getAllCurrentEvent")
+    public ResponseEntity<?> getAllCurrentEvent() {
+        try {
+            List<EventDto> event = eventService.getAllCurrentEvent();
+            return ResponseEntity.ok(event);
+        } catch (Exception e) {
+            // Return a response with a 400 Bad Request status and error message
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/getAllPastEvent")
+    public ResponseEntity<?> getAllPastEvent() {
+        try {
+            List<EventDto> event = eventService.getAllPastEvent();
+            return ResponseEntity.ok(event);
+        } catch (Exception e) {
+            // Return a response with a 400 Bad Request status and error message
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
     @DeleteMapping("/deleteEvent/{eventId}")
     public ResponseEntity<String> deleteEvent(@PathVariable("eventId") Long eventId) {
         try {
@@ -60,6 +83,32 @@ public class EventController {
         try {
             EventDto eventDto = eventService.updateEvent(updatedEvent);
             return ResponseEntity.ok(eventDto);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/rsvpParticipant")
+    public ResponseEntity<?> rsvpParticipant(@RequestBody EventParticipantDto rsvpPersonnel) {
+        try {
+            long rsvpCount = eventService.rsvpParticipant(rsvpPersonnel);
+            if(rsvpCount > 0) {
+                return ResponseEntity.ok("RSVP is completed");
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error RSVPing the event, please try again later");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/deleteRsvpAsParticipant")
+    public ResponseEntity<?> deleteRsvpAsParticipant(@RequestBody EventParticipantDto rsvpToBeRemoved) {
+        try {
+            boolean deleteStatus = eventService.deleteRsvpAsParticipant(rsvpToBeRemoved);
+            if(deleteStatus) {
+                return ResponseEntity.ok("RSVP is removed");
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error removing the RSVP for the event, are you enrolled to the event?");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }

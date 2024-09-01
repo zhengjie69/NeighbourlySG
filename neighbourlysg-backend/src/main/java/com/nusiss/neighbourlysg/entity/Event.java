@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
@@ -40,6 +41,10 @@ public class Event {
     @ManyToOne
     @JoinColumn(name = "profile_id")
     private Profile profile;
+
+    @OneToMany(mappedBy = "event")
+    private List<EventParticipant> eventParticipants;
+
 
     public Long getId() {
         return id;

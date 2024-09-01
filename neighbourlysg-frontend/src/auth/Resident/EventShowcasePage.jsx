@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link } from 'react-router-dom';
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button, Alert } from 'react-bootstrap';
+import axios from 'axios';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 import SGLogo from '../../assets/SGLogo.avif';
 
@@ -22,185 +23,99 @@ function ResidentEventPage() {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [pastEvents, setPastEvents] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
-  const [notifications, setNotifications] = useState([]);
-  const [reminders, setReminders] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedArea, setSelectedArea] = useState('All Locations');
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [showModal, setShowModal] = useState(false);
+  const [showUpcomingModal, setShowUpcomingModal] = useState(false);
+  const [showPastModal, setShowPastModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
-  const [eventToCancel, setEventToCancel] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null); // For error messages
+  const [successMessage, setSuccessMessage] = useState(null); // For success messages
 
-  useEffect(() => {
-    const events = [
-      {
-        id: 1,
-        title: 'Neighborhood Cleanup',
-        date: 'August 20, 2024 10:00 AM',
-        description: 'Join us for a community cleanup event.',
-        location: 'Jurong Park',
-        image: 'https://via.placeholder.com/600x400',
-        area: 'Jurong GRC',
-        rsvp: false,
-        rsvpCount: 10,
-      },
-      {
-        id: 2,
-        title: 'Fall Festival',
-        date: 'September 15, 2024 2:00 PM',
-        description: 'Celebrate the season with food, games, and fun!',
-        location: 'Tampines Central',
-        image: 'https://via.placeholder.com/600x400',
-        area: 'Tampines GRC',
-        rsvp: false,
-        rsvpCount: 25,
-      },
-      {
-        id: 3,
-        title: 'Community Garden Workshop',
-        date: 'July 15, 2024 9:00 AM',
-        description: 'Learn about community gardening and sustainability.',
-        location: 'Ang Mo Kio Garden',
-        image: 'https://via.placeholder.com/600x400',
-        area: 'Ang Mo Kio GRC',
-        rsvp: false,
-        rsvpCount: 30,
-      },
-      {
-        id: 4,
-        title: 'Health and Wellness Fair',
-        date: 'October 10, 2024 11:00 AM',
-        description: 'A fair dedicated to promoting health and wellness in the community.',
-        location: 'East Coast Park',
-        image: 'https://via.placeholder.com/600x400',
-        area: 'East Coast GRC',
-        rsvp: false,
-        rsvpCount: 15,
-      },
-      {
-        id: 5,
-        title: 'Book Club Meeting',
-        date: 'November 2, 2024 3:00 PM',
-        description: 'Join us for a discussion on the latest bestsellers.',
-        location: 'Marine Parade Library',
-        image: 'https://via.placeholder.com/600x400',
-        area: 'Marine Parade GRC',
-        rsvp: false,
-        rsvpCount: 20,
-      },
-      {
-        id: 6,
-        title: 'Community Sports Day',
-        date: 'December 5, 2024 9:30 AM',
-        description: 'Participate in various sports activities and competitions.',
-        location: 'Holland Village',
-        image: 'https://via.placeholder.com/600x400',
-        area: 'Holland-Bukit Timah GRC',
-        rsvp: false,
-        rsvpCount: 40,
-      },
-      {
-        id: 7,
-        title: 'Music in the Park',
-        date: 'January 14, 2024 5:00 PM',
-        description: 'Enjoy live music performances in the park.',
-        location: 'Jalan Besar Park',
-        image: 'https://via.placeholder.com/600x400',
-        area: 'Jalan Besar GRC',
-        rsvp: false,
-        rsvpCount: 35,
-      },
-      {
-        id: 8,
-        title: 'Cultural Food Festival',
-        date: 'February 25, 2024 12:00 PM',
-        description: 'Taste cuisines from around the world at our cultural food festival.',
-        location: 'Chua Chu Kang Community Center',
-        image: 'https://via.placeholder.com/600x400',
-        area: 'Chua Chu Kang GRC',
-        rsvp: false,
-        rsvpCount: 50,
-      },
-      {
-        id: 9,
-        title: 'Art in the Community',
-        date: 'March 15, 2024 10:00 AM',
-        description: 'A showcase of local artists and their work.',
-        location: 'Sembawang Park',
-        image: 'https://via.placeholder.com/600x400',
-        area: 'Sembawang GRC',
-        rsvp: false,
-        rsvpCount: 60,
-      },
-      {
-        id: 10,
-        title: 'Technology Expo',
-        date: 'April 5, 2024 9:00 AM',
-        description: 'Explore the latest in technology and innovation.',
-        location: 'Pasir Ris Convention Center',
-        image: 'https://via.placeholder.com/600x400',
-        area: 'Pasir Ris-Punggol GRC',
-        rsvp: false,
-        rsvpCount: 70,
-      },
-    ];
-
-    const currentDate = new Date();
-    const upcoming = events.filter(event => new Date(event.date) >= currentDate);
-    const past = events.filter(event => new Date(event.date) < currentDate);
-
-    setUpcomingEvents(upcoming);
-    setPastEvents(past);
-    setFilteredEvents(upcoming);
-    setNotifications(['Don\'t miss the Fall Festival on September 15, 2024!']);
-  }, []);
-
-  const handleRSVP = (eventId, eventTitle, eventDate, eventLocation) => {
-    setUpcomingEvents(prevEvents => {
-      const updatedEvents = prevEvents.map(event => {
-        if (event.id === eventId && !event.rsvp) {
-          return { ...event, rsvp: true, rsvpCount: event.rsvpCount + 1 };
-        } else if (event.id === eventId && event.rsvp) {
-          setEventToCancel(event);
-          setShowCancelModal(true);
-        }
-        return event;
-      });
-      setFilteredEvents(updatedEvents);
-      return updatedEvents;
-    });
-
-    if (!notifications.includes(`You have RSVP'd for the event: ${eventTitle}`)) {
-      setNotifications(prevNotifications => [
-        ...prevNotifications,
-        `You have RSVP'd for the event: ${eventTitle}`,
-      ]);
-      setReminders(prevReminders => [
-        ...prevReminders,
-        { eventTitle, eventDate, eventLocation }
-      ]);
+  const fetchUpcomingEvents = async () => {
+    try {
+      // Example URL, adjust based on your actual API endpoint
+      const response = await axios.get('http://localhost:8080/api/EventService/getAllCurrentEvent');
+      const events = response.data;
+      setUpcomingEvents(events);
+    } catch (error) {
+      console.error('Error fetching upcoming events:', error);
     }
   };
 
-  const handleCancelRSVP = () => {
-    setUpcomingEvents(prevEvents => {
-      const updatedEvents = prevEvents.map(event => {
-        if (event.id === eventToCancel.id && event.rsvp) {
-          return { ...event, rsvp: false, rsvpCount: event.rsvpCount - 1 };
-        }
-        return event;
-      });
-      setFilteredEvents(updatedEvents);
-      return updatedEvents;
-    });
+  useEffect(() => {
 
-    setNotifications(prevNotifications =>
-      prevNotifications.filter(notification => !notification.includes(eventToCancel.title))
-    );
-    setReminders(prevReminders =>
-      prevReminders.filter(reminder => reminder.eventTitle !== eventToCancel.title)
-    );
-    setShowCancelModal(false);
+    const fetchPastEvents = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/api/EventService/getAllPastEvent');
+        const events = response.data;
+        setPastEvents(events);
+      } catch (error) {
+        console.error('Error fetching past events:', error);
+      }
+    };
+
+    fetchUpcomingEvents();
+    fetchPastEvents();
+
+  }, []);
+
+  const rsvpAsParticipant = async (profileId, eventId) => {
+    try {
+      const response = await axios.post('http://localhost:8080/api/EventService/rsvpParticipant', {
+        profileId: profileId,
+        eventId: eventId,
+      });
+      const rsvpResponse = response.data;
+
+      handleCloseModal();
+
+      if (rsvpResponse == "RSVP is completed") {
+        setSuccessMessage('Successfully RSVP\'d to the event!');
+        setErrorMessage(null);
+      }
+
+      fetchUpcomingEvents();
+
+    } catch (error) {
+
+      handleCloseModal();
+
+      setErrorMessage('Error adding RSVP for this event. Are you already enrolled to the event?');
+      setSuccessMessage(null);
+
+      console.error('Error rsvping for this event:', error);
+    }
+  };
+
+  const deleteRsvpAsParticipant = async (profileId, eventId) => {
+    try {
+      const response = await axios.post('http://localhost:8080/api/EventService/deleteRsvpAsParticipant', {
+        profileId: profileId,
+        eventId: eventId,
+      });
+      const rsvpResponse = response.data;
+
+      handleCloseModal();
+      setShowCancelModal(false);
+
+      if (rsvpResponse == "RSVP is removed") {
+        setSuccessMessage('Successfully remove RSVP\'d to the event!');
+        setErrorMessage(null);
+      }
+
+      fetchUpcomingEvents();
+
+    } catch (error) {
+
+      handleCloseModal();
+      setShowCancelModal(false);
+
+      setErrorMessage('Error removing RSVP for this event. Are you enrolled to the event?');
+      setSuccessMessage(null);
+
+      console.error('Error removing RSVP for this event:', error);
+    }
   };
 
   const handleSearch = (e) => {
@@ -226,22 +141,36 @@ function ResidentEventPage() {
     setFilteredEvents(filtered);
   };
 
-  const handleShowModal = (event) => {
-    setSelectedEvent(event);
-    setShowModal(true);
+  const handleShowUpcomingModal = (upcomingEvent) => {
+    setSelectedEvent(upcomingEvent);
+    setShowUpcomingModal(true);
+  };
+
+  const handleShowPastModal = (pastEvent) => {
+    setSelectedEvent(pastEvent);
+    setShowPastModal(true);
   };
 
   const handleCloseModal = () => {
-    setShowModal(false);
+    setShowUpcomingModal(false);
+    setShowPastModal(false);
     setSelectedEvent(null);
   };
 
+  const closeMessage = (type) => {
+    if (type === 'success') {
+      setSuccessMessage(null);
+    } else if (type === 'error') {
+      setErrorMessage(null);
+    }
+  };
+
   return (
-    <div 
+    <div
       className="d-flex flex-column min-vh-100"
-      style={{ 
-        backgroundImage: `url(${neighbourlySGbackground})`, 
-        backgroundSize: 'cover', 
+      style={{
+        backgroundImage: `url(${neighbourlySGbackground})`,
+        backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       }}
@@ -286,22 +215,6 @@ function ResidentEventPage() {
       <div className="container mt-5 flex-grow-1">
         <h2 className="mb-4 text-white">Community Events</h2>
 
-        {/* Notifications */}
-        <div className="alert alert-info">
-          <h4>Notifications</h4>
-          <ul>
-            {notifications.map((notification, index) => (
-              <li key={index}>{notification}</li>
-            ))}
-          </ul>
-          <h5>Reminder</h5>
-          <ul>
-            {reminders.map((reminder, index) => (
-              <li key={index}>{reminder.eventTitle} - {reminder.eventDate} at {reminder.eventLocation}</li>
-            ))}
-          </ul>
-        </div>
-
         {/* Search and Filter */}
         <div className="mb-4 row">
           <div className="col-md-6">
@@ -325,32 +238,21 @@ function ResidentEventPage() {
         {/* Upcoming Events */}
         <div className="mb-5" style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', padding: '20px', borderRadius: '8px', overflowX: 'auto', whiteSpace: 'nowrap' }}>
           <h3 className="text-dark">Upcoming Events</h3>
-          {filteredEvents.length > 0 ? (
+          {upcomingEvents.length > 0 ? (
             <div className="d-flex">
-              {filteredEvents.map(event => (
-                <div key={event.id} className="card h-100 me-3" style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', flex: '0 0 auto', width: '300px' }} onClick={() => handleShowModal(event)}>
-                  <img src={event.image} className="card-img-top" alt={event.title} />
+              {upcomingEvents.map(event => (
+                <div key={event.id} className="card h-100 me-3" style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', flex: '0 0 auto', width: '300px' }} onClick={() => handleShowUpcomingModal(event)}>
                   <div className="card-body">
                     <h4 className="card-title">{event.title}</h4>
                     <h6 className="card-subtitle mb-2 text-muted">{event.date}</h6>
                     <p className="card-text">{event.location}</p>
-                    <p className="card-text text-truncate" style={{ maxHeight: '50px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{event.description}</p>
                     <p><strong>RSVP Count:</strong> {event.rsvpCount}</p>
-                    {!event.rsvp ? (
-                      <button className="btn btn-primary" onClick={(e) => { e.stopPropagation(); handleRSVP(event.id, event.title, event.date, event.location); }}>
-                        RSVP
-                      </button>
-                    ) : (
-                      <button className="btn btn-success" onClick={(e) => { e.stopPropagation(); handleRSVP(event.id, event.title, event.date, event.location); }}>
-                        RSVP&apos;d
-                      </button>
-                    )}
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-dark">No upcoming events at the moment.</p>
+            <p className="text-dark">No upcoming events to display.</p>
           )}
         </div>
 
@@ -360,14 +262,11 @@ function ResidentEventPage() {
           {pastEvents.length > 0 ? (
             <div className="d-flex">
               {pastEvents.map(event => (
-                <div key={event.id} className="card h-100 me-3" style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', flex: '0 0 auto', width: '300px' }} onClick={() => handleShowModal(event)}>
-                  <img src={event.image} className="card-img-top" alt={event.title} />
+                <div key={event.id} className="card h-100 me-3" style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', flex: '0 0 auto', width: '300px' }} onClick={() => handleShowPastModal(event)}>
                   <div className="card-body">
                     <h4 className="card-title">{event.title}</h4>
                     <h6 className="card-subtitle mb-2 text-muted">{event.date}</h6>
                     <p className="card-text">{event.location}</p>
-                    <p className="card-text text-truncate" style={{ maxHeight: '50px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{event.description}</p>
-                    <p><strong>RSVP Count:</strong> {event.rsvpCount}</p>
                   </div>
                 </div>
               ))}
@@ -378,54 +277,106 @@ function ResidentEventPage() {
         </div>
       </div>
 
-      {/* Modal for Event Details */}
+      {/* Modal for Upcoming Event Details */}
       {selectedEvent && (
-        <Modal show={showModal} onHide={handleCloseModal}>
+        <Modal show={showUpcomingModal} onHide={handleCloseModal}>
           <Modal.Header closeButton>
             <Modal.Title>{selectedEvent.title}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <img src={selectedEvent.image} className="img-fluid mb-3" alt={selectedEvent.title} />
-            <h5>{selectedEvent.date}</h5>
-            <p>{selectedEvent.location}</p>
-            <p>{selectedEvent.description}</p>
-            <p><strong>RSVP Count:</strong> {selectedEvent.rsvpCount}</p>
+            <table className="table">
+              <tbody>
+                <tr>
+                  <th>Event Location</th>
+                  <td>{selectedEvent.location}</td>
+                </tr>
+                <tr>
+                  <th>Description</th>
+                  <td>{selectedEvent.description}</td>
+                </tr>
+                <tr>
+                  <th>Date</th>
+                  <td>{selectedEvent.date}</td>
+                </tr>
+                <tr>
+                  <th>Start Time</th>
+                  <td>{selectedEvent.startTime}</td>
+                </tr>
+                <tr>
+                  <th>End Time</th>
+                  <td>{selectedEvent.endTime}</td>
+                </tr>
+                <tr>
+                  <th>RSVP Count</th>
+                  <td>{selectedEvent.rsvpCount}</td>
+                </tr>
+              </tbody>
+            </table>
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={handleCloseModal}>
               Close
             </Button>
-            {!selectedEvent.rsvp ? (
-              <Button variant="primary" onClick={() => handleRSVP(selectedEvent.id, selectedEvent.title, selectedEvent.date, selectedEvent.location)}>
-                RSVP
-              </Button>
-            ) : (
-              <Button variant="success" onClick={() => handleRSVP(selectedEvent.id, selectedEvent.title, selectedEvent.date, selectedEvent.location)}>
-                RSVP&apos;d
-              </Button>
-            )}
+            <Button variant="danger" onClick={() => deleteRsvpAsParticipant(1, selectedEvent.id)}>
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={() => rsvpAsParticipant(1, selectedEvent.id)}>
+              RSVP
+            </Button>
           </Modal.Footer>
         </Modal>
       )}
 
-      {/* Cancel RSVP Modal */}
-      {eventToCancel && (
-        <Modal show={showCancelModal} onHide={() => setShowCancelModal(false)}>
+      {/* Modal for Past Event Details */}
+      {selectedEvent && (
+        <Modal show={showPastModal} onHide={handleCloseModal}>
           <Modal.Header closeButton>
-            <Modal.Title>Cancel RSVP</Modal.Title>
+            <Modal.Title>{selectedEvent.title}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            Are you sure you want to cancel your RSVP for {eventToCancel.title}?
+            <table className="table">
+              <tbody>
+                <tr>
+                  <th>Event Location</th>
+                  <td>{selectedEvent.location}</td>
+                </tr>
+                <tr>
+                  <th>Description</th>
+                  <td>{selectedEvent.description}</td>
+                </tr>
+                <tr>
+                  <th>Date</th>
+                  <td>{selectedEvent.date}</td>
+                </tr>
+                <tr>
+                  <th>Start Time</th>
+                  <td>{selectedEvent.startTime}</td>
+                </tr>
+                <tr>
+                  <th>End Time</th>
+                  <td>{selectedEvent.endTime}</td>
+                </tr>
+              </tbody>
+            </table>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowCancelModal(false)}>
-              No
-            </Button>
-            <Button variant="danger" onClick={handleCancelRSVP}>
-              Yes, Cancel RSVP
+            <Button variant="secondary" onClick={handleCloseModal}>
+              Close
             </Button>
           </Modal.Footer>
         </Modal>
+      )}
+
+      {/* Display Success or Error Messages */}
+      {successMessage && (
+        <Alert variant="success" className="fixed-bottom mb-0" onClose={() => closeMessage('success')} dismissible>
+          {successMessage}
+        </Alert>
+      )}
+      {errorMessage && (
+        <Alert variant="danger" className="fixed-bottom mb-0" onClose={() => closeMessage('error')} dismissible>
+          {errorMessage}
+        </Alert>
       )}
 
       <footer className="bg-dark text-white text-center py-3 mt-auto">

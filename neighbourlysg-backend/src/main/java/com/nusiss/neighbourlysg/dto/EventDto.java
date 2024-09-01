@@ -21,6 +21,8 @@ public class EventDto {
 
     private String location;
 
+    private Long rsvpCount;
+
     public Long getId() {
         return id;
     }
@@ -75,5 +77,13 @@ public class EventDto {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public Long getRsvpCount() {
+        return rsvpCount;
+    }
+
+    public void setRsvpCount(Long rsvpCount) {
+        this.rsvpCount = rsvpCount;
     }
 }
