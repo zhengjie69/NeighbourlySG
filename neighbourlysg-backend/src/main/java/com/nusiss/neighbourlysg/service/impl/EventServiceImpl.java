@@ -43,7 +43,7 @@ public class EventServiceImpl implements EventService {
             throw new IllegalArgumentException("No Profile Id is inputted");
         }
 
-        if(eventDto.getId() > 0) {
+        if(eventDto.getId() != null) {
             throw new IllegalArgumentException("No Event Id should be inputted during creation");
         }
 
@@ -69,7 +69,9 @@ public class EventServiceImpl implements EventService {
 
         List<EventDto> listOfEventDto = new ArrayList<>();
         for(Event event : listOfEvent){
+            long rsvpCount = eventParticipantRepository.countByEvent(event);
             EventDto eventDto = eventMapper.toDto(event);
+            eventDto.setRsvpCount(rsvpCount);
             listOfEventDto.add(eventDto);
         }
         return listOfEventDto;
@@ -77,10 +79,10 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public List<EventDto> getAllCurrentEvent() {
+    public List<EventDto> getAllCurrentEvent(Long profileId) {
         LocalDate currentDate = LocalDate.now();
 
-        List<Event> listOfEvent = eventRepository.findByDateGreaterThanEqual(currentDate);
+        List<Event> listOfEvent = eventRepository.findByDateGreaterThanEqualAndNotOwnedBy(currentDate, profileId);
 
         List<EventDto> listOfEventDto = new ArrayList<>();
         for(Event event : listOfEvent){
@@ -94,10 +96,10 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public List<EventDto> getAllPastEvent() {
+    public List<EventDto> getAllPastEvent(Long profileId) {
         LocalDate currentDate = LocalDate.now();
 
-        List<Event> listOfEvent = eventRepository.findByDateBefore(currentDate);
+        List<Event> listOfEvent = eventRepository.findByDateBeforeAndNotOwnedBy(currentDate, profileId);
 
         List<EventDto> listOfEventDto = new ArrayList<>();
         for(Event event : listOfEvent){

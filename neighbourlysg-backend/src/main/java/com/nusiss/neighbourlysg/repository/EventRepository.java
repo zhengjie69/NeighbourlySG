@@ -3,6 +3,8 @@ package com.nusiss.neighbourlysg.repository;
 import com.nusiss.neighbourlysg.entity.Event;
 import com.nusiss.neighbourlysg.entity.Profile;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -13,8 +15,10 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     List<Event> findByProfile(Profile profile);
 
-    List<Event> findByDateGreaterThanEqual(LocalDate date);
+    @Query("SELECT e FROM Event e WHERE e.date >= :date AND e.profile.id != :profileId")
+    List<Event> findByDateGreaterThanEqualAndNotOwnedBy(@Param("date") LocalDate date, @Param("profileId") Long profileId);
 
-    List<Event> findByDateBefore(LocalDate date);
+    @Query("SELECT e FROM Event e WHERE e.date < :date AND e.profile.id != :profileId")
+    List<Event> findByDateBeforeAndNotOwnedBy(@Param("date") LocalDate date, @Param("profileId") Long profileId);
 
 }

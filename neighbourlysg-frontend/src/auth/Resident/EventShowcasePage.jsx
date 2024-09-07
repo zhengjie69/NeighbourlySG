@@ -22,20 +22,41 @@ const grcSmcOptions = [
 function ResidentEventPage() {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [pastEvents, setPastEvents] = useState([]);
-  const [filteredEvents, setFilteredEvents] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedArea, setSelectedArea] = useState('All Locations');
+  const [userEvents, setUserEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showUpcomingModal, setShowUpcomingModal] = useState(false);
   const [showPastModal, setShowPastModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showCreateEventModal, setShowCreateEventModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null); // For error messages
   const [successMessage, setSuccessMessage] = useState(null); // For success messages
+
+  const profileId = 1; //Hardcode for now
+
+  const [newEvent, setNewEvent] = useState({
+    title: '',
+    location: '',
+    description: '',
+    date: '',
+    startTime: '',
+    endTime: '',
+  });
+
+  const [editEvent, setEditEvent] = useState({
+    id: '',
+    title: '',
+    location: '',
+    description: '',
+    date: '',
+    startTime: '',
+    endTime: '',
+  });
 
   const fetchUpcomingEvents = async () => {
     try {
       // Example URL, adjust based on your actual API endpoint
-      const response = await axios.get('http://localhost:8080/api/EventService/getAllCurrentEvent');
+      const response = await axios.get('http://localhost:8080/api/EventService/getAllCurrentEvent/' + profileId);
       const events = response.data;
       setUpcomingEvents(events);
     } catch (error) {
@@ -43,11 +64,22 @@ function ResidentEventPage() {
     }
   };
 
+  const fetchUserEvents = async () => {
+    try {
+      // Example URL, adjust based on your actual API endpoint
+      const response = await axios.get('http://localhost:8080/api/EventService/getAllUserEvent/' + profileId);
+      const events = response.data;
+      setUserEvents(events);
+    } catch (error) {
+      console.error('Error fetching user events:', error);
+    }
+  };
+
   useEffect(() => {
 
     const fetchPastEvents = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/EventService/getAllPastEvent');
+        const response = await axios.get('http://localhost:8080/api/EventService/getAllPastEvent/' + profileId);
         const events = response.data;
         setPastEvents(events);
       } catch (error) {
@@ -55,6 +87,7 @@ function ResidentEventPage() {
       }
     };
 
+    fetchUserEvents();
     fetchUpcomingEvents();
     fetchPastEvents();
 
@@ -118,28 +151,65 @@ function ResidentEventPage() {
     }
   };
 
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-    filterEvents(e.target.value, selectedArea);
+  const handleCreateEvent = async (e) => {
+    e.preventDefault();
+    try {
+      // Replace with your API endpoint
+      await axios.post('http://localhost:8080/api/EventService/createEvent/' + profileId, newEvent);
+      setSuccessMessage('Event created successfully!');
+      setErrorMessage(null);
+      setShowCreateEventModal(false);
+
+      setNewEvent({
+        title: '',
+        location: '',
+        description: '',
+        date: '',
+        startTime: '',
+        endTime: '',
+      });
+
+      fetchUserEvents(); // Refresh the events list
+
+    } catch (error) {
+      setErrorMessage('Error creating event. Please try again.');
+      setSuccessMessage(null);
+      console.error('Error creating event:', error);
+    }
   };
 
-  const handleAreaChange = (e) => {
-    setSelectedArea(e.target.value);
-    filterEvents(searchTerm, e.target.value);
+  const handleEditEvent = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.put('http://localhost:8080/api/EventService/updateEvent', editEvent);
+      setSuccessMessage('Event updated successfully!');
+      setErrorMessage(null);
+      setShowEditModal(false);
+
+      fetchUserEvents();
+
+    } catch (error) {
+      setErrorMessage('Error updating event. Please try again.');
+      setSuccessMessage(null);
+      console.error('Error updating event:', error);
+    }
   };
 
-  const filterEvents = (searchTerm, area) => {
-    let filtered = upcomingEvents;
-    if (searchTerm) {
-      filtered = filtered.filter(event =>
-        event.title.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+  const handleDeleteEvent = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.delete('http://localhost:8080/api/EventService/deleteEvent/' + editEvent.id);
+      setSuccessMessage('Event deleted successfully!');
+      setErrorMessage(null);
+      setShowEditModal(null);
+
+      fetchUserEvents();
+    } catch (error) {
+      setErrorMessage('Error deleting event. Please try again.');
+      setSuccessMessage(null);
+      console.error('Error deleting event:', error);
     }
-    if (area && area !== 'All Locations') {
-      filtered = filtered.filter(event => event.area === area);
-    }
-    setFilteredEvents(filtered);
-  };
+  }
 
   const handleShowUpcomingModal = (upcomingEvent) => {
     setSelectedEvent(upcomingEvent);
@@ -151,9 +221,24 @@ function ResidentEventPage() {
     setShowPastModal(true);
   };
 
+  const handleShowUserEventModal = (userEvents) => {
+    setSelectedEvent(userEvents);
+    setEditEvent({
+      id: userEvents.id,
+      title: userEvents.title,
+      location: userEvents.location,
+      description: userEvents.description,
+      date: userEvents.date,
+      startTime: userEvents.startTime,
+      endTime: userEvents.endTime,
+    });
+    setShowEditModal(true);
+  }
+
   const handleCloseModal = () => {
     setShowUpcomingModal(false);
     setShowPastModal(false);
+    setShowEditModal(false);
     setSelectedEvent(null);
   };
 
@@ -215,24 +300,34 @@ function ResidentEventPage() {
       <div className="container mt-5 flex-grow-1">
         <h2 className="mb-4 text-white">Community Events</h2>
 
-        {/* Search and Filter */}
+        {/* Create Event Button */}
         <div className="mb-4 row">
-          <div className="col-md-6">
-            <input
-              type="text"
-              className="form-control mb-3"
-              placeholder="Search events..."
-              value={searchTerm}
-              onChange={handleSearch}
-            />
+          <div className="col-md-12 mt-3">
+            <button className="btn btn-primary" onClick={() => setShowCreateEventModal(true)}>
+              Create Event
+            </button>
           </div>
-          <div className="col-md-6">
-            <select className="form-control" value={selectedArea} onChange={handleAreaChange}>
-              {grcSmcOptions.map(option => (
-                <option key={option} value={option}>{option}</option>
+        </div>
+
+        {/* User's Events */}
+        <div className="mb-5" style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', padding: '20px', borderRadius: '8px', overflowX: 'auto', whiteSpace: 'nowrap' }}>
+          <h3 className="text-dark">Your Events</h3>
+          {userEvents.length > 0 ? (
+            <div className="d-flex">
+              {userEvents.map(event => (
+                <div key={event.id} className="card h-100 me-3" style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', flex: '0 0 auto', width: '300px' }} onClick={() => handleShowUserEventModal(event)}>
+                  <div className="card-body">
+                    <h4 className="card-title">{event.title}</h4>
+                    <h6 className="card-subtitle mb-2 text-muted">{event.date}</h6>
+                    <p className="card-text">{event.location}</p>
+                    <p><strong>RSVP Count:</strong> {event.rsvpCount}</p>
+                  </div>
+                </div>
               ))}
-            </select>
-          </div>
+            </div>
+          ) : (
+            <p className="text-dark">No upcoming events to display.</p>
+          )}
         </div>
 
         {/* Upcoming Events */}
@@ -364,6 +459,190 @@ function ResidentEventPage() {
               Close
             </Button>
           </Modal.Footer>
+        </Modal>
+      )}
+
+      {/* Modal for Creating new events */}
+      {showCreateEventModal && (
+        <Modal show={showCreateEventModal} onHide={() => setShowCreateEventModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Create New Event</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <form onSubmit={handleCreateEvent}>
+              <div className="mb-3">
+                <label htmlFor="eventTitle" className="form-label">Event Title</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="eventTitle"
+                  value={newEvent.title}
+                  onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="eventLocation" className="form-label">Location</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="eventLocation"
+                  value={newEvent.location}
+                  onChange={(e) => setNewEvent({ ...newEvent, location: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="eventDescription" className="form-label">Description</label>
+                <textarea
+                  className="form-control"
+                  id="eventDescription"
+                  rows="3"
+                  value={newEvent.description}
+                  onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
+                  required
+                ></textarea>
+              </div>
+              <div className="mb-3">
+                <label htmlFor="eventDate" className="form-label">Date</label>
+                <input
+                  type="date"
+                  className="form-control"
+                  id="eventDate"
+                  value={newEvent.date}
+                  onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="eventStartTime" className="form-label">Start Time</label>
+                <input
+                  type="time"
+                  className="form-control"
+                  id="eventStartTime"
+                  value={newEvent.startTime}
+                  onChange={(e) => setNewEvent({ ...newEvent, startTime: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="eventEndTime" className="form-label">End Time</label>
+                <input
+                  type="time"
+                  className="form-control"
+                  id="eventEndTime"
+                  value={newEvent.endTime}
+                  onChange={(e) => setNewEvent({ ...newEvent, endTime: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="d-flex justify-content-end">
+                <Button variant="secondary" onClick={() => setShowCreateEventModal(false)}>
+                  Close
+                </Button>
+                <Button type="submit" variant="primary" className="ms-2">
+                  Create Event
+                </Button>
+              </div>
+            </form>
+          </Modal.Body>
+        </Modal>
+      )}
+
+      {/* Modal for Editing events */}
+      {showEditModal && (
+        <Modal show={showEditModal} onHide={handleCloseModal}>
+          <Modal.Header closeButton>
+            <Modal.Title>Edit Event</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <form onSubmit={handleEditEvent}>
+              <input
+                type="hidden"
+                className="form-control"
+                id="eventId"
+                value={editEvent.id}
+                readOnly
+              />
+              <div className="mb-3">
+                <label htmlFor="eventTitle" className="form-label">Event Title</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="eventTitle"
+                  value={editEvent.title}
+                  onChange={(e) => setEditEvent({ ...editEvent, title: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="eventLocation" className="form-label">Location</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="eventLocation"
+                  value={editEvent.location}
+                  onChange={(e) => setEditEvent({ ...editEvent, location: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="eventDescription" className="form-label">Description</label>
+                <textarea
+                  className="form-control"
+                  id="eventDescription"
+                  rows="3"
+                  value={editEvent.description}
+                  onChange={(e) => setEditEvent({ ...editEvent, description: e.target.value })}
+                  required
+                ></textarea>
+              </div>
+              <div className="mb-3">
+                <label htmlFor="eventDate" className="form-label">Date</label>
+                <input
+                  type="date"
+                  className="form-control"
+                  id="eventDate"
+                  value={editEvent.date}
+                  onChange={(e) => setEditEvent({ ...editEvent, date: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="eventStartTime" className="form-label">Start Time</label>
+                <input
+                  type="time"
+                  className="form-control"
+                  id="eventStartTime"
+                  value={editEvent.startTime}
+                  onChange={(e) => setEditEvent({ ...editEvent, startTime: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="eventEndTime" className="form-label">End Time</label>
+                <input
+                  type="time"
+                  className="form-control"
+                  id="eventEndTime"
+                  value={editEvent.endTime}
+                  onChange={(e) => setEditEvent({ ...editEvent, endTime: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="d-flex justify-content-end">
+                <Button variant="secondary" onClick={handleCloseModal} className="ms-2">
+                  Close
+                </Button>
+                <Button variant="danger" onClick={handleDeleteEvent} className="ms-2">
+                  Delete
+                </Button>
+                <Button type="submit" variant="primary" className="ms-2">
+                  Update
+                </Button>
+              </div>
+            </form>
+          </Modal.Body>
         </Modal>
       )}
 

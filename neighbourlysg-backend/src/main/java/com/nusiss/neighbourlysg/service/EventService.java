@@ -2,7 +2,6 @@ package com.nusiss.neighbourlysg.service;
 
 import com.nusiss.neighbourlysg.dto.EventDto;
 import com.nusiss.neighbourlysg.dto.EventParticipantDto;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -12,9 +11,9 @@ public interface EventService {
 
     List<EventDto> getAllUserEvent(Long profileId);
 
-    List<EventDto> getAllCurrentEvent();
+    List<EventDto> getAllCurrentEvent(Long profileId);
 
-    List<EventDto> getAllPastEvent();
+    List<EventDto> getAllPastEvent(Long profileId);
 
     void deleteEvent(Long id);
 

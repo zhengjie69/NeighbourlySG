@@ -45,10 +45,11 @@ public class EventController {
         }
     }
 
-    @GetMapping("/getAllCurrentEvent")
-    public ResponseEntity<?> getAllCurrentEvent() {
+    @GetMapping("/getAllCurrentEvent/{profileId}")
+    public ResponseEntity<?> getAllCurrentEvent(
+            @PathVariable("profileId") Long profileId) {
         try {
-            List<EventDto> event = eventService.getAllCurrentEvent();
+            List<EventDto> event = eventService.getAllCurrentEvent(profileId);
             return ResponseEntity.ok(event);
         } catch (Exception e) {
             // Return a response with a 400 Bad Request status and error message
@@ -56,10 +57,11 @@ public class EventController {
         }
     }
 
-    @GetMapping("/getAllPastEvent")
-    public ResponseEntity<?> getAllPastEvent() {
+    @GetMapping("/getAllPastEvent/{profileId}")
+    public ResponseEntity<?> getAllPastEvent(
+            @PathVariable("profileId") Long profileId) {
         try {
-            List<EventDto> event = eventService.getAllPastEvent();
+            List<EventDto> event = eventService.getAllPastEvent(profileId);
             return ResponseEntity.ok(event);
         } catch (Exception e) {
             // Return a response with a 400 Bad Request status and error message
