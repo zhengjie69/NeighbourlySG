@@ -63,8 +63,9 @@ public class EventServiceImpl implements EventService {
             throw new IllegalArgumentException("No Profile Id is inputted");
         }
 
-        Profile profile = new Profile();
-        profile.setId(profileId);
+        Profile profile = profileRepository.findById(profileId)
+                .orElseThrow(() -> new ResourceNotFoundException("Profile with ID of " + profileId + " cannot be found"));
+
         List<Event> listOfEvent = eventRepository.findByProfile(profile);
 
         List<EventDto> listOfEventDto = new ArrayList<>();
