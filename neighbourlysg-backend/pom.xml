@@ -31,6 +31,7 @@
 		<java.version>21</java.version>
 		<sonar.organization>zhengjie69</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+		<sonar.coverage.exclusions>com/nusiss/neighbourlysg/*Dto.*, **/test/</sonar.coverage.exclusions>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -121,6 +122,10 @@
 								<formats>
 									<format>XML</format>
 								</formats>
+								<excludes>
+									<exclude>com/nusiss/neighbourlysg/*Dto.*</exclude>
+									<exclude>**/test/</exclude>
+								</excludes>
 							</configuration>
 						</execution>
 					</executions>
