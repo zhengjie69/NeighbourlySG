@@ -1,9 +1,11 @@
 package com.nusiss.neighbourlysg.util;
 
+import com.nusiss.neighbourlysg.dto.EventDto;
 import com.nusiss.neighbourlysg.dto.LoginRequestDTO;
 import com.nusiss.neighbourlysg.dto.ProfileDto;
 import com.nusiss.neighbourlysg.dto.RoleDto;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 
 public final class MasterDTOTestUtil {
@@ -31,6 +33,20 @@ public final class MasterDTOTestUtil {
         roleDto.setId(1);
         roleDto.setName("USER");
         return roleDto;
+    }
+
+    public static EventDto createEventDTO(){
+
+        EventDto eventDto = new EventDto();
+        eventDto.setRsvpCount(1L);
+        eventDto.setLocation("testLocation");
+        eventDto.setDescription("testDescription");
+        eventDto.setTitle("testTitle");
+        eventDto.setStartTime("testStartTime");
+        eventDto.setEndTime("testEndTime");
+        eventDto.setDate(LocalDate.now());
+
+        return eventDto;
     }
 
 }

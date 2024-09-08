@@ -40,6 +40,9 @@ public class Profile {
 	@OneToMany(mappedBy = "profile")
 	private List<Event> events;
 
+	@OneToMany(mappedBy = "profile")
+	private List<EventParticipant> eventParticipants;
+
 	public Long getId() {
 		return id;
 	}
