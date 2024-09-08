@@ -25,10 +25,11 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.Collections;
 import java.util.List;
 
 @SpringBootTest(classes = NeighbourlysgBackendApplication.class)
-public class EventControllerTest {
+class EventControllerTest {
 
     private MockMvc mockMvc;
 
@@ -59,7 +60,7 @@ public class EventControllerTest {
     }
 
     @Test
-    public void testCreateEvent() throws Exception {
+    void testCreateEvent() throws Exception {
         EventDto eventDto = new EventDto(); // Populate with necessary data
         Long profileId = 1L;
 
@@ -77,19 +78,17 @@ public class EventControllerTest {
         EventDto eventDto = new EventDto();
 
         // Configure mock to throw exception
-        doThrow(new IllegalArgumentException("No Profile Id is inputted"))
-                .when(eventService).createEvent(any(EventDto.class), eq(profileId));
+        when(eventService.createEvent(eventDto, profileId)).thenReturn(null);
 
         // Call the controller method
-        ResponseEntity<?> response = eventController.createEvent(profileId, eventDto);
+        ResponseEntity<String> response = eventController.createEvent(profileId, eventDto);
 
         // Verify the response
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("No Profile Id is inputted", response.getBody());
     }
 
     @Test
-    public void testGetAllUserEvent() throws Exception {
+    void testGetAllUserEvent() throws Exception {
         Long profileId = 1L;
         List<EventDto> events = List.of(new EventDto()); // populate as needed
 
@@ -104,19 +103,17 @@ public class EventControllerTest {
         Long profileId = 1L;
 
         // Configure mock to throw an exception
-        doThrow(new RuntimeException("Error retrieving events"))
-                .when(eventService).getAllUserEvent(eq(profileId));
+        when(eventService.getAllUserEvent(profileId)).thenReturn(Collections.emptyList());
 
         // Call the controller method
-        ResponseEntity<?> response = eventController.getAllUserEvent(profileId);
+        ResponseEntity<List<EventDto>> response = eventController.getAllUserEvent(profileId);
 
         // Verify the response
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("Error retrieving events", response.getBody());
     }
 
     @Test
-    public void testGetAllCurrentEvent() throws Exception {
+    void testGetAllCurrentEvent() throws Exception {
         Long profileId = 1L;
         List<EventDto> events = List.of(new EventDto()); // populate as needed
 
@@ -131,19 +128,17 @@ public class EventControllerTest {
         Long profileId = 1L;
 
         // Configure mock to throw an exception
-        doThrow(new RuntimeException("Error retrieving events"))
-                .when(eventService).getAllCurrentEvent(eq(profileId));
+        when(eventService.getAllCurrentEvent(profileId)).thenReturn(Collections.emptyList());
 
         // Call the controller method
-        ResponseEntity<?> response = eventController.getAllCurrentEvent(profileId);
+        ResponseEntity<List<EventDto>> response = eventController.getAllCurrentEvent(profileId);
 
         // Verify the response
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("Error retrieving events", response.getBody());
     }
 
     @Test
-    public void testGetAllPastEvent() throws Exception {
+    void testGetAllPastEvent() throws Exception {
         Long profileId = 1L;
         List<EventDto> events = List.of(new EventDto()); // populate as needed
 
@@ -158,19 +153,17 @@ public class EventControllerTest {
         Long profileId = 1L;
 
         // Configure mock to throw an exception
-        doThrow(new RuntimeException("Error retrieving events"))
-                .when(eventService).getAllPastEvent(eq(profileId));
+        when(eventService.getAllPastEvent(profileId)).thenReturn(Collections.emptyList());
 
         // Call the controller method
-        ResponseEntity<?> response = eventController.getAllPastEvent(profileId);
+        ResponseEntity<List<EventDto>> response = eventController.getAllPastEvent(profileId);
 
         // Verify the response
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("Error retrieving events", response.getBody());
     }
 
     @Test
-    public void testDeleteEvent() throws Exception {
+    void testDeleteEvent() throws Exception {
         Long eventId = 1L;
 
         doNothing().when(eventService).deleteEvent(eventId);
@@ -196,7 +189,7 @@ public class EventControllerTest {
     }
 
     @Test
-    public void testUpdateEvent() throws Exception {
+    void testUpdateEvent() throws Exception {
         EventDto updatedEvent = new EventDto(); // populate as needed
 
         when(eventService.updateEvent(any(EventDto.class))).thenReturn(updatedEvent);
@@ -212,19 +205,17 @@ public class EventControllerTest {
         EventDto eventDto = new EventDto();
 
         // Configure mock to throw an exception
-        doThrow(new RuntimeException("Error updating event"))
-                .when(eventService).updateEvent(any(EventDto.class));
+        when(eventService.updateEvent(eventDto)).thenReturn(null);
 
         // Call the controller method
-        ResponseEntity<?> response = eventController.updateEvent(eventDto);
+        ResponseEntity<EventDto> response = eventController.updateEvent(eventDto);
 
         // Verify the response
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("Error updating event", response.getBody());
     }
 
     @Test
-    public void testRsvpParticipant() throws Exception {
+    void testRsvpParticipant() throws Exception {
         EventParticipantDto rsvpDto = new EventParticipantDto(); // populate as needed
 
         Long rsvpCount = 1L;
@@ -253,7 +244,7 @@ public class EventControllerTest {
     }
 
     @Test
-    public void testDeleteRsvpAsParticipant() throws Exception {
+    void testDeleteRsvpAsParticipant() throws Exception {
         EventParticipantDto rsvpDto = new EventParticipantDto(); // populate as needed
 
         when(eventService.deleteRsvpAsParticipant(any(EventParticipantDto.class))).thenReturn(true);

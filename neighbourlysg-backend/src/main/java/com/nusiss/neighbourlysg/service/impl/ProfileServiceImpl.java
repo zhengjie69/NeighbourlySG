@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import com.nusiss.neighbourlysg.dto.RoleAssignmentDto;
 import com.nusiss.neighbourlysg.entity.Role;
 import com.nusiss.neighbourlysg.exception.ProfileNotFoundException;
-import com.nusiss.neighbourlysg.exception.ResourceNotFoundException;
 import com.nusiss.neighbourlysg.repository.RoleRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;

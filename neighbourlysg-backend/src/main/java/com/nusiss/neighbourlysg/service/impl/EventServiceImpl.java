@@ -37,9 +37,9 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventDto createEvent(EventDto eventDto, Long ProfileId) {
+    public EventDto createEvent(EventDto eventDto, Long profileId) {
 
-        if(ProfileId == null) {
+        if(profileId == null) {
             throw new IllegalArgumentException("No Profile Id is inputted");
         }
 
@@ -47,7 +47,7 @@ public class EventServiceImpl implements EventService {
             throw new IllegalArgumentException("No Event Id should be inputted during creation");
         }
 
-        Profile profile = profileRepository.findById(ProfileId)
+        Profile profile = profileRepository.findById(profileId)
                 .orElseThrow(() -> new RuntimeException("Invalid profile is used"));
 
         Event event = eventMapper.toEntity(eventDto);
@@ -124,7 +124,7 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventDto updateEvent(EventDto eventDto) {
         Event existingEvent = eventRepository.findById(eventDto.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Event not found with id: " + eventDto.getId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Event to update not found with id: " + eventDto.getId()));
 
         if (eventDto.getTitle() != null && !Objects.equals(eventDto.getTitle(), existingEvent.getTitle())) {
             existingEvent.setTitle(eventDto.getTitle());
@@ -160,7 +160,7 @@ public class EventServiceImpl implements EventService {
     public long rsvpParticipant(EventParticipantDto eventParticipantDto){
 
         Event selectedEvent = eventRepository.findById(eventParticipantDto.getEventId())
-                .orElseThrow(() -> new ResourceNotFoundException("Event not found with id: " + eventParticipantDto.getEventId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Event to rsvp not found with id: " + eventParticipantDto.getEventId()));
 
         Profile selectedProfile = profileRepository.findById(eventParticipantDto.getProfileId())
                 .orElseThrow(() -> new ResourceNotFoundException("Person not found with id: " + eventParticipantDto.getProfileId()));
@@ -168,7 +168,7 @@ public class EventServiceImpl implements EventService {
         boolean duplicateCheck = eventParticipantRepository.existsByEventAndProfile(selectedEvent, selectedProfile);
 
         if(duplicateCheck) {
-           throw new RuntimeException("You have registered for this event already.");
+           throw new IllegalArgumentException("You have registered for this event already.");
         }
 
         EventParticipant eventParticipant = new EventParticipant();
@@ -188,7 +188,7 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public boolean deleteRsvpAsParticipant(EventParticipantDto eventParticipantDto) {
         Event selectedEvent = eventRepository.findById(eventParticipantDto.getEventId())
-                .orElseThrow(() -> new ResourceNotFoundException("Event not found with id: " + eventParticipantDto.getEventId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Event to delete rsvp not found with id: " + eventParticipantDto.getEventId()));
 
         Profile selectedProfile = profileRepository.findById(eventParticipantDto.getProfileId())
                 .orElseThrow(() -> new ResourceNotFoundException("Person not found with id: " + eventParticipantDto.getProfileId()));

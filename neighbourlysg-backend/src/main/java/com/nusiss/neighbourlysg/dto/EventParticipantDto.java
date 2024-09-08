@@ -1,8 +1,5 @@
 package com.nusiss.neighbourlysg.dto;
 
-import com.nusiss.neighbourlysg.entity.Event;
-import com.nusiss.neighbourlysg.entity.Profile;
-
 public class EventParticipantDto {
 
     private Long profileId;
