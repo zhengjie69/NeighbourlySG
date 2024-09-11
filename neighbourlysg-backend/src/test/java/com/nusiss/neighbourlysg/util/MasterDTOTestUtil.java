@@ -2,7 +2,9 @@ package com.nusiss.neighbourlysg.util;
 
 import com.nusiss.neighbourlysg.dto.LoginRequestDTO;
 import com.nusiss.neighbourlysg.dto.ProfileDto;
+import com.nusiss.neighbourlysg.dto.QuestionDTO;
 import com.nusiss.neighbourlysg.dto.RoleDto;
+import com.nusiss.neighbourlysg.dto.SurveyDTO;
 
 import java.util.Arrays;
 
@@ -31,6 +33,24 @@ public final class MasterDTOTestUtil {
         roleDto.setId(1);
         roleDto.setName("USER");
         return roleDto;
+    }
+
+    public static SurveyDTO createSurveyDTO() {
+        SurveyDTO surveyDTO = new SurveyDTO();
+        surveyDTO.setDescription("desc");
+        surveyDTO.setId(1L);
+        surveyDTO.setTitle("title");
+        surveyDTO.setQuestions(Arrays.asList(createQuestionDTO()));
+        return surveyDTO;
+    }
+
+    public static QuestionDTO createQuestionDTO() {
+        QuestionDTO questionDTO = new QuestionDTO();
+        questionDTO.setId(1L);
+        questionDTO.setQuestionText("text");
+        questionDTO.setQuestionType("type");
+        questionDTO.setOptions(Arrays.asList("option"));
+        return questionDTO;
     }
 
 }
