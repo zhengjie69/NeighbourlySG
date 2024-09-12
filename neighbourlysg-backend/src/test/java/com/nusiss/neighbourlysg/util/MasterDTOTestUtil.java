@@ -48,23 +48,5 @@ public final class MasterDTOTestUtil {
 
         return eventDto;
     }
-	
-	public static SurveyDTO createSurveyDTO() {
-        SurveyDTO surveyDTO = new SurveyDTO();
-        surveyDTO.setDescription("desc");
-        surveyDTO.setId(1L);
-        surveyDTO.setTitle("title");
-        surveyDTO.setQuestions(Arrays.asList(createQuestionDTO()));
-        return surveyDTO;
-    }
-
-    public static QuestionDTO createQuestionDTO() {
-        QuestionDTO questionDTO = new QuestionDTO();
-        questionDTO.setId(1L);
-        questionDTO.setQuestionText("text");
-        questionDTO.setQuestionType("type");
-        questionDTO.setOptions(Arrays.asList("option"));
-        return questionDTO;
-    }
 
 }

@@ -53,22 +53,4 @@ public final class MasterEntityTestUtil {
 
         return eventParticipant;
     }
-	
-	public static Survey createSurvey() {
-        Survey survey = new Survey();
-        survey.setDescription("desc");
-        survey.setId(1L);
-        survey.setTitle("title");
-        survey.setQuestions(Arrays.asList(createQuestion()));
-        return survey;
-    }
-
-    public static Question createQuestion() {
-        Question question = new Question();
-        question.setId(1L);
-        question.setQuestionText("text");
-        question.setQuestionType("type");
-        question.setOptions(Arrays.asList("option"));
-        return question;
-    }
 }
