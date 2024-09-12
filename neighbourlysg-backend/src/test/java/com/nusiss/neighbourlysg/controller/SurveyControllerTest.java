@@ -17,17 +17,22 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -60,20 +65,39 @@ public class SurveyControllerTest {
     void createSurveyTest() throws Exception {
         SurveyDTO surveyDTO=MasterDTOTestUtil.createSurveyDTO();
 
-        Mockito.when(surveyService.createSurvey(any())).thenReturn(surveyDTO);
+        when(surveyService.createSurvey(any())).thenReturn(surveyDTO);
 
         byte[] data = TestUtil.convertObjectToJsonBytes(surveyDTO);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/" + "/SurveyService/createSurvey")
                         .contentType(TestUtil.APPLICATION_JSON_UTF8).content(data)).andExpect(status().isOk());
     }
-    
+
+    @Test
+    void getAllSurveys_shouldReturnListOfSurveyDTOs() throws Exception {
+        // Arrange
+        SurveyDTO surveyDTO=MasterDTOTestUtil.createSurveyDTO();
+
+        List<SurveyDTO> surveyDTOs = new ArrayList<>();
+        surveyDTOs.add(surveyDTO);
+
+        when(surveyService.getAllSurveys()).thenReturn(surveyDTOs);
+
+        // Act and Assert
+        mockMvc.perform(get("/api/SurveyService/getAllSurveys")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0]").exists()) // Customize this based on the properties of SurveyDTO
+                .andExpect(jsonPath("$[0].id").value(surveyDTO.getId())); // Example property check
+    }
+
 
     @Test
     void getSurveyTest() throws Exception {
         SurveyDTO surveyDTO=MasterDTOTestUtil.createSurveyDTO();
 
-        Mockito.when(surveyService.getSurveyById(any())).thenReturn(Optional.of(surveyDTO));
+        when(surveyService.getSurveyById(any())).thenReturn(Optional.of(surveyDTO));
 
         byte[] objectToJson = TestUtil.convertObjectToJsonBytes(surveyDTO);
 
