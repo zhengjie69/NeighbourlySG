@@ -20,6 +20,7 @@ function ResidentLogin() {
       const response = await axios.post('http://localhost:8080/login', { email, password });
       
       if (response.status === 200) {
+        sessionStorage.setItem('userId', response.data.id);
         navigate('/ResidentMainPage');
       }
     } catch (error) {

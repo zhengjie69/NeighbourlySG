@@ -71,7 +71,8 @@ function ProfileSettingsPage() {
     } else {
       setErrors({});
       try {
-        const response = await axios.put('http://localhost:8080/api/ProfileService/updateProfile/1', {
+        const userId = sessionStorage.getItem('userId');
+        const response = await axios.put(`http://localhost:8080/api/ProfileService/updateProfile/${userId}`, {
           name,
           email,
           password: newPassword,
