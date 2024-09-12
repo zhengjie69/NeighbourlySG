@@ -80,7 +80,6 @@ function ProfileSettingsPage() {
           constituency,
         });
         setSuccessMessage('Profile updated successfully!');
-        console.log('Profile updated:', response.data);
       } catch (error) {
         setErrors({ api: 'Failed to update profile. Please try again later.' });
       }
@@ -98,7 +97,6 @@ function ProfileSettingsPage() {
         }
       } catch (error) {
         alert('Failed to delete account. Please try again.');
-        console.log("error here: " + error);
       }
     } else {
       alert('You need to type "delete account" to confirm.');
