@@ -1,12 +1,11 @@
 package com.nusiss.neighbourlysg.util;
 
-import com.nusiss.neighbourlysg.dto.QuestionDTO;
-import com.nusiss.neighbourlysg.dto.SurveyDTO;
+import com.nusiss.neighbourlysg.entity.Event;
+import com.nusiss.neighbourlysg.entity.EventParticipant;
 import com.nusiss.neighbourlysg.entity.Profile;
-import com.nusiss.neighbourlysg.entity.Question;
 import com.nusiss.neighbourlysg.entity.Role;
-import com.nusiss.neighbourlysg.entity.Survey;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 
 public final class MasterEntityTestUtil {
@@ -29,21 +28,29 @@ public final class MasterEntityTestUtil {
         return role;
     }
 
-    public static Survey createSurvey() {
-        Survey survey = new Survey();
-        survey.setDescription("desc");
-        survey.setId(1L);
-        survey.setTitle("title");
-        survey.setQuestions(Arrays.asList(createQuestion()));
-        return survey;
+    public static Event createEventEntity(){
+        Profile testProfile = createProfileEntity();
+
+        Event event = new Event();
+        event.setTitle("testTitle");
+        event.setProfile(testProfile);
+        event.setLocation("testLocation");
+        event.setDescription("testDescription");
+        event.setDate(LocalDate.now());
+        event.setStartTime("testStartTime");
+        event.setEndTime("testEndTime");
+
+        return event;
     }
 
-    public static Question createQuestion() {
-        Question question = new Question();
-        question.setId(1L);
-        question.setQuestionText("text");
-        question.setQuestionType("type");
-        question.setOptions(Arrays.asList("option"));
-        return question;
+    public static EventParticipant createEventParticipantEntity() {
+        Event event = createEventEntity();
+        Profile profile = createProfileEntity();
+
+        EventParticipant eventParticipant = new EventParticipant();
+        eventParticipant.setEvent(event);
+        eventParticipant.setProfile(profile);
+
+        return eventParticipant;
     }
 }
