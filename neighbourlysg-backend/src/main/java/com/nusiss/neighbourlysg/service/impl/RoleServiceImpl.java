@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.management.relation.RoleNotFoundException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class RoleServiceImpl implements RoleService {
@@ -44,7 +43,7 @@ public class RoleServiceImpl implements RoleService {
         List<Role> roles = roleRepository.findAll(); // Fetch all roles from the repository
         return roles.stream()
                 .map(roleMapper::toDto) // Convert each Role to RoleDto using the mapper
-                .collect(Collectors.toList());
+                .toList(); // Use Stream.toList() for an unmodifiable list
     }
 
     @Override

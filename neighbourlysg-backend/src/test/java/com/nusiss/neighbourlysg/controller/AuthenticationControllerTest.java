@@ -25,7 +25,7 @@ import java.util.Optional;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = NeighbourlysgBackendApplication.class)
-public class AuthenticationControllerTest {
+class AuthenticationControllerTest {
     @Mock
     ProfileService profileService;
     @Mock
@@ -42,7 +42,7 @@ public class AuthenticationControllerTest {
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
     @BeforeEach
     void setup() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         authenticationController = new AuthenticationController(profileService);
         this.mockMvc = MockMvcBuilders.standaloneSetup(authenticationController)
                 .setCustomArgumentResolvers(pageableArgumentResolver)

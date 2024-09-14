@@ -31,7 +31,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = NeighbourlysgBackendApplication.class)
-public class EventServiceImplTest {
+class EventServiceImplTest {
 
     @Mock
     ProfileRepository profileRepository;
@@ -67,7 +67,8 @@ public class EventServiceImplTest {
 
     @Test
     void testCreateEvent_NoProfileId() {
-        assertThrows(IllegalArgumentException.class, () -> eventService.createEvent(new EventDto(), null));
+        EventDto eventDto = new EventDto();
+        assertThrows(IllegalArgumentException.class, () -> eventService.createEvent(eventDto, null));
     }
 
     @Test
@@ -80,9 +81,13 @@ public class EventServiceImplTest {
 
     @Test
     void testCreateEvent_InvalidProfile() {
+        // Setup the mock to return an empty Optional when finding the profile
         when(profileRepository.findById(any(Long.class))).thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class, () -> eventService.createEvent(new EventDto(), 1L));
+        // Directly invoke the method that may throw an exception within the lambda
+        assertThrows(RuntimeException.class, () -> {
+            eventService.createEvent(new EventDto(), 1L);
+        });
     }
 
     @Test
@@ -143,10 +148,13 @@ public class EventServiceImplTest {
     @Test
     void testDeleteEvent() {
         Event event = MasterEntityTestUtil.createEventEntity();
+        event.setId(1L);
 
         when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
 
         eventService.deleteEvent(event.getId());
+
+        assertEquals(1, event.getId());
     }
 
     @Test

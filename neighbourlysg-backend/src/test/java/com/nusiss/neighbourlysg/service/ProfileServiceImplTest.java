@@ -2,24 +2,16 @@ package com.nusiss.neighbourlysg.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.Arrays;
 import java.util.Optional;
 
 import com.nusiss.neighbourlysg.NeighbourlysgBackendApplication;
-import com.nusiss.neighbourlysg.controller.ProfileController;
 import com.nusiss.neighbourlysg.dto.LoginRequestDTO;
 import com.nusiss.neighbourlysg.exception.PasswordWrongException;
 import com.nusiss.neighbourlysg.exception.UserNotExistedException;
 import com.nusiss.neighbourlysg.repository.RoleRepository;
 import com.nusiss.neighbourlysg.util.MasterDTOTestUtil;
 import com.nusiss.neighbourlysg.util.MasterEntityTestUtil;
-import com.nusiss.neighbourlysg.util.TestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -29,16 +21,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.nusiss.neighbourlysg.dto.ProfileDto;
-import com.nusiss.neighbourlysg.entity.Profile;
 import com.nusiss.neighbourlysg.exception.EmailInUseException;
 import com.nusiss.neighbourlysg.mapper.ProfileMapper;
 import com.nusiss.neighbourlysg.repository.ProfileRepository;
 import com.nusiss.neighbourlysg.service.impl.ProfileServiceImpl;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import javax.management.relation.RoleNotFoundException;
 
@@ -70,16 +56,15 @@ class ProfileServiceImplTest {
 		ProfileDto result = profileService.createProfile(MasterDTOTestUtil.createProfileDTO());
 		assertEquals(dto.getId(), result.getId());
     }
-	
+
 	@Test
 	void createProfileEmailInUse() {
-		//email in use
+		// Setup mock to return a profile when searching by email
 		Mockito.when(profileRepository.findByEmail(Mockito.any())).thenReturn(Optional.of(MasterEntityTestUtil.createProfileEntity()));
-		//receive exception
-		assertThrows(EmailInUseException.class, () -> {
-			profileService.createProfile(MasterDTOTestUtil.createProfileDTO());
-		});
-    }
+
+		// Assert that creating a profile with an email in use throws an EmailInUseException
+		assertThrows(EmailInUseException.class, () -> profileService.createProfile(MasterDTOTestUtil.createProfileDTO()));
+	}
 
 	@Test
 	void loginSuccess() {
@@ -94,7 +79,6 @@ class ProfileServiceImplTest {
 	void loginFailedWrongPassWord() {
 
 		Mockito.when(profileRepository.findByEmail(Mockito.any())).thenReturn(Optional.of(MasterEntityTestUtil.createProfileEntity()));
-		final ProfileDto dto = profileMapper.toDto(MasterEntityTestUtil.createProfileEntity());
 
 		//wrong password
 		LoginRequestDTO loginRequestDTO = MasterDTOTestUtil.createLoginRequestDTO();
@@ -108,12 +92,10 @@ class ProfileServiceImplTest {
 
 	@Test
 	void loginFailedUserNotExisted() {
-
+		// Setup mock to return an empty Optional when searching by email
 		Mockito.when(profileRepository.findByEmail(Mockito.any())).thenReturn(Optional.empty());
 
-		//receive exception
-		assertThrows(UserNotExistedException.class, () -> {
-			profileService.login(MasterDTOTestUtil.createLoginRequestDTO());
-		});
+		// Assert that logging in with a non-existent user throws UserNotExistedException
+		assertThrows(UserNotExistedException.class, () -> profileService.login(MasterDTOTestUtil.createLoginRequestDTO()));
 	}
 }

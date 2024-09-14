@@ -1,14 +1,11 @@
 package com.nusiss.neighbourlysg.controller;
 
 import com.nusiss.neighbourlysg.NeighbourlysgBackendApplication;
-import com.nusiss.neighbourlysg.dto.LoginRequestDTO;
 import com.nusiss.neighbourlysg.dto.ProfileDto;
-import com.nusiss.neighbourlysg.entity.Profile;
 import com.nusiss.neighbourlysg.mapper.ProfileMapper;
 import com.nusiss.neighbourlysg.repository.ProfileRepository;
 import com.nusiss.neighbourlysg.service.ProfileService;
 import com.nusiss.neighbourlysg.util.MasterDTOTestUtil;
-import com.nusiss.neighbourlysg.util.MasterEntityTestUtil;
 import com.nusiss.neighbourlysg.util.TestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = NeighbourlysgBackendApplication.class)
-public class ProfileControllerTest {
+class ProfileControllerTest {
     @Mock
     ProfileService profileService;
     @Mock
@@ -50,7 +47,7 @@ public class ProfileControllerTest {
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
     @BeforeEach
     void setup() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         profileController = new ProfileController(profileService);
         this.mockMvc = MockMvcBuilders.standaloneSetup(profileController)
                 .setCustomArgumentResolvers(pageableArgumentResolver)
