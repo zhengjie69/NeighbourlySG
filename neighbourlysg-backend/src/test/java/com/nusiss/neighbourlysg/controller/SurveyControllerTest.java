@@ -1,18 +1,14 @@
 package com.nusiss.neighbourlysg.controller;
 
 import com.nusiss.neighbourlysg.NeighbourlysgBackendApplication;
-import com.nusiss.neighbourlysg.dto.ProfileDto;
+
 import com.nusiss.neighbourlysg.dto.SurveyDTO;
-import com.nusiss.neighbourlysg.mapper.ProfileMapper;
-import com.nusiss.neighbourlysg.repository.ProfileRepository;
-import com.nusiss.neighbourlysg.service.ProfileService;
 import com.nusiss.neighbourlysg.service.SurveyService;
 import com.nusiss.neighbourlysg.util.MasterDTOTestUtil;
 import com.nusiss.neighbourlysg.util.TestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,9 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 

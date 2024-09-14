@@ -3,7 +3,6 @@ package com.nusiss.neighbourlysg.controller;
 
 import com.nusiss.neighbourlysg.dto.SurveyDTO;
 import com.nusiss.neighbourlysg.service.SurveyService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

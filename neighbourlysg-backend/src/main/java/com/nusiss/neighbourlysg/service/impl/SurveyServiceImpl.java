@@ -40,8 +40,7 @@ public class SurveyServiceImpl implements SurveyService {
     @Override
     public List<SurveyDTO> getAllSurveys() {
         return surveyRepository.findAll().stream()
-                .map(surveyMapper::toDto)
-                .collect(Collectors.toList());
+                .map(surveyMapper::toDto).toList();
     }
 
     @Override
