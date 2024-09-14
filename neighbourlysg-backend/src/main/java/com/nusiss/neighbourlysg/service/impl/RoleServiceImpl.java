@@ -67,9 +67,4 @@ public class RoleServiceImpl implements RoleService {
         Role updatedRole = roleRepository.save(existingRole);
         return roleMapper.toDto(updatedRole);
     }
-
-    public Role findRoleById(Integer id) throws RoleNotFoundException {
-        return roleRepository.findById(id)
-                .orElseThrow(() -> new RoleNotFoundException("Role with ID " + id + " not found"));
-    }
 }
