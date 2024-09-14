@@ -3,21 +3,17 @@ package com.nusiss.neighbourlysg.mapper;
 import com.nusiss.neighbourlysg.dto.ProfileDto;
 import com.nusiss.neighbourlysg.entity.Profile;
 import com.nusiss.neighbourlysg.entity.Role;
-import com.nusiss.neighbourlysg.service.impl.RoleServiceImpl;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
-import javax.management.relation.RoleNotFoundException;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface ProfileMapper {
     ProfileMapper INSTANCE = Mappers.getMapper(ProfileMapper.class);
-
 
     @Mapping(source = "roles", target = "roles", qualifiedByName = "rolesToRoleIds")
     ProfileDto toDto(Profile profile);
@@ -34,7 +30,7 @@ public interface ProfileMapper {
 
         return roles.stream()
                 .map(Role::getId)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Named("roleIdsToRoles")
@@ -46,7 +42,7 @@ public interface ProfileMapper {
 
         return roleIds.stream()
                 .map(this::findRoleById)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // Note: This method is not implemented in the interface.

@@ -8,7 +8,7 @@ import java.util.Optional;
 import com.nusiss.neighbourlysg.config.ErrorMessagesConstants;
 import com.nusiss.neighbourlysg.dto.RoleAssignmentDto;
 import com.nusiss.neighbourlysg.entity.Role;
-import com.nusiss.neighbourlysg.exception.ProfileNotFoundException;
+import com.nusiss.neighbourlysg.exception.*;
 import com.nusiss.neighbourlysg.repository.RoleRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -32,16 +32,17 @@ public class ProfileServiceImpl implements ProfileService {
     private final ProfileMapper profileMapper;
     private final RoleRepository roleRepository;
 
-    public ProfileServiceImpl(ProfileRepository profileRepository, ProfileMapper profileMapper, RoleRepository roleRepository) {
-    	this.profileRepository=profileRepository;
-    	this.profileMapper=profileMapper;
+    public ProfileServiceImpl(ProfileRepository profileRepository, ProfileMapper profileMapper,
+            RoleRepository roleRepository) {
+        this.profileRepository = profileRepository;
+        this.profileMapper = profileMapper;
         this.roleRepository = roleRepository;
     }
-    
+
     @Override
     @Transactional
     public ProfileDto createProfile(ProfileDto profileDto) throws RoleNotFoundException {
-    	// Check if user with email already exists, since email is unique
+        // Check if user with email already exists, since email is unique
         if (profileRepository.findByEmail(profileDto.getEmail()).isPresent()) {
             throw new EmailInUseException();
         }
@@ -55,9 +56,9 @@ public class ProfileServiceImpl implements ProfileService {
             role = findRoleByIds(profileDto.getRoles());
         }
 
-        // Encrypt the password 
-        //String encodedPassword = passwordEncoder.encode(password);
-	
+        // Encrypt the password
+        // String encodedPassword = passwordEncoder.encode(password);
+
         Profile profile = profileMapper.toEntity(profileDto);
         profile.setRoles(role);
         Profile savedProfile = profileRepository.save(profile);
@@ -67,14 +68,14 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public ProfileDto getProfileById(Long profileId) {
-        if(profileId == null) {
+        if (profileId == null) {
             throw new IllegalArgumentException("No Profile Id is inputted");
         }
         Optional<Profile> profile = profileRepository.findById(profileId);
 
-        if(profile.isPresent()) {
+        if (profile.isPresent()) {
             return profileMapper.toDto(profile.get());
-        }else{
+        } else {
             throw new ProfileNotFoundException("Profile not found with id: " + profileId);
         }
     }
@@ -91,10 +92,11 @@ public class ProfileServiceImpl implements ProfileService {
         if (profileDto.getEmail() != null && !Objects.equals(profileDto.getEmail(), existingProfile.getEmail())) {
             existingProfile.setEmail(profileDto.getEmail());
         }
-        if (profileDto.getConstituency() != null && !Objects.equals(profileDto.getConstituency(), existingProfile.getConstituency())) {
+        if (profileDto.getConstituency() != null
+                && !Objects.equals(profileDto.getConstituency(), existingProfile.getConstituency())) {
             existingProfile.setConstituency(profileDto.getConstituency());
         }
-        if (profileDto.getPassword() != null && !profileDto.getPassword().isEmpty() ) {
+        if (profileDto.getPassword() != null && !profileDto.getPassword().isEmpty()) {
             existingProfile.setPassword(profileDto.getPassword());
         }
 
@@ -109,31 +111,31 @@ public class ProfileServiceImpl implements ProfileService {
 
         return profileMapper.toDto(updatedProfile);
     }
+
     @Override
     public void deleteProfile(Long profileId) {
 
         profileRepository.findById(profileId)
                 .orElseThrow(() -> new ProfileNotFoundException(ErrorMessagesConstants.PROFILE_NOT_FOUND + profileId));
 
-        profileRepository.deleteById(profileId);
+        profileRepository.deleteById(profile.getId());
     }
-
 
     @Override
     public ProfileDto login(LoginRequestDTO loginRequestDTO) {
-    	// Check if user with email, check password
-    	
-    	Optional<Profile> profileOp = profileRepository.findByEmail(loginRequestDTO.getEmail());
-    	
+        // Check if user with email, check password
+
+        Optional<Profile> profileOp = profileRepository.findByEmail(loginRequestDTO.getEmail());
+
         if (profileOp.isPresent()) {
-            //check password
-        	if(!StringUtils.equals(profileOp.get().getPassword(), loginRequestDTO.getPassword())) {
-        		 throw new PasswordWrongException();
-        	}
-        }else {
-        	throw new UserNotExistedException();
-        } 
-        
+            // check password
+            if (!StringUtils.equals(profileOp.get().getPassword(), loginRequestDTO.getPassword())) {
+                throw new PasswordWrongException();
+            }
+        } else {
+            throw new UserNotExistedException();
+        }
+
         return profileMapper.toDto(profileOp.get());
 
     }
@@ -147,10 +149,12 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public ProfileDto assignRoleToUser(RoleAssignmentDto roleAssignmentDto) throws RoleNotFoundException, ProfileNotFoundException {
+    public ProfileDto assignRoleToUser(RoleAssignmentDto roleAssignmentDto)
+            throws RoleNotFoundException, ProfileNotFoundException {
         // Retrieve the profile by userId, throw exception if not found
         Profile profile = profileRepository.findById(roleAssignmentDto.getUserId())
-                .orElseThrow(() -> new ProfileNotFoundException(ErrorMessagesConstants.PROFILE_NOT_FOUND + roleAssignmentDto.getUserId()));
+                .orElseThrow(() -> new ProfileNotFoundException(
+                        ErrorMessagesConstants.PROFILE_NOT_FOUND + roleAssignmentDto.getUserId()));
 
         // Fetch roles by roleIds and throw exception if any role is not found
         List<Role> newRoles = roleAssignmentDto.getRoleIds().stream()
@@ -182,7 +186,8 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     @Transactional
-    public ProfileDto updateRoles(Long userId, List<Integer> roleIds) throws RoleNotFoundException, ProfileNotFoundException {
+    public ProfileDto updateRoles(Long userId, List<Integer> roleIds)
+            throws RoleNotFoundException, ProfileNotFoundException {
         Profile profile = profileRepository.findById(userId)
                 .orElseThrow(() -> new ProfileNotFoundException(ErrorMessagesConstants.PROFILE_NOT_FOUND + userId));
 

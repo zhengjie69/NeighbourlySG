@@ -11,39 +11,37 @@ import com.nusiss.neighbourlysg.exception.ProfileNotFoundException;
 import javax.management.relation.RoleNotFoundException;
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/api/ProfileService")
 public class ProfileController {
 
-    
-    
-	private final ProfileService profileService;
-    
+    private final ProfileService profileService;
+
     public ProfileController(ProfileService profileService) {
-    	this.profileService=profileService;
-    	
+        this.profileService = profileService;
+
     }
 
-    //Get All Profiles/Users
+    // Get All Profiles/Users
     @GetMapping("/profiles")
     public ResponseEntity<List<ProfileDto>> getAllProfiles() {
         List<ProfileDto> profiles = profileService.getAllProfiles();
         return ResponseEntity.ok(profiles); // Return the list of profiles with 200 OK status
     }
 
-    //Create Profile REST API
+    // Create Profile REST API
     @PostMapping("/register")
-    public ResponseEntity<Object> createProfile(@RequestBody ProfileDto profileDto) {
+    public ResponseEntity<ProfileDto> createProfile(@RequestBody ProfileDto profileDto) {
         try {
             ProfileDto profile = profileService.createProfile(profileDto);
             return ResponseEntity.ok(profile);
         } catch (RoleNotFoundException e) {
             // Return a response with a 400 Bad Request status and error message
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Role not found: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
-    //Get Profile By Id REST API
+
+    // Get Profile By Id REST API
     @GetMapping("/profile/{id}")
     public ResponseEntity<ProfileDto> getProfileById(@PathVariable("id") Long id) {
 
@@ -77,7 +75,8 @@ public class ProfileController {
     @PutMapping("/assign-role")
     public ResponseEntity<Object> assignRoleToUser(@RequestBody RoleAssignmentDto roleAssignmentDto) {
         try {
-            ProfileDto updatedProfile = profileService.updateRoles(roleAssignmentDto.getUserId(), roleAssignmentDto.getRoleIds());
+            ProfileDto updatedProfile = profileService.updateRoles(roleAssignmentDto.getUserId(),
+                    roleAssignmentDto.getRoleIds());
             return ResponseEntity.ok(updatedProfile);
         } catch (RoleNotFoundException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Role not found: " + e.getMessage());
@@ -88,7 +87,7 @@ public class ProfileController {
         }
     }
 
-    //Delete Profile REST API
+    // Delete Profile REST API
     @DeleteMapping("/profile/{id}")
     public ResponseEntity<String> deleteProfile(@PathVariable("id") Long id) {
         try {
