@@ -12,6 +12,9 @@ const CreateSurveyPage = () => {
   const [questions, setQuestions] = useState([
     { id: 1, questionText: "", questionType: "shortAnswer", options: [] },
   ]);
+  const [errors, setErrors] = useState({});
+  const [message, setMessage] = useState(''); // State for success or error message
+  const [isError, setIsError] = useState(false); // New state to track error vs success
 
   const handleQuestionTextChange = (id, text) => {
     setQuestions(
@@ -68,9 +71,58 @@ const CreateSurveyPage = () => {
     );
   };
 
-  const handleSubmit = () => {
-    console.log("Survey created:", questions);
-    // Submit logic here
+  const handleSubmit = async () => {
+    try {
+      const surveyData = {
+        title: surveyTitle,
+        description: surveyDescription,
+        questions: questions.map((q) => ({
+          questionText: q.questionText,
+          questionType: q.questionType,
+          options: q.options,
+        })),
+      };
+
+      const response = await fetch('http://localhost:8080/api/SurveyService/createSurvey', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(surveyData),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setMessage("Survey created successfully!");
+        setIsError(false); // Clear error state
+        setErrors({});
+        setSurveyTitle("");
+        setSurveyDescription("");
+        setQuestions([
+          { id: 1, questionText: "", questionType: "shortAnswer", options: [] },
+        ]);
+
+      } else {
+        console.error('Registration error:', error); 
+        console.error('Registration error msg:', error.response.data.errorDetails); 
+        
+        if (error.response && error.response.data && error.response.data.errorDetails) {
+            setMessage(error.response.data.errorDetails); // Display the backend error message
+        } else {
+            setMessage("Failed to create survey."); // Fallback message
+        }
+        setIsError(true); // Set error state
+      }
+    } catch (error) {
+      console.error('Registration error:', error); 
+      
+      if (error.response && error.response.data && error.response.data.errorDetails) {
+          setMessage(error.response.data.errorDetails); // Display the backend error message
+      } else {
+          setMessage("Error submitting survey."); // Fallback message
+      }
+      setIsError(true); // Set error state
+    }
   };
 
   return (
@@ -177,6 +229,7 @@ const CreateSurveyPage = () => {
         </h3>
 
         <Form>
+        
           <Form.Group className="mb-4">
             <Form.Label>Survey Title</Form.Label>
             <FormControl
@@ -282,6 +335,11 @@ const CreateSurveyPage = () => {
             Create Survey
           </Button>
         </Form>
+        {message && (
+                    <div className={`alert ${isError ? 'alert-danger' : 'alert-success'} mt-4`} role="alert">
+                        {message}
+                    </div>
+        )}
       </div>
 
       {/* Footer */}
