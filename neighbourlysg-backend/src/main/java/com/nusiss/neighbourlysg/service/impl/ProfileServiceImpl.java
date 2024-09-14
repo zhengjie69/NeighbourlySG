@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 import com.nusiss.neighbourlysg.dto.RoleAssignmentDto;
 import com.nusiss.neighbourlysg.entity.Role;
-import com.nusiss.neighbourlysg.exception.ProfileNotFoundException;
+import com.nusiss.neighbourlysg.exception.*;
 import com.nusiss.neighbourlysg.repository.RoleRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -16,9 +16,6 @@ import org.springframework.stereotype.Service;
 import com.nusiss.neighbourlysg.dto.LoginRequestDTO;
 import com.nusiss.neighbourlysg.dto.ProfileDto;
 import com.nusiss.neighbourlysg.entity.Profile;
-import com.nusiss.neighbourlysg.exception.EmailInUseException;
-import com.nusiss.neighbourlysg.exception.PasswordWrongException;
-import com.nusiss.neighbourlysg.exception.UserNotExistedException;
 import com.nusiss.neighbourlysg.mapper.ProfileMapper;
 import com.nusiss.neighbourlysg.repository.ProfileRepository;
 import com.nusiss.neighbourlysg.service.ProfileService;
@@ -83,7 +80,7 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public ProfileDto updateProfile(Long id, ProfileDto profileDto) throws RoleNotFoundException {
         Profile existingProfile = profileRepository.findById(id)
-                .orElseThrow(() -> new ProfileNotFoundException("Profile not found with id: " + id));
+                .orElseThrow(() -> new ProfileNotFoundException("Profile is not found while updating: " + id));
 
         // Update fields only if they are present in the DTO
         if (profileDto.getName() != null && !Objects.equals(profileDto.getName(), existingProfile.getName())) {
@@ -113,10 +110,10 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public void deleteProfile(Long profileId) {
 
-        profileRepository.findById(profileId)
+        Profile profile = profileRepository.findById(profileId)
                 .orElseThrow(() -> new ProfileNotFoundException("Profile with ID " + profileId + " cannot be found"));
 
-        profileRepository.deleteById(profileId);
+        profileRepository.deleteById(profile.getId());
     }
 
 
@@ -151,14 +148,14 @@ public class ProfileServiceImpl implements ProfileService {
     @Transactional
     public ProfileDto assignRoleToUser(RoleAssignmentDto roleAssignmentDto) throws RoleNotFoundException, ProfileNotFoundException {
         Profile profile = profileRepository.findById(roleAssignmentDto.getUserId())
-                .orElseThrow(() -> new ProfileNotFoundException("Profile not found with id: " + roleAssignmentDto.getUserId()));
+                .orElseThrow(() -> new ProfileNotFoundException("Profile is not found when assigning role to user of ID: " + roleAssignmentDto.getUserId()));
 
         Role role = roleRepository.findById(roleAssignmentDto.getRoleId())
-                .orElseThrow(() -> new RoleNotFoundException("Role not found with id: " + roleAssignmentDto.getRoleId()));
+                .orElseThrow(() -> new RoleNotFoundException("Role is not found when assigning role to user of ID: " + roleAssignmentDto.getRoleId()));
 
         // Check if the profile already has the role
         if (profile.getRoles().contains(role)) {
-            throw new RuntimeException("User already has this role");
+            throw new RoleAlreadyExistsException("User already has this role");
         }
 
         // Add the new role to the profile

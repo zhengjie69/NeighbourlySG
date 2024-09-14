@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import SGLogo from '../../assets/SGLogo.avif';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const grcSmcOptions = [
     'Aljunied GRC', 'Ang Mo Kio GRC', 'Bishan-Toa Payoh GRC', 'Chua Chu Kang GRC',
@@ -25,11 +26,12 @@ function ProfileSettingsPage() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [constituency, setConstituency] = useState('');
-  const [disableAccount, setDisableAccount] = useState(false);
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [disablePassword, setDisablePassword] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState('');  // Changed to deleteConfirm
+  const userId = sessionStorage.getItem('userId');
+  const navigate = useNavigate();
 
   const validateForm = () => {
     const errors = {};
@@ -71,29 +73,33 @@ function ProfileSettingsPage() {
     } else {
       setErrors({});
       try {
-        const response = await axios.put('http://localhost:8080/api/ProfileService/updateProfile/1', {
+        const response = await axios.put(`http://localhost:8080/api/ProfileService/updateProfile/${userId}`, {
           name,
           email,
           password: newPassword,
           constituency,
         });
         setSuccessMessage('Profile updated successfully!');
-        console.log('Profile updated:', response.data);
       } catch (error) {
         setErrors({ api: 'Failed to update profile. Please try again later.' });
       }
     }
   };
 
-  const handleDisableAccount = () => {
-    // Implement account disable logic here after validation
-    if (disablePassword === "user's stored password") { // Example comparison
-      setDisableAccount(true);
-      console.log('Account disabled');
-      alert('Your account has been disabled.');
-      setShowModal(false);
+  const handleDeleteAccount = async () => {
+    if (deleteConfirm === 'delete account') {
+      try {
+        const response = await axios.delete(`http://localhost:8080/api/ProfileService/profile/${userId}`);
+        if (response.status === 200) {
+          alert('Your account has been deleted.');
+          setShowModal(false);
+          navigate('/ResidentLogin');
+        }
+      } catch (error) {
+        alert('Failed to delete account. Please try again.');
+      }
     } else {
-      alert('Password is incorrect.');
+      alert('You need to type "delete account" to confirm.');
     }
   };
 
@@ -303,18 +309,17 @@ function ProfileSettingsPage() {
 
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Confirm Disable Account</Modal.Title>
+          <Modal.Title>Confirm Delete Account</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
-            <p style={{ color: '#d9534f' }}>Are you sure you want to disable your account? This action cannot be undone.</p>
-            <Form.Group controlId="formDisablePassword" className="mb-3">
-              <Form.Label>Enter your password to disable account</Form.Label>
+            <p style={{ color: '#d9534f' }}>Are you sure you want to delete your account? This action cannot be undone.</p>
+            <Form.Group controlId="formDeleteAccount" className="mb-3">
+              <Form.Label>Type 'delete account' to delete your account</Form.Label>
               <Form.Control 
-                type="password" 
-                placeholder="Enter password" 
-                value={disablePassword} 
-                onChange={(e) => setDisablePassword(e.target.value)} 
+                placeholder="delete account" 
+                value={deleteConfirm} 
+                onChange={(e) => setDeleteConfirm(e.target.value)} 
               />
             </Form.Group>
           </Form>
@@ -323,8 +328,8 @@ function ProfileSettingsPage() {
           <Button variant="secondary" onClick={() => setShowModal(false)}>
             Cancel
           </Button>
-          <Button variant="danger" onClick={handleDisableAccount}>
-            Confirm Disable Account
+          <Button variant="danger" onClick={handleDeleteAccount}>
+            Confirm Delete Account
           </Button>
         </Modal.Footer>
       </Modal>
