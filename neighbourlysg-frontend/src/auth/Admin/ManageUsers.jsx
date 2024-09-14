@@ -71,6 +71,9 @@ const ManageUsers = () => {
               <li className="nav-item">
                 <Link className="nav-link" to="/ProfileSettings">Profile</Link>
               </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/ManageUsers">Manage Users</Link>
+              </li>
               <li className="nav-item dropdown">
                 <ul className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                   <li><Link className="dropdown-item" to="/settings">Settings</Link></li>
