@@ -23,5 +23,5 @@ public interface ProfileService {
 
     ProfileDto assignRoleToUser(RoleAssignmentDto roleAssignmentDto) throws RoleNotFoundException, ProfileNotFoundException;
 
-
+    ProfileDto updateRoles(Long userId, List<Integer> roleIds) throws RoleNotFoundException, ProfileNotFoundException;
 }

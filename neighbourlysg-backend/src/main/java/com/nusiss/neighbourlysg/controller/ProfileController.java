@@ -34,7 +34,7 @@ public class ProfileController {
 
     //Create Profile REST API
     @PostMapping("/register")
-    public ResponseEntity<?> createProfile(@RequestBody ProfileDto profileDto) {
+    public ResponseEntity<Object> createProfile(@RequestBody ProfileDto profileDto) {
         try {
             ProfileDto profile = profileService.createProfile(profileDto);
             return ResponseEntity.ok(profile);
@@ -74,16 +74,17 @@ public class ProfileController {
         }
     }
 
-    @PostMapping("/assign-role")
-    public ResponseEntity<ProfileDto> assignRoleToUser(@RequestBody RoleAssignmentDto roleAssignmentDto) {
+    @PutMapping("/assign-role")
+    public ResponseEntity<Object> assignRoleToUser(@RequestBody RoleAssignmentDto roleAssignmentDto) {
         try {
-            ProfileDto updatedProfile = profileService.assignRoleToUser(roleAssignmentDto);
+            ProfileDto updatedProfile = profileService.updateRoles(roleAssignmentDto.getUserId(), roleAssignmentDto.getRoleIds());
             return ResponseEntity.ok(updatedProfile);
-        } catch (RoleNotFoundException | ProfileNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        } catch (RoleNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Role not found: " + e.getMessage());
+        } catch (ProfileNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Profile not found: " + e.getMessage());
         } catch (RuntimeException e) {
-            // Handle specific exception for already existing role
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Error occurred while updating roles");
         }
     }
 
