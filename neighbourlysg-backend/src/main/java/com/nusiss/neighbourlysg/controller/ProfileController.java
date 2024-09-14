@@ -83,7 +83,7 @@ public class ProfileController {
         } catch (ProfileNotFoundException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Profile not found: " + e.getMessage());
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Error occurred while updating roles");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error occurred while updating roles");
         }
     }
 

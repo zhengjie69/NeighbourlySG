@@ -1,5 +1,6 @@
 package com.nusiss.neighbourlysg.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nusiss.neighbourlysg.NeighbourlysgBackendApplication;
 import com.nusiss.neighbourlysg.dto.ProfileDto;
 import com.nusiss.neighbourlysg.dto.RoleAssignmentDto;
@@ -21,6 +22,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -183,33 +185,42 @@ class ProfileControllerTest {
     @Test
     void assignRoleToUser_ShouldReturnOkWhenRoleIsAssigned() throws Exception {
         // Given
-        RoleAssignmentDto roleAssignmentDto = new RoleAssignmentDto(); // Populate this with valid data
-        ProfileDto updatedProfile = MasterDTOTestUtil.createProfileDTO();
+        RoleAssignmentDto roleAssignmentDto = new RoleAssignmentDto();
+        roleAssignmentDto.setUserId(1L);
+        roleAssignmentDto.setRoleIds(Arrays.asList(1, 2, 3)); // Updated for List<Integer>
 
-        when(profileService.assignRoleToUser(any(RoleAssignmentDto.class))).thenReturn(updatedProfile);
+        ProfileDto updatedProfile = new ProfileDto();
+        updatedProfile.setId(1L); // Populate with test data as needed
 
-        byte[] objectToJson = TestUtil.convertObjectToJsonBytes(roleAssignmentDto);
+        when(profileService.updateRoles(any(Long.class), any(List.class))).thenReturn(updatedProfile);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String requestBody = objectMapper.writeValueAsString(roleAssignmentDto);
 
         // When & Then
-        mockMvc.perform(post("/api/ProfileService/assign-role")
+        mockMvc.perform(put("/api/ProfileService/assign-role")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectToJson))
+                        .content(requestBody))
                 .andExpect(status().isOk());
     }
 
     @Test
     void assignRoleToUser_ShouldReturnBadRequestWhenOtherRuntimeExceptionOccurs() throws Exception {
         // Given
-        RoleAssignmentDto roleAssignmentDto = new RoleAssignmentDto(); // Populate this with valid data
+        RoleAssignmentDto roleAssignmentDto = new RoleAssignmentDto();
+        roleAssignmentDto.setUserId(1L);
+        roleAssignmentDto.setRoleIds(Arrays.asList(1, 2, 3)); // Updated for List<Integer>
 
-        when(profileService.assignRoleToUser(any(RoleAssignmentDto.class))).thenThrow(new RuntimeException("Simulated exception"));
+        when(profileService.updateRoles(any(Long.class), any(List.class)))
+                .thenThrow(new RuntimeException("Simulated exception"));
 
-        byte[] objectToJson = TestUtil.convertObjectToJsonBytes(roleAssignmentDto);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String requestBody = objectMapper.writeValueAsString(roleAssignmentDto);
 
         // When & Then
-        mockMvc.perform(post("/api/ProfileService/assign-role")
+        mockMvc.perform(put("/api/ProfileService/assign-role")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectToJson))
+                        .content(requestBody))
                 .andExpect(status().isBadRequest());
     }
 
