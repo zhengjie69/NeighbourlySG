@@ -249,23 +249,29 @@ class ProfileServiceImplTest {
 	}
 
 	@Test
-	void assignRoleToUser_ShouldAssignRoleWhenProfileAndRoleExist() throws RoleNotFoundException, ProfileNotFoundException {
+	void assignRoleToUser_ShouldAssignRolesWhenProfileAndRolesExist() throws RoleNotFoundException, ProfileNotFoundException {
 		// Given
 		Long userId = 1L;
-		int roleId = 2;
+		List<Integer> roleIds = Arrays.asList(2, 3);
 
-		Role role = new Role(); // Populate with test data
+		Role role1 = new Role(); // Populate with test data
+		role1.setId(2);
+		Role role2 = new Role(); // Populate with test data
+		role2.setId(3);
+
 		Profile profile = new Profile();
+		profile.setRoles(Collections.emptyList()); // Initially empty roles
+
+		Profile updatedProfile = new Profile();
+		updatedProfile.setRoles(Arrays.asList(role1, role2)); // Roles after assignment
 
 		RoleAssignmentDto roleAssignmentDto = new RoleAssignmentDto();
 		roleAssignmentDto.setUserId(userId);
-		roleAssignmentDto.setRoleId(roleId);
-
-		Profile updatedProfile = new Profile();
-		updatedProfile.setRoles(Collections.singletonList(MasterEntityTestUtil.createRoleEntity())); // After adding role
+		roleAssignmentDto.setRoleIds(roleIds);
 
 		when(profileRepository.findById(userId)).thenReturn(Optional.of(profile));
-		when(roleRepository.findById(roleId)).thenReturn(Optional.of(role));
+		when(roleRepository.findById(2)).thenReturn(Optional.of(role1));
+		when(roleRepository.findById(3)).thenReturn(Optional.of(role2));
 		when(profileRepository.save(profile)).thenReturn(updatedProfile);
 
 		// When
@@ -273,6 +279,9 @@ class ProfileServiceImplTest {
 
 		// Then
 		assertNotNull(result);
-		verify(profileRepository).save(profile);
+		assertEquals(2, result.getRoles().size()); // Verify that two roles were assigned
+		assertTrue(result.getRoles().contains(2)); // Verify role ID 2 is present
+		assertTrue(result.getRoles().contains(3)); // Verify role ID 3 is present
+		verify(profileRepository).save(profile); // Verify that save was called
+		}
 	}
-}
