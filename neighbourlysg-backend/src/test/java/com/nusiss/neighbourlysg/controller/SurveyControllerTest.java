@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = NeighbourlysgBackendApplication.class)
-public class SurveyControllerTest {
+class SurveyControllerTest {
     @Mock
     SurveyService surveyService;
 
@@ -46,7 +46,7 @@ public class SurveyControllerTest {
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
     @BeforeEach
     void setup() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         surveyController = new SurveyController(surveyService);
         this.mockMvc = MockMvcBuilders.standaloneSetup(surveyController)
                 .setCustomArgumentResolvers(pageableArgumentResolver)

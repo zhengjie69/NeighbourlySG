@@ -38,7 +38,7 @@ class SurveyServiceImplTest {
 
 	@BeforeEach
 	void setup() {
-		MockitoAnnotations.initMocks(this);
+		MockitoAnnotations.openMocks(this);
 		surveyService = new SurveyServiceImpl(surveyRepository, surveyMapper);
 	}
 
