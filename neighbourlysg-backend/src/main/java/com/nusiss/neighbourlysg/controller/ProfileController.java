@@ -34,13 +34,13 @@ public class ProfileController {
 
     //Create Profile REST API
     @PostMapping("/register")
-    public ResponseEntity<?> createProfile(@RequestBody ProfileDto profileDto) {
+    public ResponseEntity<ProfileDto> createProfile(@RequestBody ProfileDto profileDto) {
         try {
             ProfileDto profile = profileService.createProfile(profileDto);
             return ResponseEntity.ok(profile);
         } catch (RoleNotFoundException e) {
             // Return a response with a 400 Bad Request status and error message
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Role not found: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
     //Get Profile By Id REST API
@@ -79,10 +79,7 @@ public class ProfileController {
         try {
             ProfileDto updatedProfile = profileService.assignRoleToUser(roleAssignmentDto);
             return ResponseEntity.ok(updatedProfile);
-        } catch (RoleNotFoundException | ProfileNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        } catch (RuntimeException e) {
-            // Handle specific exception for already existing role
+        } catch (RoleNotFoundException | RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }

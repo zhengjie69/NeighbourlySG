@@ -178,7 +178,7 @@ class EventControllerTest {
 
         // Configure mock to throw an exception
         doThrow(new RuntimeException("Error deleting event"))
-                .when(eventService).deleteEvent(eq(eventId));
+                .when(eventService).deleteEvent(eventId);
 
         // Call the controller method
         ResponseEntity<String> response = eventController.deleteEvent(eventId);
