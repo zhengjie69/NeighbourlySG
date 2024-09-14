@@ -118,7 +118,7 @@ public class ProfileServiceImpl implements ProfileService {
         profileRepository.findById(profileId)
                 .orElseThrow(() -> new ProfileNotFoundException(ErrorMessagesConstants.PROFILE_NOT_FOUND + profileId));
 
-        profileRepository.deleteById(profile.getId());
+        profileRepository.deleteById(profileId);
     }
 
     @Override
