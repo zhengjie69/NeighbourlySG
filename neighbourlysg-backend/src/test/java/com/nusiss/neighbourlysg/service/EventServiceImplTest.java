@@ -84,10 +84,8 @@ class EventServiceImplTest {
         // Setup the mock to return an empty Optional when finding the profile
         when(profileRepository.findById(any(Long.class))).thenReturn(Optional.empty());
 
-        // Directly invoke the method that may throw an exception within the lambda
-        assertThrows(RuntimeException.class, () -> {
-            eventService.createEvent(new EventDto(), 1L);
-        });
+        // Directly invoke the method that may throw an exception
+        assertThrows(RuntimeException.class, () -> eventService.createEvent(new EventDto(), 1L));
     }
 
     @Test

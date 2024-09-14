@@ -63,7 +63,10 @@ class ProfileServiceImplTest {
 		Mockito.when(profileRepository.findByEmail(Mockito.any())).thenReturn(Optional.of(MasterEntityTestUtil.createProfileEntity()));
 
 		// Assert that creating a profile with an email in use throws an EmailInUseException
-		assertThrows(EmailInUseException.class, () -> profileService.createProfile(MasterDTOTestUtil.createProfileDTO()));
+		assertThrows(EmailInUseException.class, () -> {
+			// Only the following invocation is allowed in the lambda
+			profileService.createProfile(MasterDTOTestUtil.createProfileDTO());
+		});
 	}
 
 	@Test
