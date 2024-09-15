@@ -30,7 +30,7 @@ public class PostController {
     }
 
     // Create a new post
-    @PostMapping("/api/PostService/{profileId}")
+    @PostMapping("/{profileId}")
     public ResponseEntity<PostDto> createPost(@PathVariable Long profileId, @RequestBody PostDto postDto) {
         Post post = postMapper.toEntity(postDto);
         post.setProfile(profileService.findById(profileId)); // Set profile
