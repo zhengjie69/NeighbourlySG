@@ -3,6 +3,7 @@ package com.nusiss.neighbourlysg.controller;
 import com.nusiss.neighbourlysg.service.PostService;
 import com.nusiss.neighbourlysg.dto.PostDto;
 import com.nusiss.neighbourlysg.dto.CommentDto;
+import com.nusiss.neighbourlysg.service.ProfileService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,9 +15,11 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
+    private final ProfileService profileService;
 
-    public PostController(PostService postService) {
+    public PostController(PostService postService, ProfileService profileService) {
         this.postService = postService;
+        this.profileService = profileService;
     }
 
     // Create a new post
@@ -48,10 +51,18 @@ public class PostController {
     }
 
     // Delete a post
-    @DeleteMapping("/{postId}")
-    public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
-        postService.deletePost(postId);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping("/{postId}/{profileId}")
+    public ResponseEntity<Void> deletePost(@PathVariable Long postId, @PathVariable Long profileId) {
+        // Fetch the post to check its owner
+        PostDto post = postService.getPostById(postId);
+
+        // Check if the user is the owner of the post or an admin
+        if (post.getProfileId().equals(profileId) || profileService.isAdmin(profileId)) {
+            postService.deletePost(postId);
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // Forbidden if not admin or post owner
+        }
     }
 
     // Endpoint to like a post (increment like count)
@@ -89,8 +100,13 @@ public class PostController {
         CommentDto existingComment = postService.getCommentById(commentId);
         PostDto post = postService.getPostById(postId);
 
-        if (!post.getProfileId().equals(profileId) || !existingComment.getProfileId().equals(profileId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // Only post owner or comment owner can delete
+        // Check if the user is the post owner, comment owner, or an admin
+        boolean isPostOwner = post.getProfileId().equals(profileId);
+        boolean isCommentOwner = existingComment.getProfileId().equals(profileId);
+        boolean isAdmin = profileService.isAdmin(profileId); // Assuming you have a method like this
+
+        if (!isPostOwner && !isCommentOwner && !isAdmin) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // Only post owner, comment owner, or admin can delete
         }
 
         postService.deleteCommentOnPost(postId, commentId);

@@ -220,6 +220,14 @@ public class ProfileServiceImpl implements ProfileService {
         return roles;
     }
 
+    @Override
+    public boolean isAdmin(Long profileId) {
+        Profile profile = profileRepository.findById(profileId)
+                .orElseThrow(() -> new ProfileNotFoundException(ErrorMessagesConstants.PROFILE_NOT_FOUND + profileId));
 
+        // Check if any of the user's roles has the ID 3 (admin role)
+        return profile.getRoles().stream()
+                .anyMatch(role -> role.getId() == 3);
+    }
 
 }

@@ -23,5 +23,5 @@ public interface ProfileService {
 
     ProfileDto updateRoles(Long userId, List<Integer> roleIds) throws RoleNotFoundException, ProfileNotFoundException;
 
-
+    boolean isAdmin(Long profileId);
 }
