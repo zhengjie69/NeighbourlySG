@@ -73,23 +73,4 @@ public class Post {
         comment.setPost(null);
     }
 
-    public void setProfile(Profile profile) {
-
-    }
-
-    public void setComments(List<Comment> comments) {
-    }
-
-    public void setLikeCount(int i) {
-    }
-
-    public void setCreationDate(LocalDateTime now) {
-    }
-
-    public void setContent(Object content) {
-    }
-
-    public int getLikeCount() {
-        return 0;
-    }
 }

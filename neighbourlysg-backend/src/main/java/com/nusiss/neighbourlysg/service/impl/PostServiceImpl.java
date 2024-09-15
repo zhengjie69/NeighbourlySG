@@ -82,7 +82,7 @@ public class PostServiceImpl implements PostService {
 
         post.setContent(postDto.getContent());
         post.setCreationDate(postDto.getCreationDate());
-        post.setLikeCount(postDto.getLikeCount());
+        post.setLikesCount(postDto.getLikeCount());
 
         // Ensure postDto.getComments() is a List<CommentDto>
         if (!postDto.getComments().isEmpty()) { // Check if comments are not null
@@ -109,7 +109,7 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(() -> new PostNotFoundException(ErrorMessagesConstants.POST_NOT_FOUND + postId));
 
         // Increment like count
-        post.setLikeCount(post.getLikeCount() + 1);
+        post.setLikesCount(post.getLikesCount() + 1);
 
         // Save the updated post
         Post updatedPost = postRepository.save(post);
