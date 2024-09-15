@@ -103,4 +103,11 @@ public class PostController {
         List<CommentDto> comments = postService.getCommentsByPost(postId);
         return ResponseEntity.ok(comments);
     }
+
+    // Returns list of posts with the searched list of tags
+    @GetMapping("/by-tags")
+    public ResponseEntity<List<PostDto>> getPostsByTags(@RequestParam List<String> tags) {
+        List<PostDto> posts = postService.getPostsByTags(tags);
+        return ResponseEntity.ok(posts);
+    }
 }
