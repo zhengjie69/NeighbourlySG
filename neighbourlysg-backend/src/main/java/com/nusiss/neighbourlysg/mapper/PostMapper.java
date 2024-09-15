@@ -8,9 +8,9 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring", uses = {CommentMapper.class})
 public interface PostMapper {
 
-    @Mapping(source = "comments", target = "commentDtos") // If you have a commentDto list in PostDto
+    @Mapping(source = "comments", target = "comments")
     PostDto toDto(Post post);
 
-    @Mapping(source = "commentDtos", target = "comments")
+    @Mapping(source = "comments", target = "comments")
     Post toEntity(PostDto postDto);
 }

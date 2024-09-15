@@ -1,7 +1,6 @@
 package com.nusiss.neighbourlysg.controller;
 
 import com.nusiss.neighbourlysg.service.PostService;
-import com.nusiss.neighbourlysg.service.ProfileService;
 import com.nusiss.neighbourlysg.dto.PostDto;
 import com.nusiss.neighbourlysg.dto.CommentDto;
 import org.springframework.http.HttpStatus;
