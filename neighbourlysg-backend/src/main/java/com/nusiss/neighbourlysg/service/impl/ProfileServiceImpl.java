@@ -230,4 +230,10 @@ public class ProfileServiceImpl implements ProfileService {
                 .anyMatch(role -> role.getId() == 3);
     }
 
+    @Override
+    public Profile findById(Long profileId) {
+        return profileRepository.findById(profileId)
+                .orElseThrow(() -> new ProfileNotFoundException(ErrorMessagesConstants.PROFILE_NOT_FOUND + profileId));
+    }
+
 }
