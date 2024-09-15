@@ -49,7 +49,7 @@ public class PostServiceImpl implements PostService {
         post.setCreationDate(LocalDateTime.now());
         post.setProfile(profile);
 
-        post.setLikeCount(0);  // Initialize like count to 0
+        post.setLikesCount(0);  // Initialize like count to 0
         post.setComments(new ArrayList<>());  // Initialize with an empty comment list
 
         Post savedPost = postRepository.save(post);
