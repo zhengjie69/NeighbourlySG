@@ -23,25 +23,5 @@ public interface ProfileService {
 
     ProfileDto updateRoles(Long userId, List<Integer> roleIds) throws RoleNotFoundException, ProfileNotFoundException;
 
-    // Methods to handle posts, likes, and comments
-    PostDto createPost(Long profileId, PostDto postDto);
 
-    PostDto getPostById(Long postId);
-
-    List<PostDto> getAllPostsByProfile(Long profileId);
-
-    PostDto updatePost(Long postId, PostDto postDto);
-
-    void deletePost(Long postId);
-
-    // New methods for handling likes and comments
-    PostDto likePost(Long postId, Long profileId);
-
-    CommentDto createComment(Long postId, Long profileId, CommentDto commentDto);
-
-    List<CommentDto> getCommentsByPost(Long postId);
-
-    CommentDto updateCommentOnPost(Long postId, Long commentId, CommentDto commentDto);
-
-    void deleteCommentOnPost(Long postId, Long commentId);
 }

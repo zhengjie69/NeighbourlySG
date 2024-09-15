@@ -49,21 +49,15 @@ class ProfileServiceImplTest {
 	ProfileMapper profileMapper;
 	@Mock
 	RoleRepository roleRepository;
-	@Mock
-	PostRepository postRepository;
-	@Autowired
-	PostMapper postMapper;
-	@Autowired
-	CommentMapper commentMapper;
-	@Mock
-	CommentRepository commentRepository;
+
+
 
 	private ProfileService profileService;
 
 	@BeforeEach
 	void setup() {
 		MockitoAnnotations.openMocks(this);
-		profileService = new ProfileServiceImpl(profileRepository, profileMapper,roleRepository, postRepository, postMapper, commentMapper, commentRepository);
+		profileService = new ProfileServiceImpl(profileRepository, profileMapper,roleRepository);
 	}
 	
 	@Test
