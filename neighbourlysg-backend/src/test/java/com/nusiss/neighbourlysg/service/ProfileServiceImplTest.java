@@ -18,6 +18,10 @@ import com.nusiss.neighbourlysg.entity.Role;
 import com.nusiss.neighbourlysg.exception.PasswordWrongException;
 import com.nusiss.neighbourlysg.exception.ProfileNotFoundException;
 import com.nusiss.neighbourlysg.exception.UserNotExistedException;
+import com.nusiss.neighbourlysg.mapper.CommentMapper;
+import com.nusiss.neighbourlysg.mapper.PostMapper;
+import com.nusiss.neighbourlysg.repository.CommentRepository;
+import com.nusiss.neighbourlysg.repository.PostRepository;
 import com.nusiss.neighbourlysg.repository.RoleRepository;
 import com.nusiss.neighbourlysg.util.MasterDTOTestUtil;
 import com.nusiss.neighbourlysg.util.MasterEntityTestUtil;
@@ -45,13 +49,21 @@ class ProfileServiceImplTest {
 	ProfileMapper profileMapper;
 	@Mock
 	RoleRepository roleRepository;
+	@Mock
+	PostRepository postRepository;
+	@Autowired
+	PostMapper postMapper;
+	@Autowired
+	CommentMapper commentMapper;
+	@Mock
+	CommentRepository commentRepository;
 
 	private ProfileService profileService;
 
 	@BeforeEach
 	void setup() {
 		MockitoAnnotations.openMocks(this);
-		profileService = new ProfileServiceImpl(profileRepository, profileMapper,roleRepository);
+		profileService = new ProfileServiceImpl(profileRepository, profileMapper,roleRepository, postRepository, postMapper, commentMapper, commentRepository);
 	}
 	
 	@Test
