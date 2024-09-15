@@ -5,17 +5,17 @@ import com.nusiss.neighbourlysg.entity.Post;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @Mapper(componentModel = "spring", uses = {CommentMapper.class})
 public interface PostMapper {
 
-    @Mapping(source = "comments", target = "comments")
+    @Mapping(source = "profile.id", target = "profileId") // Map profile ID
+    @Mapping(source = "comments", target = "comments") // Map comments
+    @Mapping(source = "tags", target = "tags") // Map tags
     PostDto toDto(Post post);
 
-    @Mapping(source = "comments", target = "comments")
+    @Mapping(source = "profileId", target = "profile.id") // Map profile ID
+    @Mapping(source = "comments", target = "comments") // Map comments
+    @Mapping(source = "tags", target = "tags") // Map tags
     Post toEntity(PostDto postDto);
-
 }
