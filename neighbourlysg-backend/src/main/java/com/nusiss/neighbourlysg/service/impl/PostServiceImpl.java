@@ -89,7 +89,7 @@ public class PostServiceImpl implements PostService {
         if (!postDto.getComments().isEmpty()) { // Check if comments are not null
             List<Comment> comments = postDto.getComments().stream()
                     .map(commentMapper::toEntity) // Properly map CommentDto to Comment
-                    .collect(Collectors.toList());
+                    .toList();
             post.setComments(comments);
         }
 
@@ -189,6 +189,26 @@ public class PostServiceImpl implements PostService {
 
         // Convert the comment entity to a DTO using CommentMapper
         return commentMapper.toDto(comment);
+    }
+
+    @Override
+    public List<PostDto> getPostsByTags(List<String> tags) {
+        if (tags == null || tags.isEmpty()) {
+            throw new IllegalArgumentException("Tags list cannot be null or empty");
+        }
+
+        // Retrieve all posts from the repository
+        List<Post> allPosts = postRepository.findAll();
+
+        // Filter posts that contain all the specified tags
+        List<Post> filteredPosts = allPosts.stream()
+                .filter(post -> post.getTags() != null && post.getTags().containsAll(tags))
+                .toList();
+
+        // Convert the filtered posts to DTOs
+        return filteredPosts.stream()
+                .map(postMapper::toDto)
+                .toList();
     }
 
 }

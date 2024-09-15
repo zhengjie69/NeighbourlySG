@@ -19,4 +19,6 @@ public interface PostService {
     void deleteCommentOnPost(Long postId, Long commentId);
 
     CommentDto getCommentById(Long commentId);
+
+    List<PostDto> getPostsByTags(List<String> tags);
 }

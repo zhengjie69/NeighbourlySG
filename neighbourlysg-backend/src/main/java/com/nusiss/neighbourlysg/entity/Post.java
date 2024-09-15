@@ -45,6 +45,10 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
+    @Column(name = "tags")
+    private List<String> tags = new ArrayList<>();
+
+
     // Add helper methods to manage the list of likes and comments
 
     public void addLike(Like like) {
