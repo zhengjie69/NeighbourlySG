@@ -1,5 +1,8 @@
 package com.nusiss.neighbourlysg.controller;
 
+import com.nusiss.neighbourlysg.entity.Post;
+import com.nusiss.neighbourlysg.mapper.PostMapper;
+import com.nusiss.neighbourlysg.repository.PostRepository;
 import com.nusiss.neighbourlysg.service.PostService;
 import com.nusiss.neighbourlysg.dto.PostDto;
 import com.nusiss.neighbourlysg.dto.CommentDto;
@@ -16,17 +19,23 @@ public class PostController {
 
     private final PostService postService;
     private final ProfileService profileService;
+    private final PostMapper postMapper;
+    private final PostRepository postRepository;
 
-    public PostController(PostService postService, ProfileService profileService) {
+    public PostController(PostService postService, ProfileService profileService, PostMapper postMapper, PostRepository postRepository) {
         this.postService = postService;
         this.profileService = profileService;
+        this.postMapper = postMapper;
+        this.postRepository = postRepository;
     }
 
     // Create a new post
-    @PostMapping("/{profileId}")
+    @PostMapping("/api/PostService/{profileId}")
     public ResponseEntity<PostDto> createPost(@PathVariable Long profileId, @RequestBody PostDto postDto) {
-        PostDto createdPost = postService.createPost(profileId, postDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
+        Post post = postMapper.toEntity(postDto);
+        post.setProfile(profileService.findById(profileId)); // Set profile
+        postRepository.save(post);
+        return ResponseEntity.ok(postMapper.toDto(post));
     }
 
     // Get a post by its ID
