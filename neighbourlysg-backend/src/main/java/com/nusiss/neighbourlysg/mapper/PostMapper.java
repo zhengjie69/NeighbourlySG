@@ -13,13 +13,13 @@ public interface PostMapper {
     @Mapping(source = "profile.id", target = "profileId") // Map profile ID
     @Mapping(source = "comments", target = "comments") // Map comments
     @Mapping(source = "tags", target = "tags") // Map tags
-    @Mapping(source = "likeCount", target = "likesCount") // Map like count
+    @Mapping(source = "likesCount", target = "likesCount") // Map like count
     PostDto toDto(Post post);
 
     @Mapping(source = "content", target = "content")
     @Mapping(source = "profileId", target = "profile.id") // Map profile ID
     @Mapping(source = "comments", target = "comments") // Map comments
     @Mapping(source = "tags", target = "tags") // Map tags
-    @Mapping(source = "likeCount", target = "likesCount") // Map like count
+    @Mapping(source = "likesCount", target = "likesCount") // Map like count
     Post toEntity(PostDto postDto);
 }
