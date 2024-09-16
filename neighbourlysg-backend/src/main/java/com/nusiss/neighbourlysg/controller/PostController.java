@@ -74,13 +74,6 @@ public class PostController {
         }
     }
 
-    // Endpoint to like a post (increment like count)
-    @PostMapping("/{postId}/like/{profileId}")
-    public ResponseEntity<PostDto> likePost(@PathVariable Long postId, @PathVariable Long profileId) {
-        PostDto likedPost = postService.likePost(postId, profileId);
-        return ResponseEntity.ok(likedPost);
-    }
-
     // Add a comment to a post
     @PostMapping("/{postId}/comments/{profileId}")
     public ResponseEntity<CommentDto> createComment(@PathVariable Long postId, @PathVariable Long profileId, @RequestBody CommentDto commentDto) {
