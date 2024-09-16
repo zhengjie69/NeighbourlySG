@@ -4,6 +4,10 @@ import SGLogo from '../assets/SGLogo.avif';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Navbar = () => {
+    // const roles = sessionStorage.getItem('roles');
+    // const showNavBar = roles.valueOf.includes(3);
+    // console.log(showNavBar + "here");
+    
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-light" style={{ zIndex: 2, padding: '10px 20px', width: '100%' }}>
         <div className="container-fluid">
@@ -31,6 +35,12 @@ const Navbar = () => {
                 <li className="nav-item">
                 <Link className="nav-link" to="/ManageUsers">Manage Users</Link>
                 </li>
+
+                {/* {showNavBar && (
+                    <li className="nav-item">
+                        <Link className="nav-link" to="/ManageUsers">Manage Users</Link>
+                    </li>
+                )} */}
             </ul>
             <span className="navbar-text">
                 Welcome, [User]!

@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './component/Navbar';
 import ResidentLogin from './auth/Resident/ResidentLogin';
 import RegisterPage from './auth/Resident/RegisterPage';
@@ -12,28 +12,39 @@ import EventShowcasePage from './auth/Resident/EventShowcasePage';
 import CommunityPost from './auth/Resident/CommunityPost';
 import ManageUsers from './auth/Admin/ManageUsers';
 
+
+const Layout = ({ children }) => {
+    const location = useLocation();
+    const isLoginPage = location.pathname === '/ResidentLogin'; // Check if the current route is login page
+    
+    return (
+      <div>
+        {!isLoginPage && <Navbar />} {/* Render Navbar unless on the login page */}
+        {children}
+      </div>
+    );
+  };
+
 const App = () => {
+    // const roles = JSON.parse(sessionStorage.getItem('roles')) || [];
+    
   return (
     <Router>
-      <div>
-        <Navbar />
+        <Layout>
         <Routes>
-          <Route path="/" element={<ResidentLogin />} />
-          <Route path="/" element={<Navigate to="/ResidentLogin" />} /> {/* Redirect root to ResidentLogin */}
-          <Route path="/ResidentLogin" element={<ResidentLogin />} />
-          <Route path="/Register" element={<RegisterPage />} />
-          <Route path="/ResidentMainPage" element={<ResidentMainPage />} />
-          <Route path="/ProfileSettings" element={<ProfileSettingsPage />} />
-          <Route path="*" element={<Navigate to="/" />} /> {/* Fallback for undefined routes */}
-          <Route path="/surveys" element={<SurveyShowcasePage />} /> {/* Route for SurveyShowcasePage */}
-          <Route path="/CreateSurveyForm" element={<CreateSurveyForm />} /> {/* Route for CreateSurveyPage */}
-          <Route path="/events" element={<EventShowcasePage />} /> {/* Route for ResidentEventPage */}
-          <Route path="/posts" element={<CommunityPost />} /> {/* Route for CommunityPost */}
+            <Route path="/" element={<Navigate to="/ResidentLogin" />} />
+            <Route path="/ResidentLogin" element={<ResidentLogin />} />
+            <Route path="/Register" element={<RegisterPage />} />
+            <Route path="/ResidentMainPage" element={<ResidentMainPage />} />
+            <Route path="/ProfileSettings" element={<ProfileSettingsPage />} />
+            <Route path="/surveys" element={<SurveyShowcasePage />} /> {/* Route for SurveyShowcasePage */}
+            <Route path="/CreateSurveyForm" element={<CreateSurveyForm />} /> {/* Route for CreateSurveyPage */}
+            <Route path="/events" element={<EventShowcasePage />} /> {/* Route for ResidentEventPage */}
+            <Route path="/posts" element={<CommunityPost />} /> {/* Route for CommunityPost */}
           <Route path='/manageusers' element={<ManageUsers />} />
-          {/* Remove or adjust this fallback route temporarily */}
-          {/* <Route path="*" element={<Navigate to="/" />} /> */}
+          {/* <Route path="/ManageUsers" element={roles.includes(3) ? <ManageUsers /> : <Navigate to="/" />} /> */}
         </Routes>
-      </div>
+      </Layout>
     </Router>
   );
 };

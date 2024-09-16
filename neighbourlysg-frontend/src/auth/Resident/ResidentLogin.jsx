@@ -21,6 +21,7 @@ function ResidentLogin() {
       
       if (response.status === 200) {
         sessionStorage.setItem('userId', response.data.id);
+        sessionStorage.setItem('roles', response.data.roles);
         navigate('/ResidentMainPage');
       }
     } catch (error) {
