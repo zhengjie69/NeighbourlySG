@@ -4,11 +4,18 @@ import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 import SGLogo from '../../assets/SGLogo.avif';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ManageUsers = () => {
   const [profiles, setProfiles] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProfileId, setSelectedProfileId] = useState(null);
+  const [selectedRoles, setSelectedRoles] = useState({
+    admin: false,
+    org: false,
+    user: false
+  });
 
   useEffect(() => {
     const fetchProfiles = async () => {
@@ -25,14 +32,56 @@ const ManageUsers = () => {
     fetchProfiles();
   }, []);
 
-  const editRole = (profileId) => {
+  const editRole = async (profileId) => {
     setSelectedProfileId(profileId);
-    setIsModalOpen(true);
-    console.log("Button clicked for profile ID:", profileId);
+    try {
+      // get profile, precheck user role 
+      const response = await axios.get(`http://localhost:8080/api/ProfileService/profile/${profileId}`);
+      if (response.status === 200) {
+        const roles = response.data.roles || [];
+        setSelectedRoles({
+          admin: roles.includes(3),
+          org: roles.includes(2),
+          user: roles.includes(1),
+        });
+        setIsModalOpen(true);
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    }
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
+  };
+
+  const handleCheckboxChange = (e) => {
+    const { name, checked } = e.target;
+    setSelectedRoles((prevRoles) => ({
+      ...prevRoles,
+      [name]: checked
+    }));
+  };
+
+  const saveChanges = async () => {
+    const updatedRoles = [];
+    if (selectedRoles.admin) updatedRoles.push(3); // Admin role
+    if (selectedRoles.org) updatedRoles.push(2); // Organiser role
+    if (selectedRoles.user) updatedRoles.push(1); // User role
+
+    try {
+      const response = await axios.put(`http://localhost:8080/api/ProfileService/assign-role`, {
+          "userId": selectedProfileId,
+          "roleIds": updatedRoles
+      });
+
+      if (response.status === 200) {
+        toast.success('Role updated successfully!');
+        closeModal();
+      }
+    } catch (error) {
+      toast.error('Failed to update roles. Please try again.');
+    }
   };
 
   return (
@@ -47,6 +96,7 @@ const ManageUsers = () => {
         backdropFilter: 'blur(5px)',
       }}
     >
+      <ToastContainer />
       {/* Navigation Bar */}
       <nav className="navbar navbar-expand-lg navbar-light bg-light" style={{ zIndex: 2, padding: '10px 20px', width: '100%' }}>
         <div className="container-fluid">
@@ -167,11 +217,53 @@ const ManageUsers = () => {
                 ></button>
               </div>
               <div className="modal-body">
-                <p>Assigning of role here</p>
+                <div>
+                  <div className="form-check">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        id="admin"
+                        name="admin"
+                        checked={selectedRoles.admin}
+                        onChange={handleCheckboxChange}
+                      />
+                      <label className="form-check-label" htmlFor="admin">
+                        Admin
+                      </label>
+                    </div>
+
+                    <div className="form-check">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        id="org"
+                        name="org"
+                        checked={selectedRoles.org}
+                        onChange={handleCheckboxChange}
+                      />
+                      <label className="form-check-label" htmlFor="org">
+                        Organizer
+                      </label>
+                    </div>
+
+                    <div className="form-check">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        id="user"
+                        name="user"
+                        checked={selectedRoles.user}
+                        onChange={handleCheckboxChange}
+                      />
+                      <label className="form-check-label" htmlFor="user">
+                        User
+                      </label>
+                    </div>
+                </div>
               </div>
               <div className="modal-footer">
                 <button type="button" className="btn btn-secondary" onClick={closeModal}>Close</button>
-                <button type="button" className="btn btn-primary">Save changes</button>
+                <button type="button" className="btn btn-primary" onClick={saveChanges}>Save changes</button>
               </div>
             </div>
           </div>
