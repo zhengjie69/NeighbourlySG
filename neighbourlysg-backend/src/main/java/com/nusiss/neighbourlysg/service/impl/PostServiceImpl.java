@@ -104,21 +104,6 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostDto likePost(Long postId, Long profileId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new PostNotFoundException(ErrorMessagesConstants.POST_NOT_FOUND + postId));
-
-        // Increment like count
-        post.setLikesCount(post.getLikesCount() + 1);
-
-        // Save the updated post
-        Post updatedPost = postRepository.save(post);
-
-        // Return the updated post as a DTO
-        return postMapper.toDto(updatedPost);
-    }
-
-    @Override
     public CommentDto createComment(Long postId, Long profileId, CommentDto commentDto) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(ErrorMessagesConstants.POST_NOT_FOUND + postId));
