@@ -46,7 +46,7 @@ public class PostController {
     }
 
     // Get all posts by a profile
-    @GetMapping("/{profileId}")
+    @GetMapping("/profile/{profileId}")
     public ResponseEntity<List<PostDto>> getAllPostsByProfile(@PathVariable Long profileId) {
         List<PostDto> posts = postService.getAllPostsByProfile(profileId);
         return ResponseEntity.ok(posts);
