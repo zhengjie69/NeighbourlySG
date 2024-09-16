@@ -116,7 +116,14 @@ public class PostServiceImpl implements PostService {
         comment.setCreationDate(LocalDateTime.now());
 
         Comment savedComment = commentRepository.save(comment);
-        return commentMapper.toDto(savedComment);
+
+        // Convert back to CommentDto and set postId and profileId
+        CommentDto savedCommentDto = commentMapper.toDto(savedComment);
+        savedCommentDto.setPostId(postId);
+        savedCommentDto.setProfileId(profileId);
+
+        // Return the saved comment as a DTO
+        return savedCommentDto;
     }
 
     @Override

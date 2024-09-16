@@ -34,10 +34,9 @@ public class Comment {
     @JoinColumn(name = "profile_id", nullable = false)
     private Profile profile;
 
-    public void setPost(Post post) {
-    }
-
-    public void setCreationDate(LocalDateTime now) {
-
+    // Automatically set the creation date before persisting
+    @PrePersist
+    protected void onCreate() {
+        this.creationDate = LocalDateTime.now();
     }
 }
