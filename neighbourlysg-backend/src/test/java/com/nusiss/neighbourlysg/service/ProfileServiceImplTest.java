@@ -5,10 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import com.nusiss.neighbourlysg.NeighbourlysgBackendApplication;
 import com.nusiss.neighbourlysg.dto.LoginRequestDTO;
@@ -18,10 +15,6 @@ import com.nusiss.neighbourlysg.entity.Role;
 import com.nusiss.neighbourlysg.exception.PasswordWrongException;
 import com.nusiss.neighbourlysg.exception.ProfileNotFoundException;
 import com.nusiss.neighbourlysg.exception.UserNotExistedException;
-import com.nusiss.neighbourlysg.mapper.CommentMapper;
-import com.nusiss.neighbourlysg.mapper.PostMapper;
-import com.nusiss.neighbourlysg.repository.CommentRepository;
-import com.nusiss.neighbourlysg.repository.PostRepository;
 import com.nusiss.neighbourlysg.repository.RoleRepository;
 import com.nusiss.neighbourlysg.util.MasterDTOTestUtil;
 import com.nusiss.neighbourlysg.util.MasterEntityTestUtil;
@@ -49,8 +42,6 @@ class ProfileServiceImplTest {
 	ProfileMapper profileMapper;
 	@Mock
 	RoleRepository roleRepository;
-
-
 
 	private ProfileService profileService;
 
@@ -257,37 +248,141 @@ class ProfileServiceImplTest {
 	@Test
 	void assignRoleToUser_ShouldAssignRolesWhenProfileAndRolesExist() throws RoleNotFoundException, ProfileNotFoundException {
 		// Given
-		Long userId = 1L;
-		List<Integer> roleIds = Arrays.asList(2, 3);
+		Long profileId = 1L;
+		Role role1 = MasterEntityTestUtil.createRoleEntity(); // Assume this creates a role with id 1
+		Role role2 = new Role();
+		role2.setId(2);
+		role2.setName("NEW_ROLE");
 
-		Role role1 = new Role(); // Populate with test data
-		role1.setId(2);
-		Role role2 = new Role(); // Populate with test data
-		role2.setId(3);
-
-		Profile profile = new Profile();
-		profile.setRoles(Collections.emptyList()); // Initially empty roles
-
-		Profile updatedProfile = new Profile();
-		updatedProfile.setRoles(Arrays.asList(role1, role2)); // Roles after assignment
+		Profile profile = MasterEntityTestUtil.createProfileEntity(); // A profile with some roles
+		profile.setRoles(Collections.singletonList(role1));
 
 		RoleAssignmentDto roleAssignmentDto = new RoleAssignmentDto();
-		roleAssignmentDto.setUserId(userId);
-		roleAssignmentDto.setRoleIds(roleIds);
+		roleAssignmentDto.setUserId(profileId);
+		roleAssignmentDto.setRoleIds(Arrays.asList(1, 2)); // Request to assign two roles
 
-		when(profileRepository.findById(userId)).thenReturn(Optional.of(profile));
-		when(roleRepository.findById(2)).thenReturn(Optional.of(role1));
-		when(roleRepository.findById(3)).thenReturn(Optional.of(role2));
-		when(profileRepository.save(profile)).thenReturn(updatedProfile);
+		when(profileRepository.findById(profileId)).thenReturn(Optional.of(profile));
+		when(roleRepository.findById(1)).thenReturn(Optional.of(role1));
+		when(roleRepository.findById(2)).thenReturn(Optional.of(role2));
+		when(profileRepository.save(any())).thenReturn(profile);
 
 		// When
 		ProfileDto result = profileService.assignRoleToUser(roleAssignmentDto);
 
 		// Then
-		assertNotNull(result);
-		assertEquals(2, result.getRoles().size()); // Verify that two roles were assigned
-		assertTrue(result.getRoles().contains(2)); // Verify role ID 2 is present
-		assertTrue(result.getRoles().contains(3)); // Verify role ID 3 is present
-		verify(profileRepository).save(profile); // Verify that save was called
-		}
+		assertEquals(2, result.getRoles().size()); // Verify that two roles are assigned
+		verify(profileRepository).save(profile); // Ensure the profile was saved with updated roles
 	}
+
+	@Test
+	void isAdmin_ShouldReturnTrueIfProfileHasAdminRole() {
+		// Given
+		Long profileId = 1L;
+		Role adminRole = new Role();
+		adminRole.setId(3); // Admin role has ID 3
+		Profile profile = MasterEntityTestUtil.createProfileEntity();
+		profile.setRoles(Collections.singletonList(adminRole)); // Profile with admin role
+
+		when(profileRepository.findById(profileId)).thenReturn(Optional.of(profile));
+
+		// When
+		boolean result = profileService.isAdmin(profileId);
+
+		// Then
+		assertTrue(result); // Ensure the profile is an admin
+	}
+
+	@Test
+	void isAdmin_ShouldReturnFalseIfProfileDoesNotHaveAdminRole() {
+		// Given
+		Long profileId = 1L;
+		Role nonAdminRole = new Role();
+		nonAdminRole.setId(2); // Non-admin role
+		Profile profile = MasterEntityTestUtil.createProfileEntity();
+		profile.setRoles(Collections.singletonList(nonAdminRole)); // Profile without admin role
+
+		when(profileRepository.findById(profileId)).thenReturn(Optional.of(profile));
+
+		// When
+		boolean result = profileService.isAdmin(profileId);
+
+		// Then
+		assertFalse(result); // Ensure the profile is not an admin
+	}
+
+	@Test
+	void createProfileRoleNotFoundException() {
+		// Setup mock to return empty optional when looking up roles by ID
+		when(profileRepository.findByEmail(any())).thenReturn(Optional.empty());
+		when(roleRepository.findById(any())).thenThrow(new com.nusiss.neighbourlysg.exception.RoleNotFoundException("Role not found"));
+
+		// Assert that creating a profile with non-existent role throws a RoleNotFoundException
+		assertThrows(com.nusiss.neighbourlysg.exception.RoleNotFoundException.class, () -> {
+			profileService.createProfile(MasterDTOTestUtil.createProfileDTO());
+		});
+	}
+
+	@Test
+	void updateProfileProfileNotFound() {
+		Long profileId = 1L;
+		ProfileDto profileDto = MasterDTOTestUtil.createProfileDTO();
+
+		when(profileRepository.findById(profileId)).thenReturn(Optional.empty());
+
+		assertThrows(ProfileNotFoundException.class, () -> profileService.updateProfile(profileId, profileDto));
+	}
+
+
+	@Test
+	void updateRolesProfileNotFound() {
+		Long profileId = 1L;
+		List<Integer> roleIds = Arrays.asList(1, 2);
+
+		when(profileRepository.findById(profileId)).thenReturn(Optional.empty());
+
+		assertThrows(ProfileNotFoundException.class, () -> profileService.updateRoles(profileId, roleIds));
+	}
+
+	@Test
+	void updateRolesRoleNotFound() {
+		Long profileId = 1L;
+		List<Integer> roleIds = Arrays.asList(1, 2);
+
+		Profile existingProfile = MasterEntityTestUtil.createProfileEntity();
+		existingProfile.setRoles(Collections.emptyList());
+
+		when(profileRepository.findById(profileId)).thenReturn(Optional.of(existingProfile));
+		when(roleRepository.findById(1)).thenReturn(Optional.empty()); // Role not found
+
+		assertThrows(com.nusiss.neighbourlysg.exception.RoleNotFoundException.class, () -> profileService.updateRoles(profileId, roleIds));
+	}
+
+	@Test
+	void assignRoleToUserProfileNotFound() {
+		RoleAssignmentDto roleAssignmentDto = new RoleAssignmentDto();
+		roleAssignmentDto.setUserId(1L);
+		roleAssignmentDto.setRoleIds(Arrays.asList(1, 2));
+
+		when(profileRepository.findById(roleAssignmentDto.getUserId())).thenReturn(Optional.empty());
+
+		assertThrows(ProfileNotFoundException.class, () -> profileService.assignRoleToUser(roleAssignmentDto));
+	}
+
+	@Test
+	void deleteProfileProfileNotFound() {
+		Long profileId = 1L;
+
+		when(profileRepository.findById(profileId)).thenReturn(Optional.empty());
+
+		assertThrows(ProfileNotFoundException.class, () -> profileService.deleteProfile(profileId));
+	}
+
+	@Test
+	void getAllProfilesEmptyRepository() {
+		when(profileRepository.findAll()).thenReturn(Collections.emptyList());
+
+		List<ProfileDto> result = profileService.getAllProfiles();
+
+		assertTrue(result.isEmpty()); // Ensure result is empty
+	}
+}

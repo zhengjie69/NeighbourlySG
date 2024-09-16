@@ -186,10 +186,11 @@ public class ProfileServiceImpl implements ProfileService {
     @Transactional
     public ProfileDto updateRoles(Long userId, List<Integer> roleIds)
             throws RoleNotFoundException, ProfileNotFoundException {
+
         Profile profile = profileRepository.findById(userId)
                 .orElseThrow(() -> new ProfileNotFoundException(ErrorMessagesConstants.PROFILE_NOT_FOUND + userId));
 
-        List<Role> existingRoles = profile.getRoles();
+        List<Role> existingRoles = new ArrayList<>(profile.getRoles()); // Ensure modifiable list
         List<Role> newRoles = findRoleByIds(roleIds);
 
         // Find roles to add
@@ -203,8 +204,10 @@ public class ProfileServiceImpl implements ProfileService {
                 .toList();
 
         // Update roles
-        profile.getRoles().addAll(rolesToAdd);
-        profile.getRoles().removeAll(rolesToRemove);
+        existingRoles.addAll(rolesToAdd);
+        existingRoles.removeAll(rolesToRemove);
+
+        profile.setRoles(existingRoles); // Set the updated list of roles to the profile
 
         Profile updatedProfile = profileRepository.save(profile);
         return profileMapper.toDto(updatedProfile);
