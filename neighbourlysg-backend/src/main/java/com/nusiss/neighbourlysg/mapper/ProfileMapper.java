@@ -2,30 +2,50 @@ package com.nusiss.neighbourlysg.mapper;
 
 import com.nusiss.neighbourlysg.dto.ProfileDto;
 import com.nusiss.neighbourlysg.entity.Profile;
+import com.nusiss.neighbourlysg.entity.Role;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+import org.mapstruct.factory.Mappers;
 
-public class ProfileMapper {
+import java.util.Collections;
+import java.util.List;
 
-    public static ProfileDto mapToDto(Profile profile) {
+@Mapper(componentModel = "spring")
+public interface ProfileMapper {
+    ProfileMapper INSTANCE = Mappers.getMapper(ProfileMapper.class);
 
-        ProfileDto profileDto = new ProfileDto();
-        profileDto.setEmail(profile.getEmail());
-        profileDto.setFirstName(profile.getFirstName());
-        profileDto.setLastName(profile.getLastName());
-        profileDto.setUserName(profile.getUserName());
-        profileDto.setContactNumber(profile.getContactNumber());
+    @Mapping(source = "roles", target = "roles", qualifiedByName = "rolesToRoleIds")
+    ProfileDto toDto(Profile profile);
 
-        return profileDto;
+    @Mapping(source = "roles", target = "roles", qualifiedByName = "roleIdsToRoles")
+    Profile toEntity(ProfileDto profileDto);
+
+    @Named("rolesToRoleIds")
+    default List<Integer> rolesToRoleIds(List<Role> roles) {
+        if (roles == null) {
+            // Default to a list with ID 1 if roles is null
+            return Collections.singletonList(1);
+        }
+
+        return roles.stream()
+                .map(Role::getId)
+                .toList();
     }
 
-    public static Profile mapToProfile(ProfileDto profileDto)
-    {
-        Profile profile = new Profile();
-        profile.setEmail(profileDto.getEmail());
-        profile.setFirstName(profileDto.getFirstName());
-        profile.setLastName(profileDto.getLastName());
-        profile.setUserName(profileDto.getUserName());
-        profile.setContactNumber(profileDto.getContactNumber());
+    @Named("roleIdsToRoles")
+    default List<Role> roleIdsToRoles(List<Integer> roleIds) {
+        if (roleIds == null) {
+            // Default to a list with the Role having ID 1 if roleIds is null
+            return Collections.singletonList(findRoleById(1));
+        }
 
-        return profile;
+        return roleIds.stream()
+                .map(this::findRoleById)
+                .toList();
     }
+
+    // Note: This method is not implemented in the interface.
+    // Implementation will be in ProfileMapperImpl
+    Role findRoleById(Integer id);
 }

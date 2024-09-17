@@ -2,8 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import axios from 'axios'; // Import axios
 import { Modal, Button } from 'react-bootstrap';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
+import { Link } from 'react-router-dom';
 
 function RegisterPage() {
   const [name, setName] = useState('');
@@ -12,6 +14,8 @@ function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [selectedConstituency, setSelectedConstituency] = useState('');
   const [errors, setErrors] = useState({});
+  const [message, setMessage] = useState(''); // State for success or error message
+  const [isError, setIsError] = useState(false); // New state to track error vs success
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const navigate = useNavigate(); // Initialize useNavigate hook
@@ -51,16 +55,42 @@ function RegisterPage() {
     return errors;
   };
 
-  const handleRegister = (e) => {
+
+  const handleRegister = async (e) => {
     e.preventDefault();
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
-    } else {
+      return;
+    } 
+
+    try {
+      const response = await axios.post('http://localhost:8080/api/ProfileService/register', {
+        name: name,
+        email: email,
+        password: password,
+        constituency: selectedConstituency,
+      });
+
+      // Handle success response
+      // const { message, data } = response.data;
+      //console.log("Registered Profile:", data); // Optionally use the profile data
+      
+      setMessage("Register successfully!");
+      setIsError(false); // Clear error state
       setErrors({});
-      setShowSuccessModal(true); // Show success modal
-      // Handle form submission logic here
-    }
+
+    } catch (error) {
+      console.error('Registration error:', error); 
+      console.error('Registration error msg:', error.response.data.errorDetails); 
+      
+      if (error.response && error.response.data && error.response.data.errorDetails) {
+          setMessage(error.response.data.errorDetails); // Display the backend error message
+      } else {
+          setMessage('Registration failed, please try again.'); // Fallback message
+      }
+      setIsError(true); // Set error state
+  }
   };
 
   useEffect(() => {
@@ -166,13 +196,17 @@ function RegisterPage() {
             Register
           </button>
         </form>
+        {message && (
+                    <div className={`alert ${isError ? 'alert-danger' : 'alert-success'} mt-4`} role="alert">
+                        {message}
+                    </div>
+        )}
         <div className="mt-4 text-center">
-          <a href="/ResidentLogin" className="text-primary" style={{ fontSize: '0.9rem', textDecoration: 'none', transition: 'color 0.3s ease' }}>
+          <Link to="/ResidentLogin" className="text-primary" style={{ fontSize: '0.9rem', textDecoration: 'none', transition: 'color 0.3s ease' }}>
             Already have an account? <span style={{ fontWeight: 'bold' }}>Login here</span>
-          </a>
+          </Link>
         </div>
       </div>
-
       {/* Success Modal */}
       <Modal show={showSuccessModal} onHide={() => setShowSuccessModal(false)}>
         <Modal.Header closeButton>

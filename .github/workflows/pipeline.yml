@@ -10,9 +10,9 @@ name: Pipeline
 
 on:
   push:
-    branches: [ "main", "feature/ci-cd" ]
+    branches: [ "main", "dev", "feature/*" ]
   pull_request:
-    branches: [ "main", "feature/ci-cd" ]
+    branches: [ "main", "dev", "feature/*" ]
 
 jobs:
   BuildBackEnd:
@@ -132,6 +132,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+      - name: Install Npm Packages
+        run: npm --prefix /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend install
       - name: Install Snyk CLI
         run: npm install -g snyk
       - name: Set execute permission for Maven Wrapper in backend

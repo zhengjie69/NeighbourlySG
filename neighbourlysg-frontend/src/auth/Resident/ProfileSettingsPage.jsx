@@ -1,20 +1,21 @@
-// eslint-disable-next-line no-unused-vars
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Tab, Tabs, Form, Button, Alert, Modal } from 'react-bootstrap';
-import { Link } from 'react-router-dom'; // Import Link from react-router-dom
-import SGLogo from '../../assets/SGLogo.avif'; // Import the Singapore logo
+import { Form, Button, Alert, Modal } from 'react-bootstrap';
+import { Link } from 'react-router-dom'; 
+import SGLogo from '../../assets/SGLogo.avif';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const grcSmcOptions = [
-  'Aljunied GRC', 'Ang Mo Kio GRC', 'Bishan-Toa Payoh GRC', 'Chua Chu Kang GRC',
-  'East Coast GRC', 'Holland-Bukit Timah GRC', 'Jalan Besar GRC', 'Jurong GRC',
-  'Marine Parade GRC', 'Marsiling-Yew Tee GRC', 'Nee Soon GRC', 'Pasir Ris-Punggol GRC',
-  'Sembawang GRC', 'Tampines GRC', 'Tanjong Pagar GRC', 'West Coast GRC',
-  'Bukit Batok SMC', 'Bukit Panjang SMC', 'Hong Kah North SMC', 'Hougang SMC',
-  'Kebun Baru SMC', 'MacPherson SMC', 'Marymount SMC', 'Mountbatten SMC',
-  'Pioneer SMC', 'Potong Pasir SMC', 'Punggol West SMC', 'Radin Mas SMC',
-  'Yio Chu Kang SMC', 'Yuhua SMC'
+    'Aljunied GRC', 'Ang Mo Kio GRC', 'Bishan-Toa Payoh GRC', 'Chua Chu Kang GRC',
+    'East Coast GRC', 'Holland-Bukit Timah GRC', 'Jalan Besar GRC', 'Jurong GRC',
+    'Marine Parade GRC', 'Marsiling-Yew Tee GRC', 'Nee Soon GRC', 'Pasir Ris-Punggol GRC',
+    'Sembawang GRC', 'Tampines GRC', 'Tanjong Pagar GRC', 'West Coast GRC',
+    'Bukit Batok SMC', 'Bukit Panjang SMC', 'Hong Kah North SMC', 'Hougang SMC',
+    'Kebun Baru SMC', 'MacPherson SMC', 'Marymount SMC', 'Mountbatten SMC',
+    'Pioneer SMC', 'Potong Pasir SMC', 'Punggol West SMC', 'Radin Mas SMC',
+    'Yio Chu Kang SMC', 'Yuhua SMC'
 ];
 
 function ProfileSettingsPage() {
@@ -25,11 +26,12 @@ function ProfileSettingsPage() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [constituency, setConstituency] = useState('');
-  const [disableAccount, setDisableAccount] = useState(false);
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [disablePassword, setDisablePassword] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState('');  // Changed to deleteConfirm
+  const userId = sessionStorage.getItem('userId');
+  const navigate = useNavigate();
 
   const validateForm = () => {
     const errors = {};
@@ -62,7 +64,7 @@ function ProfileSettingsPage() {
     return errors;
   };
 
-  const handleProfileUpdate = (e) => {
+  const handleProfileUpdate = async (e) => {
     e.preventDefault();
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
@@ -70,21 +72,34 @@ function ProfileSettingsPage() {
       setSuccessMessage('');
     } else {
       setErrors({});
-      setSuccessMessage('Profile updated successfully!');
-      // Handle profile update logic here
-      console.log('Profile updated:', { name, email, oldPassword, newPassword, constituency });
+      try {
+        const response = await axios.put(`http://localhost:8080/api/ProfileService/updateProfile/${userId}`, {
+          name,
+          email,
+          password: newPassword,
+          constituency,
+        });
+        setSuccessMessage('Profile updated successfully!');
+      } catch (error) {
+        setErrors({ api: 'Failed to update profile. Please try again later.' });
+      }
     }
   };
 
-  const handleDisableAccount = () => {
-    // Implement account disable logic here after validation
-    if (disablePassword === "user's stored password") { // Example comparison
-      setDisableAccount(true);
-      console.log('Account disabled');
-      alert('Your account has been disabled.');
-      setShowModal(false);
+  const handleDeleteAccount = async () => {
+    if (deleteConfirm === 'delete account') {
+      try {
+        const response = await axios.delete(`http://localhost:8080/api/ProfileService/profile/${userId}`);
+        if (response.status === 200) {
+          alert('Your account has been deleted.');
+          setShowModal(false);
+          navigate('/ResidentLogin');
+        }
+      } catch (error) {
+        alert('Failed to delete account. Please try again.');
+      }
     } else {
-      alert('Password is incorrect.');
+      alert('You need to type "delete account" to confirm.');
     }
   };
 
@@ -138,21 +153,27 @@ function ProfileSettingsPage() {
         </div>
       </nav>
 
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '150px' }}>
-        <div className="card p-4 mb-4" style={{ width: '450px', boxShadow: '0 12px 24px rgba(0, 0, 0, 0.2)', borderRadius: '16px', backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
-          <div className="text-center mb-3">
-            <h3 style={{ fontWeight: '700', fontSize: '1.6rem', color: '#333' }}>Profile Settings</h3>
-          </div>
-          <Tabs
-            id="profile-settings-tabs"
-            activeKey={key}
-            onSelect={(k) => setKey(k)}
-            className="mb-3"
+      <div className="container mt-5 flex-grow-1">
+        <div className="mb-4" style={{ width: "100%" }}>
+          <h2
+            className="text-dark bg-white bg-opacity-75 p-2 rounded text-center"
+            style={{ display: "inline-block", width: "100%" }}
           >
-            <Tab eventKey="profile" title="Profile">
-              <Form onSubmit={handleProfileUpdate}>
-                <Form.Group controlId="formName" className="mb-2">
-                  <Form.Label>Name</Form.Label>
+            Profile Settings
+          </h2>
+        </div>
+
+        <div
+          className="card mb-4"
+          style={{ width: "100%", padding: "20px"}}
+        >
+          <Form onSubmit={handleProfileUpdate}>
+            <Form.Group controlId="formName" className="mb-3">
+              <div className="row align-items-center">
+                <div className="col-sm-4">
+                  <Form.Label className="form-label">Name</Form.Label>
+                </div>
+                <div className="col-sm-8">
                   <Form.Control 
                     type="text" 
                     placeholder="Enter your name" 
@@ -161,10 +182,16 @@ function ProfileSettingsPage() {
                     isInvalid={errors.name}
                   />
                   <Form.Control.Feedback type="invalid">{errors.name}</Form.Control.Feedback>
-                </Form.Group>
+                </div>
+              </div>
+            </Form.Group>
 
-                <Form.Group controlId="formEmail" className="mb-2">
-                  <Form.Label>Email address</Form.Label>
+            <Form.Group controlId="formemail" className="mb-3">
+              <div className="row align-items-center">
+                <div className="col-sm-4">
+                  <Form.Label className="form-label">Email Address</Form.Label>
+                </div>
+                <div className="col-sm-8">
                   <Form.Control 
                     type="email" 
                     placeholder="Enter your email" 
@@ -173,114 +200,126 @@ function ProfileSettingsPage() {
                     isInvalid={errors.email}
                   />
                   <Form.Control.Feedback type="invalid">{errors.email}</Form.Control.Feedback>
-                </Form.Group>
+                </div>
+              </div>
+            </Form.Group>
 
-                <Button variant="primary" type="submit" className="w-100 mt-2">
-                  Update Profile
-                </Button>
-              </Form>
-            </Tab>
-
-            <Tab eventKey="password" title="Change Password">
-              <Form onSubmit={handleProfileUpdate}>
-                <Form.Group controlId="formOldPassword" className="mb-2">
-                  <Form.Label>Old Password</Form.Label>
-                  <Form.Control 
+            <Form.Group controlId="formOldPassword" className="mb-3">
+                <div className="row align-items-center">
+                <div className="col-sm-4">
+                    <Form.Label className="form-label">Old Password</Form.Label>
+                </div>
+                <div className="col-sm-8">
+                    <Form.Control 
                     type="password" 
                     placeholder="Enter old password" 
                     value={oldPassword} 
                     onChange={(e) => setOldPassword(e.target.value)} 
                     isInvalid={errors.oldPassword}
-                  />
-                  <Form.Control.Feedback type="invalid">{errors.oldPassword}</Form.Control.Feedback>
-                </Form.Group>
+                    />
+                    <Form.Control.Feedback type="invalid">{errors.oldPassword}</Form.Control.Feedback>
+                </div>
+                </div>
+            </Form.Group>
 
-                <Form.Group controlId="formNewPassword" className="mb-2">
-                  <Form.Label>New Password</Form.Label>
-                  <Form.Control 
+            <Form.Group controlId="formNewPassword" className="mb-3">
+                <div className="row align-items-center">
+                <div className="col-sm-4">
+                    <Form.Label className="form-label">New Password</Form.Label>
+                </div>
+                <div className="col-sm-8">
+                    <Form.Control 
                     type="password" 
                     placeholder="Enter new password" 
                     value={newPassword} 
                     onChange={(e) => setNewPassword(e.target.value)} 
                     isInvalid={errors.newPassword}
-                  />
-                  <Form.Control.Feedback type="invalid">{errors.newPassword}</Form.Control.Feedback>
-                </Form.Group>
+                    />
+                    <Form.Control.Feedback type="invalid">{errors.newPassword}</Form.Control.Feedback>
+                </div>
+                </div>
+            </Form.Group>
 
-                <Form.Group controlId="formConfirmPassword" className="mb-2">
-                  <Form.Label>Confirm Password</Form.Label>
-                  <Form.Control 
+            <Form.Group controlId="formConfirmPassword" className="mb-3">
+                <div className="row align-items-center">
+                <div className="col-sm-4">
+                    <Form.Label className="form-label">Confirm Password</Form.Label>
+                </div>
+                <div className="col-sm-8">
+                    <Form.Control 
                     type="password" 
                     placeholder="Confirm new password" 
                     value={confirmPassword} 
                     onChange={(e) => setConfirmPassword(e.target.value)} 
                     isInvalid={errors.confirmPassword}
-                  />
-                  <Form.Control.Feedback type="invalid">{errors.confirmPassword}</Form.Control.Feedback>
-                </Form.Group>
+                    />
+                    <Form.Control.Feedback type="invalid">{errors.confirmPassword}</Form.Control.Feedback>
+                </div>
+                </div>
+            </Form.Group>
+              
 
-                <Button variant="primary" type="submit" className="w-100 mt-2">
-                  Update Password
-                </Button>
-              </Form>
-            </Tab>
-
-            <Tab eventKey="constituency" title="Constituency">
-              <Form onSubmit={handleProfileUpdate}>
-                <Form.Group controlId="formConstituency" className="mb-2">
-                  <Form.Label>Constituency</Form.Label>
-                  <Form.Control 
-                    as="select" 
+            <Form.Group controlId="formConstituency" className="mb-3">
+              <div className="row align-items-center">
+                <div className="col-sm-4">
+                  <Form.Label className="form-label">Constituency</Form.Label>
+                </div>
+                <div className="col-sm-8">
+                  <Form.Select 
                     value={constituency} 
-                    onChange={(e) => setConstituency(e.target.value)} 
+                    onChange={(e) => setConstituency(e.target.value)}
                     isInvalid={errors.constituency}
                   >
                     <option value="">Select your constituency</option>
                     {grcSmcOptions.map((option, index) => (
                       <option key={index} value={option}>{option}</option>
                     ))}
-                  </Form.Control>
+                  </Form.Select>
                   <Form.Control.Feedback type="invalid">{errors.constituency}</Form.Control.Feedback>
-                </Form.Group>
+                </div>
+              </div>
+            </Form.Group>
 
-                <Button variant="primary" type="submit" className="w-100 mt-2">
-                  Update Constituency
+            <div className="row">
+              <div className="col d-flex justify-content-start">
+                <Button 
+                  variant="danger" 
+                  type="button" 
+                  className="mt-2" 
+                  onClick={() => setShowModal(true)}
+                >
+                  Delete Account
                 </Button>
-              </Form>
-            </Tab>
-          </Tabs>
+              </div>
+              <div className="col d-flex justify-content-end">
+                <Button 
+                  variant="primary" 
+                  type="submit" 
+                  className="mt-2"
+                >
+                  Update
+                </Button>
+              </div>
+            </div>
+          </Form>
 
           {successMessage && <Alert variant="success" className="mt-3">{successMessage}</Alert>}
-        </div>
-
-        <div className="card p-4" style={{ width: '450px', boxShadow: '0 12px 24px rgba(0, 0, 0, 0.2)', borderRadius: '16px', backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
-          <h4 style={{ fontSize: '1.2rem', color: '#333' }}>Disable Account</h4>
-          <p style={{ fontSize: '0.9rem', color: '#555' }}>If you disable your account, you won’t be able to access it again.</p>
-          <Button 
-            variant="danger" 
-            className="w-100 mt-2" 
-            onClick={() => setShowModal(true)}
-            disabled={disableAccount}
-          >
-            {disableAccount ? 'Account Disabled' : 'Disable Account'}
-          </Button>
         </div>
       </div>
 
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Confirm Disable Account</Modal.Title>
+          <Modal.Title>Confirm Delete Account</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
-            <p style={{ color: '#d9534f', fontSize: '0.9rem' }}>Are you sure you want to disable your account? This action cannot be undone.</p>
-            <Form.Group controlId="formDisablePassword" className="mb-3">
-              <Form.Label>Enter your password to disable account</Form.Label>
+            <p style={{ color: '#d9534f' }}>Are you sure you want to delete your account? This action cannot be undone.</p>
+            <Form.Group controlId="formDeleteAccount" className="mb-3">
+              <Form.Label>Type 'delete account' to delete your account</Form.Label>
               <Form.Control 
-                type="password" 
-                placeholder="Enter password" 
-                value={disablePassword} 
-                onChange={(e) => setDisablePassword(e.target.value)} 
+                placeholder="delete account" 
+                value={deleteConfirm} 
+                onChange={(e) => setDeleteConfirm(e.target.value)} 
               />
             </Form.Group>
           </Form>
@@ -289,8 +328,8 @@ function ProfileSettingsPage() {
           <Button variant="secondary" onClick={() => setShowModal(false)}>
             Cancel
           </Button>
-          <Button variant="danger" onClick={handleDisableAccount}>
-            Confirm Disable Account
+          <Button variant="danger" onClick={handleDeleteAccount}>
+            Confirm Delete Account
           </Button>
         </Modal.Footer>
       </Modal>
