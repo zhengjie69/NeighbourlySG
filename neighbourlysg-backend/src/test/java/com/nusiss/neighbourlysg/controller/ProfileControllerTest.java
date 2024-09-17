@@ -5,7 +5,6 @@ import com.nusiss.neighbourlysg.NeighbourlysgBackendApplication;
 import com.nusiss.neighbourlysg.dto.ProfileDto;
 import com.nusiss.neighbourlysg.dto.RoleAssignmentDto;
 import com.nusiss.neighbourlysg.exception.ProfileNotFoundException;
-import com.nusiss.neighbourlysg.mapper.ProfileMapper;
 import com.nusiss.neighbourlysg.repository.ProfileRepository;
 import com.nusiss.neighbourlysg.service.ProfileService;
 import com.nusiss.neighbourlysg.util.MasterDTOTestUtil;
@@ -37,9 +36,6 @@ class ProfileControllerTest {
     ProfileService profileService;
     @Mock
     ProfileRepository profileRepository;
-
-    @Autowired
-    ProfileMapper profileMapper;
 
     private MockMvc mockMvc;
 
