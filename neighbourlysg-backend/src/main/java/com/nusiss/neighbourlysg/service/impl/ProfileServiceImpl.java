@@ -1,27 +1,24 @@
 package com.nusiss.neighbourlysg.service.impl;
 
+import com.nusiss.neighbourlysg.config.ErrorMessagesConstants;
+import com.nusiss.neighbourlysg.dto.LoginRequestDTO;
+import com.nusiss.neighbourlysg.dto.ProfileDto;
+import com.nusiss.neighbourlysg.dto.RoleAssignmentDto;
+import com.nusiss.neighbourlysg.entity.Profile;
+import com.nusiss.neighbourlysg.entity.Role;
+import com.nusiss.neighbourlysg.exception.*;
+import com.nusiss.neighbourlysg.mapper.ProfileMapper;
+import com.nusiss.neighbourlysg.repository.ProfileRepository;
+import com.nusiss.neighbourlysg.repository.RoleRepository;
+import com.nusiss.neighbourlysg.service.ProfileService;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
-import com.nusiss.neighbourlysg.config.ErrorMessagesConstants;
-import com.nusiss.neighbourlysg.dto.*;
-import com.nusiss.neighbourlysg.entity.Role;
-import com.nusiss.neighbourlysg.exception.*;
-import com.nusiss.neighbourlysg.repository.RoleRepository;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
-
-import com.nusiss.neighbourlysg.entity.Profile;
-import com.nusiss.neighbourlysg.exception.EmailInUseException;
-import com.nusiss.neighbourlysg.exception.PasswordWrongException;
-import com.nusiss.neighbourlysg.exception.UserNotExistedException;
-import com.nusiss.neighbourlysg.exception.RoleNotFoundException;
-import com.nusiss.neighbourlysg.mapper.ProfileMapper;
-import com.nusiss.neighbourlysg.repository.ProfileRepository;
-import com.nusiss.neighbourlysg.service.ProfileService;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProfileServiceImpl implements ProfileService {
@@ -54,8 +51,8 @@ public class ProfileServiceImpl implements ProfileService {
             role = findRoleByIds(profileDto.getRoles());
         }
 
-        // Encrypt the password
-        // String encodedPassword = passwordEncoder.encode(password);
+        // Encrypt the password, to do
+
 
         Profile profile = profileMapper.toEntity(profileDto);
         profile.setRoles(role);
@@ -113,10 +110,10 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public void deleteProfile(Long profileId) {
 
-        profileRepository.findById(profileId)
+        Profile profile = profileRepository.findById(profileId)
                 .orElseThrow(() -> new ProfileNotFoundException(ErrorMessagesConstants.PROFILE_NOT_FOUND + profileId));
 
-        profileRepository.deleteById(profileId);
+        profileRepository.delete(profile); // Use delete() with the profile entity
     }
 
     @Override
