@@ -1,21 +1,19 @@
 package com.nusiss.neighbourlysg.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.*;
-
 import com.nusiss.neighbourlysg.NeighbourlysgBackendApplication;
 import com.nusiss.neighbourlysg.dto.LoginRequestDTO;
+import com.nusiss.neighbourlysg.dto.ProfileDto;
 import com.nusiss.neighbourlysg.dto.RoleAssignmentDto;
 import com.nusiss.neighbourlysg.entity.Profile;
 import com.nusiss.neighbourlysg.entity.Role;
+import com.nusiss.neighbourlysg.exception.EmailInUseException;
 import com.nusiss.neighbourlysg.exception.PasswordWrongException;
 import com.nusiss.neighbourlysg.exception.ProfileNotFoundException;
 import com.nusiss.neighbourlysg.exception.UserNotExistedException;
+import com.nusiss.neighbourlysg.mapper.ProfileMapper;
+import com.nusiss.neighbourlysg.repository.ProfileRepository;
 import com.nusiss.neighbourlysg.repository.RoleRepository;
+import com.nusiss.neighbourlysg.service.impl.ProfileServiceImpl;
 import com.nusiss.neighbourlysg.util.MasterDTOTestUtil;
 import com.nusiss.neighbourlysg.util.MasterEntityTestUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,13 +23,16 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.nusiss.neighbourlysg.dto.ProfileDto;
-import com.nusiss.neighbourlysg.exception.EmailInUseException;
-import com.nusiss.neighbourlysg.mapper.ProfileMapper;
-import com.nusiss.neighbourlysg.repository.ProfileRepository;
-import com.nusiss.neighbourlysg.service.impl.ProfileServiceImpl;
-
 import javax.management.relation.RoleNotFoundException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = NeighbourlysgBackendApplication.class)
 class ProfileServiceImplTest {
@@ -216,7 +217,7 @@ class ProfileServiceImplTest {
 		profileService.deleteProfile(profileId);
 
 		// Then
-		verify(profileRepository).deleteById(profileId);
+		verify(profileRepository).delete(profile); // Verify that delete() is called with the correct profile
 	}
 
 	@Test
