@@ -5,6 +5,7 @@ import com.nusiss.neighbourlysg.NeighbourlysgBackendApplication;
 import com.nusiss.neighbourlysg.dto.ProfileDto;
 import com.nusiss.neighbourlysg.dto.RoleAssignmentDto;
 import com.nusiss.neighbourlysg.exception.ProfileNotFoundException;
+import com.nusiss.neighbourlysg.exception.RoleNotFoundException;
 import com.nusiss.neighbourlysg.repository.ProfileRepository;
 import com.nusiss.neighbourlysg.service.ProfileService;
 import com.nusiss.neighbourlysg.util.MasterDTOTestUtil;
@@ -209,6 +210,46 @@ class ProfileControllerTest {
 
         when(profileService.updateRoles(any(Long.class), any(List.class)))
                 .thenThrow(new RuntimeException("Simulated exception"));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String requestBody = objectMapper.writeValueAsString(roleAssignmentDto);
+
+        // When & Then
+        mockMvc.perform(put("/api/ProfileService/assign-role")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void assignRoleToUser_ShouldReturnBadRequestWhenRoleNotFound() throws Exception {
+        // Given
+        RoleAssignmentDto roleAssignmentDto = new RoleAssignmentDto();
+        roleAssignmentDto.setUserId(1L);
+        roleAssignmentDto.setRoleIds(Arrays.asList(1, 2, 3)); // Role 3 does not exist
+
+        when(profileService.updateRoles(any(Long.class), any(List.class)))
+                .thenThrow(new RoleNotFoundException("Role not found"));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String requestBody = objectMapper.writeValueAsString(roleAssignmentDto);
+
+        // When & Then
+        mockMvc.perform(put("/api/ProfileService/assign-role")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void assignRoleToUser_ShouldReturnBadRequestWhenProfileNotFound() throws Exception {
+        // Given
+        RoleAssignmentDto roleAssignmentDto = new RoleAssignmentDto();
+        roleAssignmentDto.setUserId(1L);
+        roleAssignmentDto.setRoleIds(Arrays.asList(1, 2)); // Assuming profile with ID 1 does not exist
+
+        when(profileService.updateRoles(any(Long.class), any(List.class)))
+                .thenThrow(new ProfileNotFoundException("Profile not found"));
 
         ObjectMapper objectMapper = new ObjectMapper();
         String requestBody = objectMapper.writeValueAsString(roleAssignmentDto);
