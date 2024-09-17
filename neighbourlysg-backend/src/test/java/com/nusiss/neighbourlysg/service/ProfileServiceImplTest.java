@@ -19,6 +19,7 @@ import com.nusiss.neighbourlysg.util.MasterEntityTestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -385,5 +386,63 @@ class ProfileServiceImplTest {
 		List<ProfileDto> result = profileService.getAllProfiles();
 
 		assertTrue(result.isEmpty()); // Ensure result is empty
+	}
+
+	@Test
+	void updateRoles_ShouldUpdateRolesWhenProfileAndRolesExist() throws RoleNotFoundException, ProfileNotFoundException {
+		// Given
+		Long profileId = 1L;
+		Role role1 = MasterEntityTestUtil.createRoleEntity();
+		Role role2 = new Role();
+		role2.setId(2);
+		role2.setName("NEW_ROLE");
+
+		Profile profile = MasterEntityTestUtil.createProfileEntity();
+		profile.setRoles(Collections.singletonList(role1));
+
+		List<Role> newRoles = Arrays.asList(role1, role2);
+
+		Profile updatedProfile = new Profile();
+		updatedProfile.setId(profileId);
+		updatedProfile.setRoles(newRoles);
+
+		when(profileRepository.findById(profileId)).thenReturn(Optional.of(profile));
+		when(roleRepository.findById(1)).thenReturn(Optional.of(role1));
+		when(roleRepository.findById(2)).thenReturn(Optional.of(role2));
+		when(profileRepository.save(Mockito.any(Profile.class))).thenReturn(updatedProfile);
+
+		// When
+		ProfileDto result = profileService.updateRoles(profileId, Arrays.asList(1, 2));
+
+		// Then
+		assertEquals(2, result.getRoles().size());
+		verify(profileRepository).save(Mockito.any(Profile.class));
+	}
+
+
+	@Test
+	void findById_ShouldReturnProfileWhenProfileExists() {
+		// Given
+		Long profileId = 1L;
+		Profile profile = MasterEntityTestUtil.createProfileEntity();
+
+		when(profileRepository.findById(profileId)).thenReturn(Optional.of(profile));
+
+		// When
+		Profile result = profileService.findById(profileId);
+
+		// Then
+		assertEquals(profile, result);
+	}
+
+	@Test
+	void findById_ShouldThrowProfileNotFoundExceptionWhenProfileDoesNotExist() {
+		// Given
+		Long profileId = 1L;
+
+		when(profileRepository.findById(profileId)).thenReturn(Optional.empty());
+
+		// When & Then
+		assertThrows(ProfileNotFoundException.class, () -> profileService.findById(profileId));
 	}
 }
