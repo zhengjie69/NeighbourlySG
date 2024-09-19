@@ -65,7 +65,7 @@ function RegisterPage() {
     } 
 
     try {
-      const response = await axios.post('http://localhost:8080/api/ProfileService/register', {
+      const response = await axios.post('http://localhost:8080/api/auth/register', {
         name: name,
         email: email,
         password: password,
