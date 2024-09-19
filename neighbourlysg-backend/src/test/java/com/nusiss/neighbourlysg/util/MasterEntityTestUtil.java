@@ -9,6 +9,8 @@ import com.nusiss.neighbourlysg.entity.Survey;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public final class MasterEntityTestUtil {
 
@@ -17,7 +19,9 @@ public final class MasterEntityTestUtil {
         profile.setConstituency("con");
         profile.setEmail("email");
         profile.setId(1L);
-        profile.setRoles(Arrays.asList(createRoleEntity()));
+        Set<Role> roles = new HashSet<>();
+        roles.add(createRoleEntity());
+        profile.setRoles(roles);
         profile.setName("name");
         profile.setPassword("password");
         return profile;

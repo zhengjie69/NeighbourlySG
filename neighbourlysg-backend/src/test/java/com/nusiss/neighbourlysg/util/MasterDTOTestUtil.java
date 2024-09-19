@@ -9,6 +9,8 @@ import com.nusiss.neighbourlysg.dto.SurveyDTO;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public final class MasterDTOTestUtil {
 
@@ -24,7 +26,9 @@ public final class MasterDTOTestUtil {
         profile.setConstituency("con");
         profile.setEmail("email");
         profile.setId(1L);
-        profile.setRoles(Arrays.asList(1));
+        Set<String> roles = new HashSet<>();
+        roles.add("ROLE_USER");
+        profile.setRoles(roles);
         profile.setName("name");
         profile.setPassword("password");
         return profile;
