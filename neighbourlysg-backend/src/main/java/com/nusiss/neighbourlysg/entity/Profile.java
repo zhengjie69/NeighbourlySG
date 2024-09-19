@@ -1,20 +1,28 @@
 package com.nusiss.neighbourlysg.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "profile")
+@Table(name = "profile",
+		uniqueConstraints = {
+		@UniqueConstraint(columnNames = "email")
+})
 public class Profile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +31,11 @@ public class Profile {
     @Column(name = "name")
     private String name;
 
+	@Column(name = "username", unique = true)
+	private String username;
+
     @Column(name = "email", unique = true)
+	@Email
     private String email;
     
     @Column(name = "password")
@@ -35,7 +47,7 @@ public class Profile {
 	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
 			inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
-	private List<Role> roles = new ArrayList<>();
+	private Set<Role> roles = new HashSet<>();
 
 	@OneToMany(mappedBy = "profile")
 	private List<Event> events;
@@ -51,6 +63,13 @@ public class Profile {
 		this.id = id;
 	}
 
+	public @NotBlank @Size(max = 20) String getUsername() {
+		return username;
+	}
+
+	public void setUsername(@NotBlank @Size(max = 20) String username) {
+		this.username = username;
+	}
 
 	public String getName() {
 		return name;
@@ -91,12 +110,11 @@ public class Profile {
 		this.constituency = constituency;
 	}
 
-	public List<Role> getRoles() {
+	public Set<Role> getRoles() {
 		return roles;
 	}
 
-	public void setRoles(List<Role> roles) {
+	public void setRoles(Set<Role> roles) {
 		this.roles = roles;
 	}
-
 }
