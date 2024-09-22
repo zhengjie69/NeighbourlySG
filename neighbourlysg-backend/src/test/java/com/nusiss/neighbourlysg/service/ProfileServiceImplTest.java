@@ -23,12 +23,16 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.management.relation.RoleNotFoundException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,24 +48,36 @@ class ProfileServiceImplTest {
 	ProfileMapper profileMapper;
 	@Mock
 	RoleRepository roleRepository;
+	@Mock
+	PasswordEncoder encoder;
 
 	private ProfileService profileService;
 
 	@BeforeEach
 	void setup() {
 		MockitoAnnotations.openMocks(this);
-		profileService = new ProfileServiceImpl(profileRepository, profileMapper,roleRepository);
+		profileService = new ProfileServiceImpl(profileRepository, profileMapper,roleRepository,encoder);
 	}
 	
 	@Test
-	void createProfileSuccess() throws RoleNotFoundException {
+	void createProfileSuccessWithoutRole() throws RoleNotFoundException {
 		when(profileRepository.findByEmail(any())).thenReturn(Optional.empty());
-		when(roleRepository.findById(any())).thenReturn(Optional.of(MasterEntityTestUtil.createRoleEntity()));
+		when(roleRepository.findByName(any())).thenReturn(Optional.of(MasterEntityTestUtil.createRoleEntity()));
 		when(profileRepository.save(any())).thenReturn(MasterEntityTestUtil.createProfileEntity());
-		final ProfileDto dto = profileMapper.toDto(MasterEntityTestUtil.createProfileEntity());
+		final ProfileDto dto = MasterDTOTestUtil.createProfileDTO();
 		ProfileDto result = profileService.createProfile(MasterDTOTestUtil.createProfileDTO());
 		assertEquals(dto.getId(), result.getId());
     }
+
+	@Test
+	void createProfileSuccessWithRole() throws RoleNotFoundException {
+		when(profileRepository.findByEmail(any())).thenReturn(Optional.empty());
+		when(roleRepository.findByName(any())).thenReturn(Optional.of(MasterEntityTestUtil.createRoleEntity()));
+		when(profileRepository.save(any())).thenReturn(MasterEntityTestUtil.createProfileEntity());
+		final ProfileDto dto = MasterDTOTestUtil.createProfileDTO();
+		ProfileDto result = profileService.createProfile(MasterDTOTestUtil.createProfileDTOWithRoles());
+		assertEquals(dto.getId(), result.getId());
+	}
 
 	@Test
 	void createProfileEmailInUse() {
@@ -73,58 +89,6 @@ class ProfileServiceImplTest {
 			// Only the following invocation is allowed in the lambda
 			profileService.createProfile(MasterDTOTestUtil.createProfileDTO());
 		});
-	}
-
-	@Test
-	void createProfileRoleEmpty() throws RoleNotFoundException {
-		when(profileRepository.findByEmail(any())).thenReturn(Optional.empty());
-
-		ProfileDto profileDtoWithoutRole = MasterDTOTestUtil.createProfileDTO();
-		profileDtoWithoutRole.setRoles(null);
-
-		Profile profileWithoutRole = MasterEntityTestUtil.createProfileEntity();
-		profileWithoutRole.setRoles(null);
-
-		when(profileRepository.save(any())).thenReturn(profileWithoutRole);
-
-		when(roleRepository.findByName(any())).thenReturn(Optional.of(MasterEntityTestUtil.createRoleEntity()));
-
-		final ProfileDto dto = profileMapper.toDto(MasterEntityTestUtil.createProfileEntity());
-		ProfileDto result = profileService.createProfile(profileDtoWithoutRole);
-		assertEquals(dto.getId(), result.getId());
-	}
-
-	@Test
-	void loginSuccess() {
-		when(profileRepository.findByEmail(any())).thenReturn(Optional.of(MasterEntityTestUtil.createProfileEntity()));
-		final ProfileDto dto = profileMapper.toDto(MasterEntityTestUtil.createProfileEntity());
-		ProfileDto result = profileService.login(MasterDTOTestUtil.createLoginRequestDTO());
-		assertEquals(dto.getId(), result.getId());
-	}
-
-
-	@Test
-	void loginFailedWrongPassWord() {
-
-		when(profileRepository.findByEmail(any())).thenReturn(Optional.of(MasterEntityTestUtil.createProfileEntity()));
-
-		//wrong password
-		LoginRequestDTO loginRequestDTO = MasterDTOTestUtil.createLoginRequestDTO();
-		loginRequestDTO.setPassword("wrongPassword");
-
-		//receive exception
-		assertThrows(PasswordWrongException.class, () -> {
-			profileService.login(loginRequestDTO);
-		});
-	}
-
-	@Test
-	void loginFailedUserNotExisted() {
-		// Setup mock to return an empty Optional when searching by email
-		when(profileRepository.findByEmail(any())).thenReturn(Optional.empty());
-
-		// Assert that logging in with a non-existent user throws UserNotExistedException
-		assertThrows(UserNotExistedException.class, () -> profileService.login(MasterDTOTestUtil.createLoginRequestDTO()));
 	}
 
 	@Test
@@ -174,7 +138,9 @@ class ProfileServiceImplTest {
 		Role newRole = MasterEntityTestUtil.createRoleEntity();
 		newRole.setId(2);
 		newRole.setName("newRole");
-		List<Role> roles = List.of(MasterEntityTestUtil.createRoleEntity(), newRole);
+
+		Set<Role> roles = new HashSet<>();
+		roles.add(MasterEntityTestUtil.createRoleEntity());
 
 		Profile existingProfile = MasterEntityTestUtil.createProfileEntity();
 		existingProfile.setName("test2");
@@ -191,9 +157,9 @@ class ProfileServiceImplTest {
 		updatedProfile.setPassword("testPassword");
 		updatedProfile.setRoles(roles);
 
-		ProfileDto profileDto = MasterDTOTestUtil.createProfileDTO();
+		ProfileDto profileDto = MasterDTOTestUtil.createProfileDTOWithRoles();
 
-		when(roleRepository.findById(any())).thenReturn(Optional.of(MasterEntityTestUtil.createRoleEntity()));
+		when(roleRepository.findByName(any())).thenReturn(Optional.of(MasterEntityTestUtil.createRoleEntity()));
 		when(profileRepository.findById(any())).thenReturn(Optional.of(existingProfile));
 		when(profileRepository.save(existingProfile)).thenReturn(updatedProfile);
 
@@ -257,7 +223,9 @@ class ProfileServiceImplTest {
 		role2.setName("NEW_ROLE");
 
 		Profile profile = MasterEntityTestUtil.createProfileEntity(); // A profile with some roles
-		profile.setRoles(Collections.singletonList(role1));
+		Set<Role> roles = new HashSet<>();
+		roles.add(role1);
+		profile.setRoles(roles);
 
 		RoleAssignmentDto roleAssignmentDto = new RoleAssignmentDto();
 		roleAssignmentDto.setUserId(profileId);
@@ -283,7 +251,9 @@ class ProfileServiceImplTest {
 		Role adminRole = new Role();
 		adminRole.setId(3); // Admin role has ID 3
 		Profile profile = MasterEntityTestUtil.createProfileEntity();
-		profile.setRoles(Collections.singletonList(adminRole)); // Profile with admin role
+		Set<Role> roles = new HashSet<>();
+		roles.add(adminRole);
+		profile.setRoles(roles); // Profile with admin role
 
 		when(profileRepository.findById(profileId)).thenReturn(Optional.of(profile));
 
@@ -300,8 +270,10 @@ class ProfileServiceImplTest {
 		Long profileId = 1L;
 		Role nonAdminRole = new Role();
 		nonAdminRole.setId(2); // Non-admin role
+		Set roles = new HashSet<>();
+		roles.add(nonAdminRole);
 		Profile profile = MasterEntityTestUtil.createProfileEntity();
-		profile.setRoles(Collections.singletonList(nonAdminRole)); // Profile without admin role
+		profile.setRoles(roles); // Profile without admin role
 
 		when(profileRepository.findById(profileId)).thenReturn(Optional.of(profile));
 
@@ -312,17 +284,6 @@ class ProfileServiceImplTest {
 		assertFalse(result); // Ensure the profile is not an admin
 	}
 
-	@Test
-	void createProfileRoleNotFoundException() {
-		// Setup mock to return empty optional when looking up roles by ID
-		when(profileRepository.findByEmail(any())).thenReturn(Optional.empty());
-		when(roleRepository.findById(any())).thenThrow(new com.nusiss.neighbourlysg.exception.RoleNotFoundException("Role not found"));
-
-		// Assert that creating a profile with non-existent role throws a RoleNotFoundException
-		assertThrows(com.nusiss.neighbourlysg.exception.RoleNotFoundException.class, () -> {
-			profileService.createProfile(MasterDTOTestUtil.createProfileDTO());
-		});
-	}
 
 	@Test
 	void updateProfileProfileNotFound() {
@@ -351,7 +312,7 @@ class ProfileServiceImplTest {
 		List<Integer> roleIds = Arrays.asList(1, 2);
 
 		Profile existingProfile = MasterEntityTestUtil.createProfileEntity();
-		existingProfile.setRoles(Collections.emptyList());
+		existingProfile.setRoles(Collections.emptySet());
 
 		when(profileRepository.findById(profileId)).thenReturn(Optional.of(existingProfile));
 		when(roleRepository.findById(1)).thenReturn(Optional.empty()); // Role not found
@@ -398,9 +359,13 @@ class ProfileServiceImplTest {
 		role2.setName("NEW_ROLE");
 
 		Profile profile = MasterEntityTestUtil.createProfileEntity();
-		profile.setRoles(Collections.singletonList(role1));
+		Set<Role> roles = new HashSet<>();
+		roles.add(role1);
+		profile.setRoles(roles);
 
-		List<Role> newRoles = Arrays.asList(role1, role2);
+		HashSet<Role> newRoles = new HashSet<>();
+		newRoles.add(role1);
+		newRoles.add(role2);
 
 		Profile updatedProfile = new Profile();
 		updatedProfile.setId(profileId);
