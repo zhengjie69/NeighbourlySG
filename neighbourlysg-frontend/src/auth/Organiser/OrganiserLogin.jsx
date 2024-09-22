@@ -1,34 +1,23 @@
 // eslint-disable-next-line no-unused-vars
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
-import SGLogo from '../../assets/SGLogo.avif'; // Import the logo here
-import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import SGLogo from '../../assets/SGLogo.avif'; // Replace with your actual logo path
 
-function ResidentLogin() {
+function OrganizerLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
-  const [isError, setIsError] = useState(false);
+  const [warning, setWarning] = useState('');
+  const navigate = useNavigate(); // Use navigate to programmatically navigate
 
-  const navigate = useNavigate();
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    try {
-      const response = await axios.post('http://localhost:8080/login', { email, password });
-
-      if (response.status === 200) {
-        sessionStorage.setItem('userId', response.data.id);
-        sessionStorage.setItem('roles', response.data.roles);
-        navigate('/ResidentMainPage', { state: { message: "Welcome back!" } });
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      setIsError(true);
-      setMessage('Login failed. Please try again.');
+    // Dummy login validation for demonstration
+    if (email === 'organizer@example.com' && password === 'password123') {
+      navigate('/OrganizerMainPage');
+    } else {
+      setWarning('Invalid email or password');
     }
   };
 
@@ -71,7 +60,7 @@ function ResidentLogin() {
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
-                  Resident Login
+                  Organiser Login
                 </a>
                 <ul className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                   {/* Dropdown options */}
@@ -80,19 +69,19 @@ function ResidentLogin() {
                       className="dropdown-item"
                       href="#"
                       role="button"
-                      onClick={() => navigate('/OrganiserLogin')}
+                      onClick={() => navigate('/ResidentLogin')}
                     >
-                      Organiser Login
-                    </a> {/* Navigate to OrganiserLogin */}
+                      Resident Login
+                    </a> {/* Navigate to ResidentLogin */}
                   </li>
                   <li>
                     <a
                       className="dropdown-item"
                       href="#"
                       role="button"
-                      onClick={() => navigate('/ResidentLogin')}
+                      onClick={() => navigate('/OrganiserLogin')}
                     >
-                      Resident Login
+                      Organiser Login
                     </a> {/* Stay on this page */}
                   </li>
                 </ul>
@@ -106,11 +95,12 @@ function ResidentLogin() {
       <div className="d-flex justify-content-center align-items-center flex-grow-1">
         <div className="card p-5" style={{ width: '400px', boxShadow: '0 12px 24px rgba(0, 0, 0, 0.15)', borderRadius: '12px', backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
           <div className="text-center">
-            <h3 className="mb-4" style={{ fontWeight: '600', fontSize: '1.8rem', color: '#343a40' }}>Resident Login</h3>
+            <h3 className="mb-4" style={{ fontWeight: '600', fontSize: '1.8rem', color: '#343a40' }}>Organiser Login</h3>
             <p style={{ fontSize: '1rem', color: '#6c757d', marginBottom: '30px' }}>
-              Access community surveys, events, and more by logging in.
+              Manage community events and content by logging in.
             </p>
           </div>
+          {warning && <div className="alert alert-danger" role="alert">{warning}</div>}
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label htmlFor="email" className="form-label" style={{ fontSize: '1rem', color: '#495057' }}>Email Address</label>
@@ -139,24 +129,25 @@ function ResidentLogin() {
             <button type="submit" className="btn btn-primary w-100" style={{ height: '50px', fontSize: '1rem', borderRadius: '8px' }}>
               Login
             </button>
-            {message && (
-              <div className={`alert ${isError ? 'alert-danger' : 'alert-success'} mt-4`} role="alert">
-                {message}
-              </div>
-            )}
           </form>
           <div className="mt-4 text-center">
             <a href="/forgot-password" className="text-primary" style={{ fontSize: '0.9rem', textDecoration: 'none' }}>Forgot Password?</a>
           </div>
           <div className="mt-3 text-center">
-            <Link to="/register" className="text-primary" style={{ fontSize: '0.9rem', textDecoration: 'none' }}>
+            <a href="/register" className="text-primary" style={{ fontSize: '0.9rem', textDecoration: 'none' }}>
               Don&apos;t have an account? <span style={{ fontWeight: 'bold' }}>Register here</span>
-            </Link>
+            </a>
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="bg-dark text-white text-center py-3 mt-5" style={{ zIndex: 2, position: 'relative', bottom: 0, width: '100%' }}>
+        <p>NeighbourlySG &copy; 2024. All rights reserved.</p>
+        <p><a href="/contact" className="text-white">Contact Support</a></p>
+      </footer>
     </div>
   );
 }
 
-export default ResidentLogin;
+export default OrganizerLogin;
