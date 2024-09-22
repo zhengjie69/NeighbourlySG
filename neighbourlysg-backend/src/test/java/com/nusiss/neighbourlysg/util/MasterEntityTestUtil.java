@@ -1,5 +1,6 @@
 package com.nusiss.neighbourlysg.util;
 
+import com.nusiss.neighbourlysg.common.RoleConstants;
 import com.nusiss.neighbourlysg.entity.Event;
 import com.nusiss.neighbourlysg.entity.EventParticipant;
 import com.nusiss.neighbourlysg.entity.Profile;
@@ -30,7 +31,7 @@ public final class MasterEntityTestUtil {
     public static Role createRoleEntity(){
         Role role = new Role();
         role.setId(1);
-        role.setName("USER");
+        role.setName(RoleConstants.ROLE_USER);
         return role;
     }
 
