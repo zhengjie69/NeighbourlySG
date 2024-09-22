@@ -21,7 +21,6 @@ public class RoleController {
     }
 
     @GetMapping("/roles")
-    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<List<RoleDto>> getAllRoles() {
         List<RoleDto> roles = roleService.getAllRoles();
         return ResponseEntity.ok(roles); // Return the list of roles with 200 OK status

@@ -23,7 +23,6 @@ public class EventController {
     }
 
     @PostMapping("/createEvent/{profileId}")
-    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<String> createEvent(
             @PathVariable("profileId") Long profileId,
             @RequestBody EventDto eventDto) {
@@ -35,7 +34,6 @@ public class EventController {
     }
 
     @GetMapping("/getAllUserEvent/{profileId}")
-    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<List<EventDto>> getAllUserEvent(
             @PathVariable("profileId") Long profileId) {
             List<EventDto> event = eventService.getAllUserEvent(profileId);
@@ -47,7 +45,6 @@ public class EventController {
     }
 
     @GetMapping("/getAllCurrentEvent/{profileId}")
-    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<List<EventDto>> getAllCurrentEvent(
             @PathVariable("profileId") Long profileId) {
             List<EventDto> event = eventService.getAllCurrentEvent(profileId);
@@ -59,7 +56,6 @@ public class EventController {
     }
 
     @GetMapping("/getAllPastEvent/{profileId}")
-    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<List<EventDto>> getAllPastEvent(
             @PathVariable("profileId") Long profileId) {
             List<EventDto> event = eventService.getAllPastEvent(profileId);
@@ -71,7 +67,6 @@ public class EventController {
     }
 
     @DeleteMapping("/deleteEvent/{eventId}")
-    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<String> deleteEvent(@PathVariable("eventId") Long eventId) {
         try {
             eventService.deleteEvent(eventId);
@@ -83,7 +78,6 @@ public class EventController {
     }
 
     @PutMapping("/updateEvent")
-    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<EventDto> updateEvent(@RequestBody EventDto updatedEvent) {
             EventDto eventDto = eventService.updateEvent(updatedEvent);
             if(eventDto != null)
@@ -93,7 +87,6 @@ public class EventController {
     }
 
     @PostMapping("/rsvpParticipant")
-    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<String> rsvpParticipant(@RequestBody EventParticipantDto rsvpPersonnel) {
         try {
             long rsvpCount = eventService.rsvpParticipant(rsvpPersonnel);
@@ -107,7 +100,6 @@ public class EventController {
     }
 
     @PostMapping("/deleteRsvpAsParticipant")
-    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<String> deleteRsvpAsParticipant(@RequestBody EventParticipantDto rsvpToBeRemoved) {
         try {
             boolean deleteStatus = eventService.deleteRsvpAsParticipant(rsvpToBeRemoved);
