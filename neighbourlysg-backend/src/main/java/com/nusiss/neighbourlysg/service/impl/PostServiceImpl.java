@@ -58,6 +58,14 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    public List<PostDto> getAllPosts() {
+        List<Post> posts = postRepository.findAll();
+        return posts.stream()
+                .map(postMapper::toDto)
+                .toList();
+    }
+
+    @Override
     public PostDto getPostById(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(ErrorMessagesConstants.POST_NOT_FOUND + postId));
