@@ -24,6 +24,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -106,6 +107,51 @@ class PostServiceImplTest {
 
         verify(profileRepository).findById(profileId);
         verifyNoMoreInteractions(postRepository, postMapper);
+    }
+
+    @Test
+    void getAllPosts_ShouldReturnListOfPostDtos() {
+        // Create mock Post entities
+        Post post1 = new Post();
+        post1.setId(1L);
+        post1.setContent("Post Content 1");
+
+        Post post2 = new Post();
+        post2.setId(2L);
+        post2.setContent("Post Content 2");
+
+        List<Post> posts = Arrays.asList(post1, post2);
+
+        // Create corresponding PostDto objects
+        PostDto postDto1 = new PostDto();
+        postDto1.setId(1L);
+        postDto1.setContent("Post Content 1");
+
+        PostDto postDto2 = new PostDto();
+        postDto2.setId(2L);
+        postDto2.setContent("Post Content 2");
+
+        List<PostDto> expectedPostDtos = Arrays.asList(postDto1, postDto2);
+
+        // Mock the repository and mapper behaviors
+        when(postRepository.findAll()).thenReturn(posts);
+        when(postMapper.toDto(post1)).thenReturn(postDto1);
+        when(postMapper.toDto(post2)).thenReturn(postDto2);
+
+        // Call the service method
+        List<PostDto> result = postService.getAllPosts();
+
+        // Assertions to check if the result matches the expected output
+        assertEquals(expectedPostDtos.size(), result.size());
+        assertEquals(expectedPostDtos.get(0).getId(), result.get(0).getId());
+        assertEquals(expectedPostDtos.get(0).getContent(), result.get(0).getContent());
+        assertEquals(expectedPostDtos.get(1).getId(), result.get(1).getId());
+        assertEquals(expectedPostDtos.get(1).getContent(), result.get(1).getContent());
+
+        // Verify the repository and mapper interactions
+        verify(postRepository, times(1)).findAll();
+        verify(postMapper, times(1)).toDto(post1);
+        verify(postMapper, times(1)).toDto(post2);
     }
 
     @Test

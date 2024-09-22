@@ -25,14 +25,16 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.hamcrest.Matchers.is;
 
 @SpringBootTest(classes = NeighbourlysgBackendApplication.class)
 class PostControllerTest {
@@ -91,6 +93,38 @@ class PostControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(postId))
                 .andExpect(jsonPath("$.content").value(postDto.getContent()));
+    }
+
+    // Test get all post
+    @Test
+    void getAllPosts_ShouldReturnListOfPosts() throws Exception {
+        Long postId = 1L;
+        PostDto postDto = new PostDto();
+        postDto.setId(postId);
+        postDto.setContent("Post Content");
+
+        Long postId2 = 2L;
+        PostDto postDto2 = new PostDto();
+        postDto2.setId(postId2);
+        postDto2.setContent("Post Content2");
+
+        List<PostDto> postList = Arrays.asList(postDto, postDto2);
+
+        // Mock the PostService behavior
+        when(postService.getAllPosts()).thenReturn(postList);
+
+        // Perform the GET request and verify the results
+        mockMvc.perform(get("/api/PostService/")  // Remove the trailing slash
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())  // Expect HTTP 200 OK
+                .andExpect(jsonPath("$", hasSize(2)))  // Expect 2 posts in the response
+                .andExpect(jsonPath("$[0].id", is(1)))
+                .andExpect(jsonPath("$[0].content", is("Post Content")))
+                .andExpect(jsonPath("$[1].id", is(2)))
+                .andExpect(jsonPath("$[1].content", is("Post Content2")));
+
+        // Verify that the PostService's getAllPosts() method was called once
+        verify(postService, times(1)).getAllPosts();
     }
 
     @Test

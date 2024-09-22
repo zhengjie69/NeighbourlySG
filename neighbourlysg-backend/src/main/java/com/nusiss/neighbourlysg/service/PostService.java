@@ -27,4 +27,6 @@ public interface PostService {
     CommentDto getCommentById(Long commentId);
 
     List<PostDto> getPostsByTags(List<String> tags);
+
+    List<PostDto> getAllPosts();
 }
