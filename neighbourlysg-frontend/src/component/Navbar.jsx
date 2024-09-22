@@ -1,12 +1,17 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import SGLogo from '../assets/SGLogo.avif';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Navbar = () => {
+    const navigate = useNavigate(); 
     // const roles = sessionStorage.getItem('roles');
     // const showNavBar = roles.valueOf.includes(3);
     // console.log(showNavBar + "here");
+    const handleLogout = () => {
+        sessionStorage.clear();
+        navigate('/ResidentLogin');
+    };
     
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-light" style={{ zIndex: 2, padding: '10px 20px', width: '100%' }}>
@@ -42,9 +47,11 @@ const Navbar = () => {
                     </li>
                 )} */}
             </ul>
-            <span className="navbar-text">
-                Welcome, [User]!
-            </span>
+
+            <button className="btn btn-outline-danger ms-2" onClick={handleLogout}>
+                Logout
+            </button>
+
             </div>
         </div>
         </nav>

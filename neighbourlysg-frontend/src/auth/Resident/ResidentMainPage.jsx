@@ -1,12 +1,15 @@
 // ResidentMainPage.jsx
 // eslint-disable-next-line no-unused-vars
-import React from 'react';
+import React, { useState, useEffect } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link } from 'react-router-dom';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 import SGLogo from '../../assets/SGLogo.avif'; // Import the Singapore logo
+import { useLocation } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
 
 const ResidentMainPage = () => {
+  const location = useLocation();
   const sampleSurveys = [
     { title: "Community Garden Feedback", description: "Share your thoughts on our new community garden initiative.", link: "/surveys" },
     { title: "Safety in the Neighborhood", description: "Provide input on how we can improve safety in our area.", link: "/surveys" }
@@ -32,6 +35,12 @@ const ResidentMainPage = () => {
     },
   ];
 
+  useEffect(() => {
+    if (location.state?.message) {
+      toast.success(location.state.message);
+    }
+  }, [location.state]);
+
   return (
     <div 
       style={{ 
@@ -44,6 +53,8 @@ const ResidentMainPage = () => {
         flexDirection: 'column'
       }}
     >
+
+      <ToastContainer/>
       {/* Overlay for better text visibility */}
       <div 
         style={{
@@ -122,16 +133,6 @@ const ResidentMainPage = () => {
               ))}
               <div className="d-flex justify-content-end">
                 <Link to="/posts" className="btn btn-primary">View More</Link>
-              </div>
-            </div>
-          </div>
-
-          <div className="col-md-4">
-            <div className="card" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
-              <h4>Your Profile</h4>
-              <p>Update your profile details and manage your account settings.</p>
-              <div className="d-flex justify-content-center">
-                <Link to="/ProfileSettings" className="btn btn-secondary" style={{ maxWidth: '200px', width: '100%' }}>Edit Profile</Link> {/* Link updated to point to /ProfileSettings */}
               </div>
             </div>
           </div>
