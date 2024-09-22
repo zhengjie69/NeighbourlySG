@@ -1,12 +1,15 @@
 // ResidentMainPage.jsx
 // eslint-disable-next-line no-unused-vars
-import React from 'react';
+import React, { useState, useEffect } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link } from 'react-router-dom';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 import SGLogo from '../../assets/SGLogo.avif'; // Import the Singapore logo
+import { useLocation } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
 
 const ResidentMainPage = () => {
+  const location = useLocation();
   const sampleSurveys = [
     { title: "Community Garden Feedback", description: "Share your thoughts on our new community garden initiative.", link: "/surveys" },
     { title: "Safety in the Neighborhood", description: "Provide input on how we can improve safety in our area.", link: "/surveys" }
@@ -32,6 +35,12 @@ const ResidentMainPage = () => {
     },
   ];
 
+  useEffect(() => {
+    if (location.state?.message) {
+      toast.success(location.state.message);
+    }
+  }, [location.state]);
+
   return (
     <div 
       style={{ 
@@ -44,6 +53,8 @@ const ResidentMainPage = () => {
         flexDirection: 'column'
       }}
     >
+
+      <ToastContainer/>
       {/* Overlay for better text visibility */}
       <div 
         style={{
@@ -57,45 +68,6 @@ const ResidentMainPage = () => {
         }}
       ></div>
 
-      {/* Navigation Bar */}
-      <nav className="navbar navbar-expand-lg navbar-light bg-light" style={{ zIndex: 2, padding: '10px 20px' }}>
-        <div className="container-fluid">
-          <Link className="navbar-brand" to="/ResidentMainPage">
-            <img src={SGLogo} alt="SG Logo" style={{ marginRight: '10px', width: '50px', height: '35px' }} />
-            NeighbourlySG
-          </Link>
-          <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          <div className="collapse navbar-collapse" id="navbarNavDropdown">
-            <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-              <li className="nav-item">
-                <Link className="nav-link active" aria-current="page" to="/surveys">Surveys</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/events">Events</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/posts">Community Posts</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/ProfileSettings">Profile</Link> {/* Link updated to point to /ProfileSettings */}
-              </li>
-              <li className="nav-item dropdown">
-                <ul className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                  <li><Link className="dropdown-item" to="/settings">Settings</Link></li>
-                  <li><Link className="dropdown-item" to="/help">Help</Link></li>
-                </ul>
-              </li>
-            </ul>
-            <span className="navbar-text">
-              Welcome, [User]!
-            </span>
-          </div>
-        </div>
-      </nav>
-
-      {/* Main Content Area */}
       <div className="container mt-5 text-dark" style={{ 
         backgroundColor: 'rgba(255, 255, 255, 0.9)', 
         borderRadius: '10px', 
@@ -161,16 +133,6 @@ const ResidentMainPage = () => {
               ))}
               <div className="d-flex justify-content-end">
                 <Link to="/posts" className="btn btn-primary">View More</Link>
-              </div>
-            </div>
-          </div>
-
-          <div className="col-md-4">
-            <div className="card" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
-              <h4>Your Profile</h4>
-              <p>Update your profile details and manage your account settings.</p>
-              <div className="d-flex justify-content-center">
-                <Link to="/ProfileSettings" className="btn btn-secondary" style={{ maxWidth: '200px', width: '100%' }}>Edit Profile</Link> {/* Link updated to point to /ProfileSettings */}
               </div>
             </div>
           </div>
