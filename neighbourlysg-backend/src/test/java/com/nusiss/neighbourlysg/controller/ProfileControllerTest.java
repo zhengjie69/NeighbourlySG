@@ -1,176 +1,306 @@
 package com.nusiss.neighbourlysg.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nusiss.neighbourlysg.NeighbourlysgBackendApplication;
 import com.nusiss.neighbourlysg.dto.ProfileDto;
 import com.nusiss.neighbourlysg.dto.RoleAssignmentDto;
 import com.nusiss.neighbourlysg.exception.ProfileNotFoundException;
+import com.nusiss.neighbourlysg.exception.RoleNotFoundException;
+import com.nusiss.neighbourlysg.repository.ProfileRepository;
 import com.nusiss.neighbourlysg.service.ProfileService;
+import com.nusiss.neighbourlysg.util.MasterDTOTestUtil;
+import com.nusiss.neighbourlysg.util.TestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import javax.management.relation.RoleNotFoundException;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@SpringBootTest(classes = NeighbourlysgBackendApplication.class)
 class ProfileControllerTest {
+    @Mock
+    ProfileService profileService;
+    @Mock
+    ProfileRepository profileRepository;
 
-    @InjectMocks
+    private MockMvc mockMvc;
+
     private ProfileController profileController;
 
-    @Mock
-    private ProfileService profileService;
+    @Autowired
+    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
 
+    @Autowired
+    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
     @BeforeEach
-    void setUp() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
+        profileController = new ProfileController(profileService);
+        this.mockMvc = MockMvcBuilders.standaloneSetup(profileController)
+                .setCustomArgumentResolvers(pageableArgumentResolver)
+                .setConversionService(TestUtil.createFormattingConversionService())
+                .setMessageConverters(jacksonMessageConverter)
+                .build();
     }
 
     @Test
-    void testGetAllProfiles() {
-        ProfileDto profileDto = new ProfileDto();
-        when(profileService.getAllProfiles()).thenReturn(Collections.singletonList(profileDto));
+    void createProfileTest() throws Exception {
+        ProfileDto profileDto=MasterDTOTestUtil.createProfileDTO();
+        when(profileRepository.findByEmail(any())).thenReturn(Optional.empty());
+        when(profileService.createProfile(any())).thenReturn(profileDto);
 
-        ResponseEntity<List<ProfileDto>> response = profileController.getAllProfiles();
+        byte[] data = TestUtil.convertObjectToJsonBytes(profileDto);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(1, response.getBody().size());
+        mockMvc.perform(post("/api/" + "/ProfileService/register")
+                        .contentType(TestUtil.APPLICATION_JSON_UTF8).content(data)).andExpect(status().isOk());
     }
 
     @Test
-    void testGetProfileByIdSuccess() {
-        Long id = 1L;
-        ProfileDto profileDto = new ProfileDto();
-        when(profileService.getProfileById(id)).thenReturn(profileDto);
+    void getProfileTest() throws Exception {
+        ProfileDto profileDto=MasterDTOTestUtil.createProfileDTO();
 
-        ResponseEntity<ProfileDto> response = profileController.getProfileById(id);
+        when(profileService.getProfileById(any())).thenReturn(profileDto);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(profileDto, response.getBody());
+        byte[] objectToJson = TestUtil.convertObjectToJsonBytes(profileDto);
+
+        mockMvc .perform(get("/api/" + "/ProfileService/profile/{id}", profileDto.getId()).contentType(TestUtil.APPLICATION_JSON_UTF8).content(objectToJson))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(profileDto.getId()))
+                .andExpect(jsonPath("$.email").value(profileDto.getEmail()))
+                .andExpect(jsonPath("$.constituency").value(profileDto.getConstituency()))
+                .andExpect(jsonPath("$.name").value(profileDto.getName()));
     }
 
     @Test
-    void testGetProfileByIdNotFound() {
-        Long id = 1L;
-        when(profileService.getProfileById(id)).thenThrow(new ProfileNotFoundException("Profile not found"));
+    void getProfileTest_ProfileNotFoundException() throws Exception {
 
-        ResponseEntity<ProfileDto> response = profileController.getProfileById(id);
+        ProfileDto profileDto=MasterDTOTestUtil.createProfileDTO();
 
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals(null, response.getBody());
+        byte[] objectToJson = TestUtil.convertObjectToJsonBytes(profileDto);
+
+        when(profileService.getProfileById(any())).thenThrow(ProfileNotFoundException.class);
+
+        mockMvc .perform(get("/api/" + "/ProfileService/profile/{id}", profileDto.getId()).contentType(TestUtil.APPLICATION_JSON_UTF8).content(objectToJson))
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    void testGetProfileByIdInternalServerError() {
-        Long id = 1L;
+    void getProfileTest_RunTimeException() throws Exception {
+        // Given
+        ProfileDto profileDto=MasterDTOTestUtil.createProfileDTO();
 
-        // Simulate an unexpected exception being thrown
-        when(profileService.getProfileById(id)).thenThrow(new RuntimeException("Unexpected error"));
+        byte[] objectToJson = TestUtil.convertObjectToJsonBytes(profileDto);
 
-        ResponseEntity<ProfileDto> response = profileController.getProfileById(id);
+        when(profileService.getProfileById(any())).thenThrow(new RuntimeException("Simulated exception"));
 
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertEquals(null, response.getBody());
+        mockMvc .perform(get("/api/" + "/ProfileService/profile/{id}", profileDto.getId()).contentType(TestUtil.APPLICATION_JSON_UTF8).content(objectToJson))
+                .andExpect(status().isInternalServerError());
     }
 
     @Test
-    void testUpdateProfileSuccess() throws RoleNotFoundException {
-        Long id = 1L;
-        ProfileDto updatedProfile = new ProfileDto();
-        when(profileService.updateProfile(id, updatedProfile)).thenReturn(updatedProfile);
+    void getAllProfiles_ShouldReturnProfiles() throws Exception {
+        // Given
+        ProfileDto profile1 = MasterDTOTestUtil.createProfileDTO();
+        List<ProfileDto> profiles = List.of(profile1);
 
-        ResponseEntity<ProfileDto> response = profileController.updateProfile(id, updatedProfile);
+        when(profileService.getAllProfiles()).thenReturn(profiles);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(updatedProfile, response.getBody());
+        // When & Then
+        mockMvc.perform(get("/api/ProfileService/profiles")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].id").value(profile1.getId())); // Adjust based on ProfileDto's properties
     }
 
     @Test
-    void testUpdateProfileNotFound() throws RoleNotFoundException {
-        Long id = 1L;
-        ProfileDto updatedProfile = new ProfileDto();
-        when(profileService.updateProfile(id, updatedProfile)).thenThrow(new ProfileNotFoundException("Profile not found"));
+    void updateProfile_ShouldReturnOkWhenProfileIsUpdated() throws Exception {
+        // Given
+        Long profileId = 1L;
+        ProfileDto updatedProfile = MasterDTOTestUtil.createProfileDTO(); // Ensure this utility method creates a valid ProfileDto
+        ProfileDto updatedProfileResponse = MasterDTOTestUtil.createProfileDTO(); // Simulate a successful update
 
-        ResponseEntity<ProfileDto> response = profileController.updateProfile(id, updatedProfile);
+        when(profileService.updateProfile(any(), any(ProfileDto.class))).thenReturn(updatedProfileResponse);
 
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals(null, response.getBody());
+        byte[] objectToJson = TestUtil.convertObjectToJsonBytes(updatedProfile); // Ensure this utility method converts the ProfileDto to JSON bytes
+
+        // When & Then
+        mockMvc.perform(put("/api/ProfileService/updateProfile/{id}", profileId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectToJson))
+                .andExpect(status().isOk());
     }
 
     @Test
-    void testUpdateProfileInternalServerError() throws RoleNotFoundException {
-        Long id = 1L;
-        ProfileDto updatedProfile = new ProfileDto();
+    void updateProfile_ShouldReturnNotFoundWhenProfileNotFoundExceptionOccurs() throws Exception {
+        // Given
+        Long profileId = 1L;
+        ProfileDto updatedProfile = MasterDTOTestUtil.createProfileDTO();
 
-        // Simulate an unexpected exception being thrown
-        when(profileService.updateProfile(id, updatedProfile)).thenThrow(new RuntimeException("Unexpected error"));
+        when(profileService.updateProfile(any(), any(ProfileDto.class))).thenThrow(new ProfileNotFoundException("Profile not found"));
 
-        ResponseEntity<ProfileDto> response = profileController.updateProfile(id, updatedProfile);
+        byte[] objectToJson = TestUtil.convertObjectToJsonBytes(updatedProfile);
 
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertEquals(null, response.getBody());
+        // When & Then
+        mockMvc.perform(put("/api/ProfileService/updateProfile/{id}", profileId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectToJson))
+                .andExpect(status().isNotFound());
     }
+
     @Test
-    void testAssignRoleToUserSuccess() throws RoleNotFoundException {
+    void updateProfile_ShouldReturnInternalServerErrorWhenOtherExceptionOccurs() throws Exception {
+        // Given
+        Long profileId = 1L;
+        ProfileDto updatedProfile = MasterDTOTestUtil.createProfileDTO();
+
+        when(profileService.updateProfile(any(), any(ProfileDto.class))).thenThrow(new RuntimeException("Simulated exception"));
+
+        byte[] objectToJson = TestUtil.convertObjectToJsonBytes(updatedProfile);
+
+        // When & Then
+        mockMvc.perform(put("/api/ProfileService/updateProfile/{id}", profileId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectToJson))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    void assignRoleToUser_ShouldReturnOkWhenRoleIsAssigned() throws Exception {
+        // Given
         RoleAssignmentDto roleAssignmentDto = new RoleAssignmentDto();
+        roleAssignmentDto.setUserId(1L);
+        roleAssignmentDto.setRoleIds(Arrays.asList(1, 2, 3)); // Updated for List<Integer>
+
         ProfileDto updatedProfile = new ProfileDto();
-        when(profileService.assignRoleToUser(roleAssignmentDto)).thenReturn(updatedProfile);
+        updatedProfile.setId(1L); // Populate with test data as needed
 
-        ResponseEntity<ProfileDto> response = profileController.assignRoleToUser(roleAssignmentDto);
+        when(profileService.updateRoles(any(Long.class), any(List.class))).thenReturn(updatedProfile);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(updatedProfile, response.getBody());
+        ObjectMapper objectMapper = new ObjectMapper();
+        String requestBody = objectMapper.writeValueAsString(roleAssignmentDto);
+
+        // When & Then
+        mockMvc.perform(put("/api/ProfileService/assign-role")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isOk());
     }
 
     @Test
-    void testAssignRoleToUserBadRequest() throws RoleNotFoundException {
+    void assignRoleToUser_ShouldReturnBadRequestWhenOtherRuntimeExceptionOccurs() throws Exception {
+        // Given
         RoleAssignmentDto roleAssignmentDto = new RoleAssignmentDto();
-        when(profileService.assignRoleToUser(roleAssignmentDto)).thenThrow(new RoleNotFoundException("Role not found"));
+        roleAssignmentDto.setUserId(1L);
+        roleAssignmentDto.setRoleIds(Arrays.asList(1, 2, 3)); // Updated for List<Integer>
 
-        ResponseEntity<ProfileDto> response = profileController.assignRoleToUser(roleAssignmentDto);
+        when(profileService.updateRoles(any(Long.class), any(List.class)))
+                .thenThrow(new RuntimeException("Simulated exception"));
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals(null, response.getBody());
+        ObjectMapper objectMapper = new ObjectMapper();
+        String requestBody = objectMapper.writeValueAsString(roleAssignmentDto);
+
+        // When & Then
+        mockMvc.perform(put("/api/ProfileService/assign-role")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void testDeleteProfileSuccess() {
-        Long id = 1L;
-        doNothing().when(profileService).deleteProfile(id);
+    void assignRoleToUser_ShouldReturnBadRequestWhenRoleNotFound() throws Exception {
+        // Given
+        RoleAssignmentDto roleAssignmentDto = new RoleAssignmentDto();
+        roleAssignmentDto.setUserId(1L);
+        roleAssignmentDto.setRoleIds(Arrays.asList(1, 2, 3)); // Role 3 does not exist
 
-        ResponseEntity<String> response = profileController.deleteProfile(id);
+        when(profileService.updateRoles(any(Long.class), any(List.class)))
+                .thenThrow(new RoleNotFoundException("Role not found"));
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("Profile deleted successfully!", response.getBody());
+        ObjectMapper objectMapper = new ObjectMapper();
+        String requestBody = objectMapper.writeValueAsString(roleAssignmentDto);
+
+        // When & Then
+        mockMvc.perform(put("/api/ProfileService/assign-role")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void testDeleteProfileNotFound() {
-        Long id = 1L;
-        doThrow(new ProfileNotFoundException("Profile not found")).when(profileService).deleteProfile(id);
+    void assignRoleToUser_ShouldReturnBadRequestWhenProfileNotFound() throws Exception {
+        // Given
+        RoleAssignmentDto roleAssignmentDto = new RoleAssignmentDto();
+        roleAssignmentDto.setUserId(1L);
+        roleAssignmentDto.setRoleIds(Arrays.asList(1, 2)); // Assuming profile with ID 1 does not exist
 
-        ResponseEntity<String> response = profileController.deleteProfile(id);
+        when(profileService.updateRoles(any(Long.class), any(List.class)))
+                .thenThrow(new ProfileNotFoundException("Profile not found"));
 
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals(null, response.getBody());
+        ObjectMapper objectMapper = new ObjectMapper();
+        String requestBody = objectMapper.writeValueAsString(roleAssignmentDto);
+
+        // When & Then
+        mockMvc.perform(put("/api/ProfileService/assign-role")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
-    void testDeleteProfileInternalServerError() {
-        Long id = 1L;
+    void deleteProfile_ShouldReturnOkWhenProfileIsDeleted() throws Exception {
+        // Given
+        Long profileId = 1L;
 
-        // Simulate an unexpected exception being thrown
-        doThrow(new RuntimeException("Unexpected error")).when(profileService).deleteProfile(id);
+        // Simulate successful profile deletion
+        doNothing().when(profileService).deleteProfile(profileId);
 
-        ResponseEntity<String> response = profileController.deleteProfile(id);
-
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertEquals(null, response.getBody());
+        // When & Then
+        mockMvc.perform(delete("/api/ProfileService/profile/{id}", profileId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
+
+    @Test
+    void deleteProfile_ShouldReturnNotFoundWhenProfileNotFoundExceptionOccurs() throws Exception {
+        // Given
+        Long profileId = 1L;
+
+        // Simulate that ProfileNotFoundException is thrown
+        doThrow(new ProfileNotFoundException("Profile not found")).when(profileService).deleteProfile(profileId);
+
+        // When & Then
+        mockMvc.perform(delete("/api/ProfileService/profile/{id}", profileId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void deleteProfile_ShouldReturnInternalServerErrorWhenOtherExceptionOccurs() throws Exception {
+        // Given
+        Long profileId = 1L;
+
+        // Simulate that a generic exception is thrown
+        doThrow(new RuntimeException("Simulated exception")).when(profileService).deleteProfile(profileId);
+
+        // When & Then
+        mockMvc.perform(delete("/api/ProfileService/profile/{id}", profileId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
+    }
+
 }

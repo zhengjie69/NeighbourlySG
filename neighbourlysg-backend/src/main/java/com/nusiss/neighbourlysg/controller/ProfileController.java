@@ -5,37 +5,44 @@ import com.nusiss.neighbourlysg.dto.RoleAssignmentDto;
 import com.nusiss.neighbourlysg.service.ProfileService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.nusiss.neighbourlysg.exception.ProfileNotFoundException;
 
 import javax.management.relation.RoleNotFoundException;
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/api/ProfileService")
 public class ProfileController {
 
-    
-    
-	private final ProfileService profileService;
-    
+    private final ProfileService profileService;
+
     public ProfileController(ProfileService profileService) {
-    	this.profileService=profileService;
-    	
+        this.profileService = profileService;
+
     }
 
-    //Get All Profiles/Users
+    // Get All Profiles/Users
     @GetMapping("/profiles")
     public ResponseEntity<List<ProfileDto>> getAllProfiles() {
         List<ProfileDto> profiles = profileService.getAllProfiles();
         return ResponseEntity.ok(profiles); // Return the list of profiles with 200 OK status
     }
 
-    //Get Profile By Id REST API
+    // Create Profile REST API
+    @PostMapping("/register")
+    public ResponseEntity<ProfileDto> createProfile(@RequestBody ProfileDto profileDto) {
+        try {
+            ProfileDto profile = profileService.createProfile(profileDto);
+            return ResponseEntity.ok(profile);
+        } catch (RoleNotFoundException e) {
+            // Return a response with a 400 Bad Request status and error message
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
+
+    // Get Profile By Id REST API
     @GetMapping("/profile/{id}")
-    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<ProfileDto> getProfileById(@PathVariable("id") Long id) {
 
         try {
@@ -50,7 +57,6 @@ public class ProfileController {
     }
 
     @PutMapping("/updateProfile/{id}")
-    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<ProfileDto> updateProfile(
             @PathVariable("id") Long id,
             @RequestBody ProfileDto updatedProfile) {
@@ -66,20 +72,23 @@ public class ProfileController {
         }
     }
 
-    @PostMapping("/assign-role")
-    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
-    public ResponseEntity<ProfileDto> assignRoleToUser(@RequestBody RoleAssignmentDto roleAssignmentDto) {
+    @PutMapping("/assign-role")
+    public ResponseEntity<Object> assignRoleToUser(@RequestBody RoleAssignmentDto roleAssignmentDto) {
         try {
-            ProfileDto updatedProfile = profileService.assignRoleToUser(roleAssignmentDto);
+            ProfileDto updatedProfile = profileService.updateRoles(roleAssignmentDto.getUserId(),
+                    roleAssignmentDto.getRoleIds());
             return ResponseEntity.ok(updatedProfile);
-        } catch (RoleNotFoundException | RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        } catch (RoleNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Role not found: " + e.getMessage());
+        } catch (ProfileNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Profile not found: " + e.getMessage());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error occurred while updating roles");
         }
     }
 
-    //Delete Profile REST API
+    // Delete Profile REST API
     @DeleteMapping("/profile/{id}")
-    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<String> deleteProfile(@PathVariable("id") Long id) {
         try {
             profileService.deleteProfile(id);

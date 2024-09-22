@@ -17,11 +17,11 @@ function ResidentLogin() {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/login', { email, password });
+      const response = await axios.post('http://localhost:8080/login', { email, password });
       
       if (response.status === 200) {
         sessionStorage.setItem('userId', response.data.id);
-        sessionStorage.setItem('auth-user', JSON.stringify(response.data));
+        sessionStorage.setItem('roles', response.data.roles);
         navigate('/ResidentMainPage');
       }
     } catch (error) {
