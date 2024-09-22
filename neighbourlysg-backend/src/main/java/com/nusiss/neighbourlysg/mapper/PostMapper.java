@@ -11,6 +11,7 @@ public interface PostMapper {
 
     @Mapping(source = "content", target = "content")
     @Mapping(source = "profile.id", target = "profileId") // Map profile ID
+    @Mapping(source = "profile.name", target = "profileName")
     @Mapping(source = "comments", target = "comments") // Map comments
     @Mapping(source = "tags", target = "tags") // Map tags
     @Mapping(source = "likesCount", target = "likeCount") // Map likesCount from entity to likeCount in DTO

@@ -18,6 +18,7 @@ public class PostDto {
     private String content;
     private LocalDateTime creationDate;
     private Long profileId; // To link back to the Profile
+    private String profileName; // New field to store the user's name
     private int likeCount;   // To store the number of likes
     private List<CommentDto> comments; // List of comments associated with the post
     private List<String> tags;  // To store the tags for the post
