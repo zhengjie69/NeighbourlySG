@@ -29,18 +29,6 @@ public class ProfileController {
         return ResponseEntity.ok(profiles); // Return the list of profiles with 200 OK status
     }
 
-    // Create Profile REST API
-    @PostMapping("/register")
-    public ResponseEntity<ProfileDto> createProfile(@RequestBody ProfileDto profileDto) {
-        try {
-            ProfileDto profile = profileService.createProfile(profileDto);
-            return ResponseEntity.ok(profile);
-        } catch (RoleNotFoundException e) {
-            // Return a response with a 400 Bad Request status and error message
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-    }
-
     // Get Profile By Id REST API
     @GetMapping("/profile/{id}")
     public ResponseEntity<ProfileDto> getProfileById(@PathVariable("id") Long id) {
