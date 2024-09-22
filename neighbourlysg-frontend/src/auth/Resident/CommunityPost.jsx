@@ -1,10 +1,14 @@
 /* eslint-disable no-unused-vars */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Modal, Button, Form } from "react-bootstrap";
 import neighbourlySGbackground from "../../assets/neighbourlySGbackground.jpg";
+import axios from "axios";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const animatedComponents = makeAnimated();
 
@@ -17,50 +21,74 @@ const tags = [
   "#MentalHealth", "#EcoFriendly", "#Inclusivity"
 ];
 
-const initialPosts = [
-  {
-    id: 1,
-    user: "John Doe",
-    content: "Had a great time at the community cleanup event!",
-    tags: ["#community", "#cleanup"],
-    likes: 5,
-    comments: [{ id: 1, user: "Jane Smith", content: "It was an amazing event!" }]
-  },
-  {
-    id: 2,
-    user: "Mary Jane",
-    content: "Looking forward to the Fall Festival next week!",
-    tags: ["#fallfestival", "#community"],
-    likes: 8,
-    comments: [{ id: 1, user: "Tom Cruise", content: "Can’t wait!" }]
-  }
-];
-
 function CommunityPost() {
-  const [posts, setPosts] = useState(initialPosts);
+  const [posts, setPosts] = useState([]);
   const [newPostContent, setNewPostContent] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
+  const userId = sessionStorage.getItem("userId");
 
-  const handleCreatePost = () => {
-    const newPost = {
-      id: posts.length + 1,
-      user: "Current User",
-      content: newPostContent,
-      tags: selectedTags,
-      likes: 0,
-      comments: [],
+  useEffect(() => {
+    // fetch all posts
+    const fetchPosts = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/PostService/`);
+        if (response.status === 200) {
+          setPosts(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      }
     };
-    setPosts([newPost, ...posts]);
-    resetForm();
-  };
 
+    const fetchProfile = async () => {
+      try {
+        // Fetch the user's profile details to get name
+        const response = await axios.get(`http://localhost:8080/api/ProfileService/profile/${userId}`);
+  
+        if (response.status === 200) {
+          const name = response.data.name; 
+          sessionStorage.setItem("name", name);
+        }
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    };
+
+    fetchPosts(); 
+    fetchProfile(); 
+  }, []);   
+
+  const handleCreatePost = async () => {
+    try {
+        // Create a new post
+        const newPost = {
+          content: newPostContent,
+          creationDate: new Date().toISOString(), // Use the current date
+          profileId: userId,
+          likeCount: 0,
+          comments: [],
+          tags: selectedTags,
+          profileName: sessionStorage.getItem('name')
+        };
+
+        const res = await axios.post(`http://localhost:8080/api/PostService/${userId}`, newPost);
+        if (res.status === 200 || res.status === 201) {
+          setPosts([newPost, ...posts]);
+          resetForm(); // Reset the form fields after posting
+          toast.success("Your status have been posted successfully!");
+        }
+      
+    } catch (error) {
+      console.error("Error fetching profile or creating post:", error);
+    }
+  };
+  
   const resetForm = () => {
     setNewPostContent("");
     setSelectedTags([]);
   };
-
 
   return (
     <div
@@ -72,27 +100,35 @@ function CommunityPost() {
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="container mt-5 flex-grow-1">
-        <div className="mb-4" style={{ maxWidth: "600px", margin: "0 auto" }}>
-          <h2 className="text-dark bg-white bg-opacity-75 p-2 rounded text-center">
-            Community News Feed
-          </h2>
-        </div>
 
-        <div className="card mb-4" style={{ maxWidth: "600px", margin: "0 auto" }}>
-        <div className="card-body">
-          <Form.Group>
-            <Form.Control
-              as="textarea"
-              rows={2}
-              placeholder="What's on your mind?"
-              value={newPostContent}
-              onChange={(e) => setNewPostContent(e.target.value)}
-            />
-          </Form.Group>
+    <ToastContainer />
 
-          <div className="mb-3" />
+    <div className="container mt-5 flex-grow-1">
+    <div className="mb-4" style={{ width: "100%" }}>
+      <h2
+        className="text-dark bg-white bg-opacity-75 p-2 rounded text-center"
+        style={{ display: "inline-block", width: "100%" }}
+      >
+        Community News Feed
+      </h2>
+    </div>
 
+    <div className="card mb-4" style={{ maxWidth: "100%", margin: "0 auto" }}>
+      <div className="card-body">
+        <Form.Group>
+          <Form.Control
+            as="textarea"
+            rows={2}
+            placeholder={`What's on your mind, ${sessionStorage.getItem('name')}?`}
+            value={newPostContent}
+            onChange={(e) => setNewPostContent(e.target.value)}
+          />
+        </Form.Group>
+
+        <div className="mt-2" />
+
+        <div className="row">
+          <div className="col-sm-10">
           <Form.Group>
             <Select
               closeMenuOnSelect={false}
@@ -102,18 +138,27 @@ function CommunityPost() {
               onChange={(selectedOptions) => setSelectedTags(selectedOptions.map(option => option.value))}
             />
           </Form.Group>
+          </div>
 
-          <Button variant="primary" className="mt-2" onClick={handleCreatePost}>
+          <div className="col d-flex justify-content-end col-sm-2">
+          <Button 
+            variant="primary" 
+            onClick={handleCreatePost} 
+            disabled={!newPostContent.trim()}
+          >
             Post
           </Button>
+          </div>
         </div>
       </div>
+    </div>
 
-
-        {posts.map((post) => (
-          <div key={post.id} className="card mb-4" style={{ maxWidth: "600px", margin: "0 auto" }}>
-            <div className="card-body">
-              <h5 className="card-title">{post.user}</h5>
+      <div className="row">
+      {posts.map((post) => (
+        <div key={post.id} className="col-md-6 mb-4">
+          <div className="card" style={{height: "auto", display: "flex"}}>
+            <div className="card-body" >
+              <h5 className="card-title">{post.profileName}</h5>
               <p className="card-text">{post.content}</p>
               <p>
                 {post.tags.map((tag) => (
@@ -122,7 +167,9 @@ function CommunityPost() {
               </p>
             </div>
           </div>
-        ))}
+        </div>
+      ))}
+    </div>
 
         {/* Modal for Editing Post */}
         {selectedPost && (
@@ -164,5 +211,4 @@ function CommunityPost() {
     </div>
   );
 }
-
 export default CommunityPost;
