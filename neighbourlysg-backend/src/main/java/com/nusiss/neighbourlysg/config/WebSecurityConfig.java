@@ -67,6 +67,7 @@ public class WebSecurityConfig {
             .csrf(csrf -> csrf
                     .ignoringRequestMatchers("/api/auth/**")
                     .ignoringRequestMatchers("/api/**")// Disable CSRF for JWT endpoints
+                    .ignoringRequestMatchers("/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui/**", "/webjars/**")
             )
             .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
