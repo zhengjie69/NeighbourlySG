@@ -4,7 +4,7 @@ import com.nusiss.neighbourlysg.dto.JwtResponse;
 import com.nusiss.neighbourlysg.dto.LoginRequestDTO;
 import com.nusiss.neighbourlysg.dto.ProfileDto;
 import com.nusiss.neighbourlysg.security.jwt.JwtUtils;
-import com.nusiss.neighbourlysg.security.services.UserDetailsImpl;
+import com.nusiss.neighbourlysg.service.impl.UserDetailsImpl;
 import com.nusiss.neighbourlysg.service.ProfileService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

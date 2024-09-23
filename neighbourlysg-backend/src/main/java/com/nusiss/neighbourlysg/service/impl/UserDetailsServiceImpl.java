@@ -1,4 +1,4 @@
-package com.nusiss.neighbourlysg.security.services;
+package com.nusiss.neighbourlysg.service.impl;
 
 
 import com.nusiss.neighbourlysg.entity.Profile;

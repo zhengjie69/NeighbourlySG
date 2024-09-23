@@ -1,10 +1,10 @@
-package com.nusiss.neighbourlysg.security;
+package com.nusiss.neighbourlysg.config;
 
 
 import com.nusiss.neighbourlysg.security.jwt.AuthEntryPointJwt;
 import com.nusiss.neighbourlysg.security.jwt.AuthTokenFilter;
 import com.nusiss.neighbourlysg.security.jwt.JwtUtils;
-import com.nusiss.neighbourlysg.security.services.UserDetailsServiceImpl;
+import com.nusiss.neighbourlysg.service.impl.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -58,7 +58,7 @@ public class WebSecurityConfig {
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
   }
-  
+
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.csrf(csrf -> csrf.disable())

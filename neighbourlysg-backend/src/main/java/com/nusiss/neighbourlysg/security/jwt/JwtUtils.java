@@ -1,7 +1,7 @@
 package com.nusiss.neighbourlysg.security.jwt;
 
 
-import com.nusiss.neighbourlysg.security.services.UserDetailsImpl;
+import com.nusiss.neighbourlysg.service.impl.UserDetailsImpl;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;

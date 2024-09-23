@@ -1,7 +1,7 @@
 package com.nusiss.neighbourlysg.security.jwt;
 
 
-import com.nusiss.neighbourlysg.security.services.UserDetailsServiceImpl;
+import com.nusiss.neighbourlysg.service.impl.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
