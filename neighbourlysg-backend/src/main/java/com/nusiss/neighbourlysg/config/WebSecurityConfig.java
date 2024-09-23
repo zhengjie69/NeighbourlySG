@@ -61,15 +61,18 @@ public class WebSecurityConfig {
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    // CSRF protection is disabled because this is a stateless API (JWT is used for authentication)
+    // CSRF is generally used to protect browser sessions, but with JWT tokens and a stateless backend,
+    // it is safe to disable CSRF here.
     http.csrf(csrf -> csrf.disable())
-        .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(auth ->
-          auth.requestMatchers("/api/auth/**").permitAll()
-              .requestMatchers("/api/**").permitAll()
-                  .requestMatchers("/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui/**", "/webjars/**").permitAll() // Allow Swagger
-              .anyRequest().authenticated()
-        );
+            .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth ->
+                    auth.requestMatchers("/api/auth/**").permitAll()
+                            .requestMatchers("/api/**").permitAll()
+                            .requestMatchers("/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui/**", "/webjars/**").permitAll() // Allow Swagger
+                            .anyRequest().authenticated()
+            );
 
     http.authenticationProvider(authenticationProvider());
 
@@ -77,4 +80,5 @@ public class WebSecurityConfig {
 
     return http.build();
   }
+
 }
