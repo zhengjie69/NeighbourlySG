@@ -3,7 +3,6 @@ package com.nusiss.neighbourlysg.controller;
 import com.nusiss.neighbourlysg.dto.JwtResponse;
 import com.nusiss.neighbourlysg.dto.LoginRequestDTO;
 import com.nusiss.neighbourlysg.dto.ProfileDto;
-import com.nusiss.neighbourlysg.repository.RoleRepository;
 import com.nusiss.neighbourlysg.security.jwt.JwtUtils;
 import com.nusiss.neighbourlysg.security.services.UserDetailsImpl;
 import com.nusiss.neighbourlysg.service.ProfileService;
@@ -18,7 +17,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.management.relation.RoleNotFoundException;
 import java.util.Collections;
