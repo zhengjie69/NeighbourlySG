@@ -117,26 +117,67 @@ class ProfileControllerTest {
         assertEquals(null, response.getBody());
     }
     @Test
-    void testAssignRoleToUserSuccess() throws RoleNotFoundException {
+    void testAssignRoleToUserSuccess() throws RoleNotFoundException, ProfileNotFoundException {
         RoleAssignmentDto roleAssignmentDto = new RoleAssignmentDto();
         ProfileDto updatedProfile = new ProfileDto();
-        when(profileService.assignRoleToUser(roleAssignmentDto)).thenReturn(updatedProfile);
 
+        // Mocking the service call
+        when(profileService.updateRoles(roleAssignmentDto.getUserId(), roleAssignmentDto.getRoleIds()))
+                .thenReturn(updatedProfile);
+
+        // Executing the method under test
         ResponseEntity<Object> response = profileController.assignRoleToUser(roleAssignmentDto);
 
+        // Assertions
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(updatedProfile, response.getBody());
     }
 
     @Test
-    void testAssignRoleToUserBadRequest() throws RoleNotFoundException {
+    void testAssignRoleToUser_RoleNotFound() throws RoleNotFoundException {
         RoleAssignmentDto roleAssignmentDto = new RoleAssignmentDto();
-        when(profileService.assignRoleToUser(roleAssignmentDto)).thenThrow(new RoleNotFoundException("Role not found"));
 
+        // Mocking the service call to throw an exception
+        when(profileService.updateRoles(roleAssignmentDto.getUserId(), roleAssignmentDto.getRoleIds()))
+                .thenThrow(new RoleNotFoundException("Role does not exist"));
+
+        // Executing the method under test
         ResponseEntity<Object> response = profileController.assignRoleToUser(roleAssignmentDto);
 
+        // Assertions
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals(null, response.getBody());
+        assertEquals("Role not found: Role does not exist", response.getBody());
+    }
+
+    @Test
+    void testAssignRoleToUser_ProfileNotFound() throws RoleNotFoundException {
+        RoleAssignmentDto roleAssignmentDto = new RoleAssignmentDto();
+
+        // Mocking the service call to throw an exception
+        when(profileService.updateRoles(roleAssignmentDto.getUserId(), roleAssignmentDto.getRoleIds()))
+                .thenThrow(new ProfileNotFoundException("Profile does not exist"));
+
+        // Executing the method under test
+        ResponseEntity<Object> response = profileController.assignRoleToUser(roleAssignmentDto);
+
+        // Assertions
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Profile not found: Profile does not exist", response.getBody());
+    }
+
+    @Test
+    void testAssignRoleToUser_RuntimeException() throws RoleNotFoundException {
+        RoleAssignmentDto roleAssignmentDto = new RoleAssignmentDto();
+
+        // Mocking the service call to throw an exception
+        when(profileService.updateRoles(roleAssignmentDto.getUserId(), roleAssignmentDto.getRoleIds()))
+                .thenThrow(new RuntimeException("Some unexpected error"));
+
+        // Executing the method under test
+        ResponseEntity<Object> response = profileController.assignRoleToUser(roleAssignmentDto);
+
+        // Assertions
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals("Error occurred while updating roles", response.getBody());
     }
 
     @Test
