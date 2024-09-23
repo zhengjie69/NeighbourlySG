@@ -2,7 +2,6 @@ package com.nusiss.neighbourlysg.service.impl;
 
 import com.nusiss.neighbourlysg.common.RoleConstants;
 import com.nusiss.neighbourlysg.config.ErrorMessagesConstants;
-import com.nusiss.neighbourlysg.dto.LoginRequestDTO;
 import com.nusiss.neighbourlysg.dto.ProfileDto;
 import com.nusiss.neighbourlysg.dto.RoleAssignmentDto;
 import com.nusiss.neighbourlysg.entity.Profile;
@@ -12,7 +11,6 @@ import com.nusiss.neighbourlysg.mapper.ProfileMapper;
 import com.nusiss.neighbourlysg.repository.ProfileRepository;
 import com.nusiss.neighbourlysg.repository.RoleRepository;
 import com.nusiss.neighbourlysg.service.ProfileService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

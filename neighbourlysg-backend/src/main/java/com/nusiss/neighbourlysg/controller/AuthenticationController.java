@@ -11,7 +11,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,19 +30,12 @@ public class AuthenticationController {
 
     private final AuthenticationManager authenticationManager;
 
-    private final RoleRepository roleRepository;
-
-    private final PasswordEncoder encoder;
-
     private final JwtUtils jwtUtils;
 
     private final ProfileService profileService;
 
-    public AuthenticationController(AuthenticationManager authenticationManager, RoleRepository roleRepository,
-                                    PasswordEncoder encoder, JwtUtils jwtUtils, ProfileService profileService) {
+    public AuthenticationController(AuthenticationManager authenticationManager, JwtUtils jwtUtils, ProfileService profileService) {
         this.authenticationManager = authenticationManager;
-        this.roleRepository = roleRepository;
-        this.encoder = encoder;
         this.jwtUtils = jwtUtils;
         this.profileService = profileService;
     }
@@ -59,7 +51,7 @@ public class AuthenticationController {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(item -> item.getAuthority())
-                .collect(Collectors.toList());
+                .toList();
 
         return ResponseEntity.ok(new JwtResponse(jwt,
                 userDetails.getId(),

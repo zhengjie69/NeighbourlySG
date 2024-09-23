@@ -35,12 +35,6 @@ class AuthenticationControllerTest {
     private AuthenticationManager authenticationManager;
 
     @Mock
-    private RoleRepository roleRepository;
-
-    @Mock
-    private PasswordEncoder encoder;
-
-    @Mock
     private JwtUtils jwtUtils;
 
     @Mock

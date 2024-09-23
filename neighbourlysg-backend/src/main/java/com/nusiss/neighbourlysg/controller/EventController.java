@@ -5,7 +5,6 @@ import com.nusiss.neighbourlysg.dto.EventParticipantDto;
 import com.nusiss.neighbourlysg.service.EventService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

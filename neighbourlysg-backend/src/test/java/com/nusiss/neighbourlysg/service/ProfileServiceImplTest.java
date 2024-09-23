@@ -1,15 +1,12 @@
 package com.nusiss.neighbourlysg.service;
 
 import com.nusiss.neighbourlysg.NeighbourlysgBackendApplication;
-import com.nusiss.neighbourlysg.dto.LoginRequestDTO;
 import com.nusiss.neighbourlysg.dto.ProfileDto;
 import com.nusiss.neighbourlysg.dto.RoleAssignmentDto;
 import com.nusiss.neighbourlysg.entity.Profile;
 import com.nusiss.neighbourlysg.entity.Role;
 import com.nusiss.neighbourlysg.exception.EmailInUseException;
-import com.nusiss.neighbourlysg.exception.PasswordWrongException;
 import com.nusiss.neighbourlysg.exception.ProfileNotFoundException;
-import com.nusiss.neighbourlysg.exception.UserNotExistedException;
 import com.nusiss.neighbourlysg.mapper.ProfileMapper;
 import com.nusiss.neighbourlysg.repository.ProfileRepository;
 import com.nusiss.neighbourlysg.repository.RoleRepository;
@@ -27,7 +24,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.management.relation.RoleNotFoundException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
