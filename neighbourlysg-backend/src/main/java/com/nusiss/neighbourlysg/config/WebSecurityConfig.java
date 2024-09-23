@@ -59,26 +59,29 @@ public class WebSecurityConfig {
     return new BCryptPasswordEncoder();
   }
 
+
+
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    // CSRF protection is disabled because this is a stateless API (JWT is used for authentication)
-    // CSRF is generally used to protect browser sessions, but with JWT tokens and a stateless backend,
-    // it is safe to disable CSRF here.
-    http.csrf(csrf -> csrf.disable())
+    http
+            .csrf(csrf -> csrf
+                    .ignoringRequestMatchers("/api/auth/**")
+                    .ignoringRequestMatchers("/api/**")// Disable CSRF for JWT endpoints
+            )
             .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth ->
-                    auth.requestMatchers("/api/auth/**").permitAll()
-                            .requestMatchers("/api/**").permitAll()
-                            .requestMatchers("/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui/**", "/webjars/**").permitAll() // Allow Swagger
-                            .anyRequest().authenticated()
+            .authorizeHttpRequests(auth -> auth
+                    .requestMatchers("/api/auth/**").permitAll()
+                    .requestMatchers("/api/**").permitAll()
+                    .requestMatchers("/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui/**", "/webjars/**").permitAll()
+                    .anyRequest().authenticated()
             );
 
     http.authenticationProvider(authenticationProvider());
-
     http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
   }
+
 
 }
