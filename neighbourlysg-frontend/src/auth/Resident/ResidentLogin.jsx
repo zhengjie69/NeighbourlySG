@@ -22,6 +22,7 @@ function ResidentLogin() {
       if (response.status === 200) {
         sessionStorage.setItem('userId', response.data.id);
         sessionStorage.setItem('roles', response.data.roles);
+        sessionStorage.setItem('accessToken', response.data.accessToken);
         sessionStorage.setItem('auth-user', JSON.stringify(response.data));
         navigate('/ResidentMainPage', { state: { message: "welcome back!" } });
       }

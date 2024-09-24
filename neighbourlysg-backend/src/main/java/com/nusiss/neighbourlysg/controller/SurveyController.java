@@ -40,7 +40,7 @@ public class SurveyController {
         return ResponseEntity.ok(surveyService.getAllSurveys());
     }
 
-    @GetMapping("/survey/{id}")
+    @GetMapping("/getSurvey/{id}")
     public ResponseEntity<SurveyDTO> getSurveyById(@PathVariable Long id) {
         return surveyService.getSurveyById(id)
                 .map(ResponseEntity::ok)

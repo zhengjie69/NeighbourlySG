@@ -61,8 +61,10 @@ const SurveyShowcasePage = () => {
 
   // Update Survey Modal
   const handleUpdateSurvey = (survey) => {
-    setSelectedSurvey(survey);
-    setShowUpdateModal(true);
+    // setSelectedSurvey(survey);
+    // setShowUpdateModal(true);
+    // Navigate to CreateSurveyPage with the survey ID
+    navigate('/CreateSurveyForm', { state: { surveyId: survey.id } });
   };
 
   // Handle Delete
