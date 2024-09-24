@@ -1,40 +1,87 @@
-// eslint-disable-next-line no-unused-vars
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Link, useNavigate } from 'react-router-dom';
-import { Modal, Button, Form } from 'react-bootstrap';
-import SGLogo from '../../assets/SGLogo.avif';
+import { Modal, Button, Form, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
+import axios from 'axios';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
+import { useNavigate } from 'react-router-dom';
 
 const SurveyShowcasePage = () => {
-  const surveys = [
-    { id: 1, title: 'Community Garden Feedback', description: 'Share your thoughts on our new community garden initiative.' },
-    { id: 2, title: 'Safety in the Neighborhood', description: 'Provide input on how we can improve safety in our area.' },
-    { id: 3, title: 'Public Transportation Satisfaction', description: 'Rate your satisfaction with the public transportation system.' },
-  ];
-
+  const [surveys, setSurveys] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [showResponseModal, setShowResponseModal] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedSurvey, setSelectedSurvey] = useState(null);
-  const [rating, setRating] = useState(0);
-  const [comment, setComment] = useState('');
-  
-  const navigate = useNavigate(); // Import navigate function
+  const [surveyToDelete, setSurveyToDelete] = useState(null);
+  const [responses, setResponses] = useState({});
+  const [userResponses, setUserResponses] = useState([]);
+  const userRoles = sessionStorage.getItem("roles") || "";
+  const isOrganiser = userRoles.includes("ROLE_ORGANISER");
+  const navigate = useNavigate(); // Initialize navigate
 
+  // Fetch surveys from the backend
+  useEffect(() => {
+    const fetchSurveys = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/api/SurveyService/getAllSurveys');
+        setSurveys(response.data);
+      } catch (error) {
+        console.error('Error fetching surveys:', error);
+      }
+    };
+
+    fetchSurveys();
+  }, []);
+
+  // Open Survey Modal
   const handleShowModal = (survey) => {
     setSelectedSurvey(survey);
+    setResponses({});
     setShowModal(true);
   };
 
+  // Close Survey Modal
   const handleCloseModal = () => {
     setShowModal(false);
-    setRating(0);
-    setComment('');
+    setSelectedSurvey(null);
   };
 
+  // View Responses Modal
+  const handleViewResponses = (survey) => {
+    setSelectedSurvey(survey);
+    // Fetch user responses for this survey (Example API Call)
+    axios.get(`http://localhost:8080/api/SurveyService/getSurveyResponses/${survey.id}`)
+      .then(response => {
+        setUserResponses(response.data);
+        setShowResponseModal(true);
+      })
+      .catch(error => console.error('Error fetching responses:', error));
+  };
+
+  // Update Survey Modal
+  const handleUpdateSurvey = (survey) => {
+    setSelectedSurvey(survey);
+    setShowUpdateModal(true);
+  };
+
+  // Handle Delete
+  const handleDeleteSurvey = async () => {
+    try {
+      await axios.delete(`http://localhost:8080/api/SurveyService/survey/${surveyToDelete.id}`);
+      setSurveys((prevSurveys) => prevSurveys.filter((survey) => survey.id !== surveyToDelete.id));
+      setShowDeleteModal(false);
+    } catch (error) {
+      console.error('Error deleting survey:', error);
+    }
+  };
+  
   const handleSubmit = () => {
-    console.log(`Survey: ${selectedSurvey.title}, Rating: ${rating}, Comment: ${comment}`);
+    console.log(`Survey: ${selectedSurvey.title}, Responses:`, responses);
     handleCloseModal();
   };
+
+
 
   return (
     <div 
@@ -56,23 +103,60 @@ const SurveyShowcasePage = () => {
               Participate in our surveys and share your valuable feedback with the community.
             </p>
           </div>
-          <Button variant="primary" onClick={() => navigate('/CreateSurveyForm')}>
-            Create Survey
-          </Button>
+          {isOrganiser && (
+            <Button variant="primary" onClick={() => navigate('/CreateSurveyForm')}>
+              Create Survey
+            </Button>
+          )}
         </div>
-        <div className="list-group">
+         <div className="list-group">
           {surveys.map((survey) => (
-            <button 
-              key={survey.id} 
-              className="list-group-item list-group-item-action flex-column align-items-start mb-3" 
-              style={{ borderRadius: '10px', transition: 'background-color 0.3s ease', cursor: 'pointer' }}
-              onClick={() => handleShowModal(survey)}
-            >
-              <div className="d-flex w-100 justify-content-between">
-                <h5 className="mb-1" style={{ fontWeight: '600', color: '#333' }}>{survey.title}</h5>
+            <div key={survey.id} className="d-flex align-items-center mb-3">
+              <button 
+                className="list-group-item list-group-item-action flex-grow-1" 
+                style={{ borderRadius: '10px', transition: 'background-color 0.3s ease', cursor: 'pointer' }}
+                onClick={() => handleShowModal(survey)}
+              >
+                <div className="d-flex justify-content-between">
+                  <h5 className="mb-1" style={{ fontWeight: '600', color: '#333' }}>{survey.title}</h5>
+                </div>
+                <p className="mb-1" style={{ color: '#495057' }}>{survey.description}</p>
+              </button>
+
+
+              {isOrganiser &&<div className="d-flex ms-3">
+                {/* View Responses Icon */}
+                <OverlayTrigger
+                  placement="top"
+                  overlay={<Tooltip>View Responses</Tooltip>}
+                >
+                  <Button variant="outline-primary" className="ms-2" onClick={() => handleViewResponses(survey)}>
+                    <FaEye />
+                  </Button>
+                </OverlayTrigger>
+
+                {/* Update Survey Icon */}
+                <OverlayTrigger
+                  placement="top"
+                  overlay={<Tooltip>Update Survey</Tooltip>}
+                >
+                  <Button variant="outline-warning" className="ms-2" onClick={() => handleUpdateSurvey(survey)}>
+                    <FaEdit />
+                  </Button>
+                </OverlayTrigger>
+
+                {/* Delete Survey Icon */}
+                <OverlayTrigger
+                  placement="top"
+                  overlay={<Tooltip>Delete Survey</Tooltip>}
+                >
+                  <Button variant="outline-danger" className="ms-2" onClick={() => { setSurveyToDelete(survey); setShowDeleteModal(true); }}>
+                    <FaTrash />
+                  </Button>
+                </OverlayTrigger>
               </div>
-              <p className="mb-1" style={{ color: '#495057' }}>{survey.description}</p>
-            </button>
+              }  
+            </div>
           ))}
         </div>
       </div>
@@ -84,38 +168,52 @@ const SurveyShowcasePage = () => {
         </Modal.Header>
         <Modal.Body>
           <p>{selectedSurvey?.description}</p>
-          <Form>
-            <Form.Group controlId="rating" className="mb-3">
-              <Form.Label>Rate this Survey</Form.Label>
-              <div style={{ display: 'flex', justifyContent: 'space-between', maxWidth: '120px', margin: 'auto' }}>
-                {[1, 2, 3, 4, 5].map(star => (
-                  <span 
-                    key={star} 
-                    style={{ fontSize: '1.5rem', cursor: 'pointer', color: star <= rating ? '#ffc107' : '#e4e5e9' }}
-                    onClick={() => setRating(star)}
-                  >
-                    ★
-                  </span>
-                ))}
-              </div>
+          {selectedSurvey?.questions.map((question) => (
+            <Form.Group key={question.id} controlId={`question-${question.id}`} className="mb-3">
+              <Form.Label>{question.questionText}</Form.Label>
+              {question.questionType === 'shortAnswer' && (
+                <Form.Control 
+                  type="text" 
+                  value={responses[question.id] || ''} 
+                  onChange={(e) => handleResponseChange(question.id, e.target.value)} 
+                  placeholder="Your answer"
+                />
+              )}
+              {question.questionType === 'paragraph' && (
+                <Form.Control 
+                  as="textarea" 
+                  rows={3} 
+                  value={responses[question.id] || ''} 
+                  onChange={(e) => handleResponseChange(question.id, e.target.value)} 
+                  placeholder="Your thoughts..."
+                />
+              )}
+              {question.questionType === 'multipleChoice' && (
+                <Form.Select 
+                  value={responses[question.id] || ''} 
+                  onChange={(e) => handleResponseChange(question.id, e.target.value)} 
+                >
+                  <option value="">Select an option</option>
+                  {question.options.map((option, index) => (
+                    <option key={index} value={option}>{option}</option>
+                  ))}
+                </Form.Select>
+              )}
+              {question.questionType === 'rating' && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', maxWidth: '120px', margin: 'auto' }}>
+                  {[1, 2, 3, 4, 5].map(star => (
+                    <span 
+                      key={star} 
+                      style={{ fontSize: '1.5rem', cursor: 'pointer', color: star <= (responses[question.id] || 0) ? '#ffc107' : '#e4e5e9' }}
+                      onClick={() => handleResponseChange(question.id, star)}
+                    >
+                      ★
+                    </span>
+                  ))}
+                </div>
+              )}
             </Form.Group>
-            <Form.Group controlId="comment" className="mb-3">
-              <Form.Label>Leave a Comment</Form.Label>
-              <Form.Control 
-                as="textarea" 
-                rows={4} 
-                value={comment} 
-                onChange={(e) => setComment(e.target.value)} 
-                placeholder="Share your thoughts about this survey..."
-                style={{
-                  borderRadius: '10px',
-                  borderColor: '#ced4da',
-                  padding: '10px',
-                  fontSize: '1rem'
-                }}
-              />
-            </Form.Group>
-          </Form>
+          ))}
         </Modal.Body>
         <Modal.Footer style={{ display: 'flex', justifyContent: 'center' }}>
           <Button variant="secondary" onClick={handleCloseModal} style={{ borderRadius: '10px', padding: '10px 20px', fontSize: '1rem' }}>
@@ -127,10 +225,66 @@ const SurveyShowcasePage = () => {
         </Modal.Footer>
       </Modal>
 
+      {/* View Responses Modal */}
+      <Modal show={showResponseModal} onHide={() => setShowResponseModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Responses for {selectedSurvey?.title}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {userResponses.length > 0 ? (
+            userResponses.map((response, index) => (
+              <div key={index}>
+                <p><strong>User {index + 1}:</strong> {response.answer}</p>
+              </div>
+            ))
+          ) : (
+            <p>No responses yet.</p>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowResponseModal(false)}>Close</Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Update Survey Modal */}
+      <Modal show={showUpdateModal} onHide={() => setShowUpdateModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Update Survey: {selectedSurvey?.title}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {/* Add form to update survey */}
+          <Form>
+            <Form.Group className="mb-3">
+              <Form.Label>Title</Form.Label>
+              <Form.Control type="text" defaultValue={selectedSurvey?.title} />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Description</Form.Label>
+              <Form.Control as="textarea" rows={3} defaultValue={selectedSurvey?.description} />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowUpdateModal(false)}>Close</Button>
+          <Button variant="primary">Save Changes</Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Deletion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Are you sure you want to delete this survey?</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>Cancel</Button>
+          <Button variant="danger" onClick={handleDeleteSurvey}>Delete</Button>
+        </Modal.Footer>
+      </Modal>
+
       {/* Footer */}
       <footer className="bg-dark text-white text-center py-3 mt-auto" style={{ zIndex: 2, position: 'relative', width: '100%' }}>
         <p>NeighbourlySG &copy; 2024. All rights reserved.</p>
-        <p><Link to="/contact" className="text-white">Contact Support</Link></p>
       </footer>
     </div>
   );

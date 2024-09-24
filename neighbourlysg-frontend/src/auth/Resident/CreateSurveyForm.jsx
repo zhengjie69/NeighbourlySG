@@ -71,6 +71,10 @@ const CreateSurveyPage = () => {
     );
   };
 
+  // Retrieve the JWT token from sessionStorage
+  const token = sessionStorage.getItem('accessToken'); // Get the token
+
+
   const handleSubmit = async () => {
     try {
       const surveyData = {
@@ -87,7 +91,8 @@ const CreateSurveyPage = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-        },
+          'Authorization': `Bearer ${token}`, // Add the JWT token here
+      },
         body: JSON.stringify(surveyData),
       });
 
