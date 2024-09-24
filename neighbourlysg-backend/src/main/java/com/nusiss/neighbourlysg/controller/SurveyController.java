@@ -53,9 +53,7 @@ public class SurveyController {
         try {
             SurveyDTO surveyDTO = surveyService.updateSurvey(updatedSurvey);
             return ResponseEntity.ok(surveyDTO);
-        } catch (SurveyNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        } catch (Exception e) {
+        }  catch (Exception e) {
             // Handle other exceptions as needed
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
