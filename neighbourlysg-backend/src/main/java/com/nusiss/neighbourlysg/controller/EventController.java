@@ -42,10 +42,11 @@ public class EventController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
 
-    @GetMapping("/getAllCurrentEvent/{profileId}")
+    @GetMapping("/getAllCurrentEvent/{profileId}/{constituency}")
     public ResponseEntity<List<EventDto>> getAllCurrentEvent(
-            @PathVariable("profileId") Long profileId) {
-            List<EventDto> event = eventService.getAllCurrentEvent(profileId);
+            @PathVariable("profileId") Long profileId, @PathVariable(value = "constituency") String constituency,
+            @RequestParam(value = "location", required = false) String location) {
+            List<EventDto> event = eventService.getAllCurrentEvent(profileId, constituency, location);
             if(!event.isEmpty())
                 return ResponseEntity.ok(event);
             else
@@ -53,10 +54,11 @@ public class EventController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
 
-    @GetMapping("/getAllPastEvent/{profileId}")
+    @GetMapping("/getAllPastEvent/{profileId}/{constituency}")
     public ResponseEntity<List<EventDto>> getAllPastEvent(
-            @PathVariable("profileId") Long profileId) {
-            List<EventDto> event = eventService.getAllPastEvent(profileId);
+            @PathVariable("profileId") Long profileId, @PathVariable(value = "constituency") String constituency,
+            @RequestParam(value = "location", required = false) String location) {
+            List<EventDto> event = eventService.getAllPastEvent(profileId, constituency, location);
             if(!event.isEmpty())
                 return ResponseEntity.ok(event);
             else
