@@ -23,6 +23,8 @@ public class EventDto {
 
     private Long rsvpCount;
 
+    private String constituency;
+
     public Long getId() {
         return id;
     }
@@ -85,5 +87,13 @@ public class EventDto {
 
     public void setRsvpCount(Long rsvpCount) {
         this.rsvpCount = rsvpCount;
+    }
+
+    public String getConstituency() {
+        return constituency;
+    }
+
+    public void setConstituency(String constituency) {
+        this.constituency = constituency;
     }
 }

@@ -15,10 +15,21 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     List<Event> findByProfile(Profile profile);
 
-    @Query("SELECT e FROM Event e WHERE e.date >= :date AND e.profile.id != :profileId")
-    List<Event> findByDateGreaterThanEqualAndNotOwnedBy(@Param("date") LocalDate date, @Param("profileId") Long profileId);
+    @Query("SELECT e FROM Event e WHERE e.date >= :date " +
+            "AND e.profile.id != :profileId " +
+            "AND e.profile.constituency = :constituency " +
+            "AND (:location IS NULL OR :location = '' OR e.location LIKE CONCAT('%', :location, '%'))")
+    List<Event> findByDateGreaterThanEqualAndNotOwnedBy(@Param("date") LocalDate date,
+                                                        @Param("profileId") Long profileId,
+                                                        @Param("constituency") String constituency,
+                                                        @Param("location") String location);
 
-    @Query("SELECT e FROM Event e WHERE e.date < :date AND e.profile.id != :profileId")
-    List<Event> findByDateBeforeAndNotOwnedBy(@Param("date") LocalDate date, @Param("profileId") Long profileId);
+    @Query("SELECT e FROM Event e WHERE e.date < :date AND e.profile.id != :profileId " +
+            "AND e.profile.constituency = :constituency " +
+            "AND (:location IS NULL OR :location = '' OR e.location LIKE CONCAT('%', :location, '%'))")
+    List<Event> findByDateBeforeAndNotOwnedBy(@Param("date") LocalDate date,
+                                              @Param("profileId") Long profileId,
+                                              @Param("constituency") String constituency,
+                                              @Param("location") String location);
 
 }

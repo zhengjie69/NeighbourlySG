@@ -115,14 +115,16 @@ class EventServiceImplTest {
     void testGetAllCurrentEvent() {
         Profile profile = MasterEntityTestUtil.createProfileEntity();
         Event event = MasterEntityTestUtil.createEventEntity();
+        String constituency = "testConstituency";
+        String location = "test location";
         event.setId(1L);
         List<Event> listOfEvent = new ArrayList<>();
         listOfEvent.add(event);
 
-        when(eventRepository.findByDateGreaterThanEqualAndNotOwnedBy(LocalDate.now(), profile.getId())).thenReturn(listOfEvent);
+        when(eventRepository.findByDateGreaterThanEqualAndNotOwnedBy(LocalDate.now(), profile.getId(), constituency, location)).thenReturn(listOfEvent);
         when(eventParticipantRepository.countByEvent(event)).thenReturn(10L);
 
-        List<EventDto> result = eventService.getAllCurrentEvent(profile.getId());
+        List<EventDto> result = eventService.getAllCurrentEvent(profile.getId(), constituency, location);
 
         assertEquals(1, result.size());
     }
@@ -131,14 +133,16 @@ class EventServiceImplTest {
     void testGetAllPastEvent() {
         Profile profile = MasterEntityTestUtil.createProfileEntity();
         Event event = MasterEntityTestUtil.createEventEntity();
+        String constituency = "testConstituency";
+        String location = "test location";
         event.setId(1L);
         List<Event> listOfEvent = new ArrayList<>();
         listOfEvent.add(event);
 
-        when(eventRepository.findByDateBeforeAndNotOwnedBy(LocalDate.now(), profile.getId())).thenReturn(listOfEvent);
+        when(eventRepository.findByDateBeforeAndNotOwnedBy(LocalDate.now(), profile.getId(), constituency, location)).thenReturn(listOfEvent);
         when(eventParticipantRepository.countByEvent(event)).thenReturn(10L);
 
-        List<EventDto> result = eventService.getAllPastEvent(profile.getId());
+        List<EventDto> result = eventService.getAllPastEvent(profile.getId(), constituency, location);
 
         assertEquals(1, result.size());
     }
