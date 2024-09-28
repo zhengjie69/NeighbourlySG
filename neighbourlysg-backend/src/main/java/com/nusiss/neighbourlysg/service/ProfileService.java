@@ -1,8 +1,7 @@
 package com.nusiss.neighbourlysg.service;
 
-import com.nusiss.neighbourlysg.dto.LoginRequestDTO;
-import com.nusiss.neighbourlysg.dto.ProfileDto;
-import com.nusiss.neighbourlysg.dto.RoleAssignmentDto;
+import com.nusiss.neighbourlysg.dto.*;
+import com.nusiss.neighbourlysg.entity.Profile;
 import com.nusiss.neighbourlysg.exception.ProfileNotFoundException;
 
 import javax.management.relation.RoleNotFoundException;
@@ -23,5 +22,9 @@ public interface ProfileService {
 
     ProfileDto assignRoleToUser(RoleAssignmentDto roleAssignmentDto) throws RoleNotFoundException, ProfileNotFoundException;
 
+    ProfileDto updateRoles(Long userId, List<Integer> roleIds) throws RoleNotFoundException, ProfileNotFoundException;
 
+    boolean isAdmin(Long profileId);
+
+    Profile findById(Long profileId);
 }

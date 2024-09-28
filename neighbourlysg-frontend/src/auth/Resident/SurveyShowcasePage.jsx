@@ -48,45 +48,6 @@ const SurveyShowcasePage = () => {
         backdropFilter: 'blur(5px)',
       }}
     >
-      {/* Navigation Bar */}
-      <nav className="navbar navbar-expand-lg navbar-light bg-light" style={{ zIndex: 2, padding: '10px 20px', width: '100%' }}>
-        <div className="container-fluid">
-          <Link className="navbar-brand" to="/">
-            <img src={SGLogo} alt="SG Logo" style={{ marginRight: '10px', width: '50px', height: '35px' }} />
-            NeighbourlySG
-          </Link>
-          <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          <div className="collapse navbar-collapse" id="navbarNavDropdown">
-            <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-              <li className="nav-item">
-                <Link className="nav-link active" aria-current="page" to="/surveys">Surveys</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/events">Events</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/posts">Community Posts</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/ProfileSettings">Profile</Link>
-              </li>
-              <li className="nav-item dropdown">
-                <ul className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                  <li><Link className="dropdown-item" to="/settings">Settings</Link></li>
-                  <li><Link className="dropdown-item" to="/help">Help</Link></li>
-                </ul>
-              </li>
-            </ul>
-            <span className="navbar-text">
-              Welcome, [User]!
-            </span>
-          </div>
-        </div>
-      </nav>
-
-      {/* Survey List */}
       <div className="card p-5 mt-5 mb-4" style={{ width: '800px', boxShadow: '0 12px 24px rgba(0, 0, 0, 0.2)', borderRadius: '16px', backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div>

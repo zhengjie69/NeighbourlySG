@@ -43,6 +43,51 @@ public class Profile {
 	@OneToMany(mappedBy = "profile")
 	private List<EventParticipant> eventParticipants;
 
+	// A profile can have many posts
+	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Post> posts = new ArrayList<>();
+
+	// A profile can have many likes (posts the profile liked)
+	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Like> likes = new ArrayList<>();
+
+	// A profile can make many comments on posts
+	@OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Comment> comments = new ArrayList<>();
+
+	// Add helper methods to manage posts, likes, and comments
+
+	public void addPost(Post post) {
+		posts.add(post);
+		post.setProfile(this);
+	}
+
+	public void removePost(Post post) {
+		posts.remove(post);
+		post.setProfile(null);
+	}
+
+	public void addLike(Like like) {
+		likes.add(like);
+		like.setProfile(this);
+	}
+
+	public void removeLike(Like like) {
+		likes.remove(like);
+		like.setProfile(null);
+	}
+
+	public void addComment(Comment comment) {
+		comments.add(comment);
+		comment.setProfile(this);
+	}
+
+	public void removeComment(Comment comment) {
+		comments.remove(comment);
+		comment.setProfile(null);
+	}
+
+
 	public Long getId() {
 		return id;
 	}

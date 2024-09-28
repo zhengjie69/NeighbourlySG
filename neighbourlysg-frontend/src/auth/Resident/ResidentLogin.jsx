@@ -21,7 +21,8 @@ function ResidentLogin() {
       
       if (response.status === 200) {
         sessionStorage.setItem('userId', response.data.id);
-        navigate('/ResidentMainPage');
+        sessionStorage.setItem('roles', response.data.roles);
+        navigate('/ResidentMainPage', { state: { message: "welcome back!" } });
       }
     } catch (error) {
       console.error('Login error:', error); 

@@ -4,12 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoleAssignmentDto {
-    private Long userId;  // The ID of the user to whom the role will be assigned
-    private Integer roleId;  // The ID of the role to be assigned
+    private Long userId;         // The ID of the user
+    private List<Integer> roleIds;  // List of role IDs to be assigned
 
     public Long getUserId() {
         return userId;
@@ -19,11 +21,11 @@ public class RoleAssignmentDto {
         this.userId = userId;
     }
 
-    public Integer getRoleId() {
-        return roleId;
+    public List<Integer> getRoleIds() {
+        return roleIds;
     }
 
-    public void setRoleId(Integer roleId) {
-        this.roleId = roleId;
+    public void setRoleIds(List<Integer> roleIds) {
+        this.roleIds = roleIds;
     }
 }
