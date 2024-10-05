@@ -26,7 +26,7 @@ jobs:
           # so we can create and migrate the test database.
           # See: https://hub.docker.com/_/mysql
           MYSQL_DATABASE: neighbourlysg
-          MYSQL_ROOT_PASSWORD: password
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
         ports:
           # Opens port 3306 on service container and host
           # https://docs.github.com/en/actions/using-containerized-services/about-service-containers
@@ -89,7 +89,7 @@ jobs:
           # so we can create and migrate the test database.
           # See: https://hub.docker.com/_/mysql
           MYSQL_DATABASE: neighbourlysg
-          MYSQL_ROOT_PASSWORD: password
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
         ports:
           # Opens port 3306 on service container and host
           # https://docs.github.com/en/actions/using-containerized-services/about-service-containers
