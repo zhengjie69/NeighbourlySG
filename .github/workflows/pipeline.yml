@@ -66,16 +66,6 @@ jobs:
 
     - name: Build Project
       run: npm --prefix /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend run build
-
-    - name: List build directory
-      run: ls -R /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend/dist
-
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GIT_HUB_TOKEN }}
-        publish_dir: /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend/dist  # Ensure this matches your build output directory
-        publish_branch: gh-pages
     
   SonarCloud:
     needs: [BuildBackEnd, BuildFrontEnd]
