@@ -49,7 +49,7 @@ jobs:
       run: 
         ./neighbourlysg-backend/mvnw -B package --file neighbourlysg-backend/pom.xml
     - name: Upload JAR
-      uses: actions/upload-artifacts@v2
+      uses: actions/upload-artifacts@v3
       with:
         name: artifact
         path: neighbourlysg-backend/target/neighbourlysg-backend-0.0.1-SNAPSHOT.jar
@@ -64,7 +64,7 @@ jobs:
     steps:
       - name: Download JAR
         # Download the artifact which was uploaded in the Build Archive's job
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: artifact
       # Deploy the artifact (JAR) into AWS Beanstalk
