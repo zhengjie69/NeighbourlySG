@@ -9,7 +9,7 @@ function ResidentLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
-  const [isError, setIsError] = useState(false); 
+  const [isError, setIsError] = useState(false);
 
   const navigate = useNavigate();
 
@@ -17,28 +17,27 @@ function ResidentLogin() {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/login', { email, password });
-      
+      const response = await axios.post('http://localhost:8080/login', { email, password });
+
       if (response.status === 200) {
         sessionStorage.setItem('userId', response.data.id);
         sessionStorage.setItem('roles', response.data.roles);
-        sessionStorage.setItem('accessToken', response.data.accessToken);
-        sessionStorage.setItem('auth-user', JSON.stringify(response.data));
+        sessionStorage.setItem('constituency', response.data.constituency);
         navigate('/ResidentMainPage', { state: { message: "welcome back!" } });
       }
     } catch (error) {
-      console.error('Login error:', error); 
+      console.error('Login error:', error);
       setIsError(true);
       setMessage('Login failed. Please try again.');
     }
-};
+  };
 
   return (
-    <div 
-      className="d-flex justify-content-center align-items-center vh-100" 
-      style={{ 
-        backgroundImage: `url(${neighbourlySGbackground})`, 
-        backgroundSize: 'cover', 
+    <div
+      className="d-flex justify-content-center align-items-center vh-100"
+      style={{
+        backgroundImage: `url(${neighbourlySGbackground})`,
+        backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       }}
@@ -53,36 +52,36 @@ function ResidentLogin() {
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label htmlFor="email" className="form-label" style={{ fontSize: '1rem', color: '#495057' }}>Email Address</label>
-            <input 
-              type="email" 
-              className="form-control" 
-              id="email" 
-              placeholder="Enter your email" 
+            <input
+              type="email"
+              className="form-control"
+              id="email"
+              placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              style={{ height: '45px', fontSize: '1rem', borderRadius: '8px' }} 
+              style={{ height: '45px', fontSize: '1rem', borderRadius: '8px' }}
             />
           </div>
           <div className="mb-4">
             <label htmlFor="password" className="form-label" style={{ fontSize: '1rem', color: '#495057' }}>Password</label>
-            <input 
-              type="password" 
-              className="form-control" 
-              id="password" 
-              placeholder="Enter your password" 
+            <input
+              type="password"
+              className="form-control"
+              id="password"
+              placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{ height: '45px', fontSize: '1rem', borderRadius: '8px' }} 
+              style={{ height: '45px', fontSize: '1rem', borderRadius: '8px' }}
             />
           </div>
           <button type="submit" className="btn btn-primary w-100" style={{ height: '50px', fontSize: '1rem', borderRadius: '8px' }}>
             Login
           </button>
           {message && (
-                    <div className={`alert ${isError ? 'alert-danger' : 'alert-success'} mt-4`} role="alert">
-                        {message}
-                    </div>
-                )}
+            <div className={`alert ${isError ? 'alert-danger' : 'alert-success'} mt-4`} role="alert">
+              {message}
+            </div>
+          )}
         </form>
         <div className="mt-4 text-center">
           <a href="/forgot-password" className="text-primary" style={{ fontSize: '0.9rem', textDecoration: 'none' }}>Forgot Password?</a>
