@@ -80,10 +80,10 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public List<EventDto> getAllCurrentEvent(Long profileId) {
+    public List<EventDto> getAllCurrentEvent(Long profileId, String constituency, String location) {
         LocalDate currentDate = LocalDate.now();
 
-        List<Event> listOfEvent = eventRepository.findByDateGreaterThanEqualAndNotOwnedBy(currentDate, profileId);
+        List<Event> listOfEvent = eventRepository.findByDateGreaterThanEqualAndNotOwnedBy(currentDate, profileId, constituency, location);
 
         List<EventDto> listOfEventDto = new ArrayList<>();
         for(Event event : listOfEvent){
@@ -97,10 +97,10 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public List<EventDto> getAllPastEvent(Long profileId) {
+    public List<EventDto> getAllPastEvent(Long profileId, String constituency, String location) {
         LocalDate currentDate = LocalDate.now();
 
-        List<Event> listOfEvent = eventRepository.findByDateBeforeAndNotOwnedBy(currentDate, profileId);
+        List<Event> listOfEvent = eventRepository.findByDateBeforeAndNotOwnedBy(currentDate, profileId, constituency, location);
 
         List<EventDto> listOfEventDto = new ArrayList<>();
         for(Event event : listOfEvent){

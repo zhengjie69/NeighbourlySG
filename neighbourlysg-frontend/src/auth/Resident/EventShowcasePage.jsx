@@ -31,8 +31,11 @@ function ResidentEventPage() {
   const [showCreateEventModal, setShowCreateEventModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null); // For error messages
   const [successMessage, setSuccessMessage] = useState(null); // For success messages
+  const [upcomingEventSearchLocation, setUpcomingEventSearchLocation] = useState('');
+  const [pastEventSearchLocation, setPastEventSearchLocation] = useState('');
 
-  const profileId = 1; //Hardcode for now
+  const profileId = sessionStorage.getItem('userId');
+  const constituency = sessionStorage.getItem('constituency');
 
   const [newEvent, setNewEvent] = useState({
     title: '',
@@ -55,10 +58,16 @@ function ResidentEventPage() {
 
   const fetchUpcomingEvents = async () => {
     try {
-      // Example URL, adjust based on your actual API endpoint
-      const response = await axios.get('http://localhost:8080/api/EventService/getAllCurrentEvent/' + profileId);
-      const events = response.data;
-      setUpcomingEvents(events);
+      if (upcomingEventSearchLocation == "") {
+        const response = await axios.get('http://localhost:8080/api/EventService/getAllCurrentEvent/' + profileId + '/' + constituency);
+        const upcomingEventsWithoutFilter = response.data;
+        setUpcomingEvents(upcomingEventsWithoutFilter);
+      }
+      else {
+        const response = await axios.get('http://localhost:8080/api/EventService/getAllCurrentEvent/' + profileId + '/' + constituency + "?location=" + upcomingEventSearchLocation);
+        const upComingEventsWithFilter = response.data;
+        setUpcomingEvents(upComingEventsWithFilter);
+      }
     } catch (error) {
       console.error('Error fetching upcoming events:', error);
     }
@@ -75,17 +84,24 @@ function ResidentEventPage() {
     }
   };
 
-  useEffect(() => {
-
-    const fetchPastEvents = async () => {
-      try {
-        const response = await axios.get('http://localhost:8080/api/EventService/getAllPastEvent/' + profileId);
-        const events = response.data;
-        setPastEvents(events);
-      } catch (error) {
-        console.error('Error fetching past events:', error);
+  const fetchPastEvents = async () => {
+    try {
+      if (pastEventSearchLocation == "") {
+        const response = await axios.get('http://localhost:8080/api/EventService/getAllPastEvent/' + profileId + '/' + constituency);
+        const pastEventsWithoutFilter = response.data;
+        setPastEvents(pastEventsWithoutFilter);
       }
-    };
+      else {
+        const response = await axios.get('http://localhost:8080/api/EventService/getAllPastEvent/' + profileId + '/' + constituency + "?location=" + pastEventSearchLocation);
+        const pastEventsWithFilter = response.data;
+        setPastEvents(pastEventsWithFilter);
+      }
+    } catch (error) {
+      console.error('Error fetching past events:', error);
+    }
+  };
+
+  useEffect(() => {
 
     fetchUserEvents();
     fetchUpcomingEvents();
@@ -211,6 +227,24 @@ function ResidentEventPage() {
     }
   }
 
+  const handleSearchUpcomingEventChange = (event) => {
+    setUpcomingEventSearchLocation(event.target.value);
+  };
+
+  const handleSearchUpcomingEventSubmit = (event) => {
+    event.preventDefault();
+    fetchUpcomingEvents(upcomingEventSearchLocation);
+  };
+
+  const handleSearchPastEventChange = (event) => {
+    setPastEventSearchLocation(event.target.value);
+  };
+
+  const handleSearchPastEventSubmit = (event) => {
+    event.preventDefault();
+    fetchPastEvents(pastEventSearchLocation);
+  };
+
   const handleShowUpcomingModal = (upcomingEvent) => {
     setSelectedEvent(upcomingEvent);
     setShowUpcomingModal(true);
@@ -296,6 +330,22 @@ function ResidentEventPage() {
         {/* Upcoming Events */}
         <div className="mb-5" style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', padding: '20px', borderRadius: '8px', overflowX: 'auto', whiteSpace: 'nowrap' }}>
           <h3 className="text-dark">Upcoming Events</h3>
+          <div className="mb-4 row">
+            <div className="col-md-12 mt-3">
+              <form className="d-flex align-items-center my-2 my-lg-0" onSubmit={handleSearchUpcomingEventSubmit}>
+                <label htmlFor="SearchUpcomingEvent" className="form-label me-2 mb-0">Search:</label>
+                <input
+                  type="text"
+                  className="form-control me-2"
+                  placeholder="Search for Upcoming Events Location"
+                  onChange={handleSearchUpcomingEventChange}
+                />
+                <Button type="submit" variant="primary" className="btn">
+                  Search
+                </Button>
+              </form>
+            </div>
+          </div>
           {upcomingEvents.length > 0 ? (
             <div className="d-flex">
               {upcomingEvents.map(event => (
@@ -317,6 +367,22 @@ function ResidentEventPage() {
         {/* Past Events */}
         <div className="mb-5" style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', padding: '20px', borderRadius: '8px', overflowX: 'auto', whiteSpace: 'nowrap' }}>
           <h3 className="text-dark">Past Events</h3>
+          <div className="mb-4 row">
+            <div className="col-md-12 mt-3">
+              <form className="d-flex align-items-center my-2 my-lg-0" onSubmit={handleSearchPastEventSubmit}>
+                <label htmlFor="SearchPastEvent" className="form-label me-2 mb-0">Search:</label>
+                <input
+                  type="text"
+                  className="form-control me-2"
+                  placeholder="Search for Past Events Location"
+                  onChange={handleSearchPastEventChange}
+                />
+                <Button type="submit" variant="primary" className="btn">
+                  Search
+                </Button>
+              </form>
+            </div>
+          </div>
           {pastEvents.length > 0 ? (
             <div className="d-flex">
               {pastEvents.map(event => (

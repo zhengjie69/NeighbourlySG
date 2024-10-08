@@ -362,7 +362,7 @@ class PostServiceImplTest {
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(commentDto.getId(), result.getFirst().getId());
+        assertEquals(commentDto.getId(), result.get(0).getId());
 
         verify(postRepository).findById(postId);
         verify(commentRepository).findByPost(any(Post.class));
@@ -490,7 +490,7 @@ class PostServiceImplTest {
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertTrue(result.getFirst().getTags().containsAll(tags));
+        assertTrue(result.get(0).getTags().containsAll(tags));
 
         verify(postRepository).findAll();
         verify(postMapper).toDto(post);

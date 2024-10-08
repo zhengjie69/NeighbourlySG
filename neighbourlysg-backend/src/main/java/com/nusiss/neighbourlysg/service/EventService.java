@@ -11,9 +11,9 @@ public interface EventService {
 
     List<EventDto> getAllUserEvent(Long profileId);
 
-    List<EventDto> getAllCurrentEvent(Long profileId);
+    List<EventDto> getAllCurrentEvent(Long profileId, String constituency, String location);
 
-    List<EventDto> getAllPastEvent(Long profileId);
+    List<EventDto> getAllPastEvent(Long profileId, String constituency, String location);
 
     void deleteEvent(Long id);
 
