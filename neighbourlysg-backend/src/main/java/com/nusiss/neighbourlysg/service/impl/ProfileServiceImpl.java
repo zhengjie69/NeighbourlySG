@@ -11,6 +11,7 @@ import com.nusiss.neighbourlysg.mapper.ProfileMapper;
 import com.nusiss.neighbourlysg.repository.ProfileRepository;
 import com.nusiss.neighbourlysg.repository.RoleRepository;
 import com.nusiss.neighbourlysg.service.ProfileService;
+import com.nusiss.neighbourlysg.util.RSAUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,8 +51,14 @@ public class ProfileServiceImpl implements ProfileService {
         if (profileRepository.findByEmail(profileDto.getEmail()).isPresent()) {
             throw new EmailInUseException();
         }
-        //encode the password
-        profileDto.setPassword(encoder.encode(profileDto.getPassword()));
+        // Decrypt the password using RSA
+        String decryptedPassword;
+        try {
+            decryptedPassword = RSAUtil.decrypt(profileDto.getPassword());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to decrypt password", e);
+        }
+        profileDto.setPassword(encoder.encode(decryptedPassword));
 
         Set<String> strRoles = profileDto.getRoles();
         Set<Role> roles = new HashSet<>();
