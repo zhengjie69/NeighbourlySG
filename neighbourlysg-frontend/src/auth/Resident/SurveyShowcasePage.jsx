@@ -19,6 +19,7 @@ const SurveyShowcasePage = () => {
   const userRoles = sessionStorage.getItem("roles") || "";
   const isOrganiser = userRoles.includes("ROLE_ORGANISER");
   const navigate = useNavigate(); // Initialize navigate
+  const [viewMode, setViewMode] = useState('response'); // Default to "response by response"
 
   // Fetch surveys from the backend
   useEffect(() => {
@@ -35,11 +36,11 @@ const SurveyShowcasePage = () => {
   }, []);
 
   // Open Survey Modal
-  const handleShowModal = (survey) => {
-    setSelectedSurvey(survey);
-    setResponses({});
-    setShowModal(true);
-  };
+  // Replace the existing handleShowModal function in SurveyShowcasePage
+const handleShowModal = (survey) => {
+  navigate('/survey-detail', { state: { survey } });
+};
+
 
   // Close Survey Modal
   const handleCloseModal = () => {
@@ -48,16 +49,12 @@ const SurveyShowcasePage = () => {
   };
 
   // View Responses Modal
-  const handleViewResponses = (survey) => {
-    setSelectedSurvey(survey);
-    // Fetch user responses for this survey (Example API Call)
-    axios.get(`http://localhost:8080/api/SurveyService/getSurveyResponses/${survey.id}`)
-      .then(response => {
-        setUserResponses(response.data);
-        setShowResponseModal(true);
-      })
-      .catch(error => console.error('Error fetching responses:', error));
-  };
+// View Responses - Navigate to SurveyResponsesPage
+const handleViewResponses = (survey) => {
+  navigate('/survey-responses', { state: { survey } });
+};
+
+
 
   // Update Survey Modal
   const handleUpdateSurvey = (survey) => {
@@ -77,11 +74,45 @@ const SurveyShowcasePage = () => {
       console.error('Error deleting survey:', error);
     }
   };
+
+  // Handle response changes
+const handleResponseChange = (questionId, value) => {
+  setResponses(prevResponses => ({
+    ...prevResponses,
+    [questionId]: value
+  }));
+};
+
+// Handle the toggle between 'question' and 'response' views
+const handleViewToggle = (mode) => {
+  setViewMode(mode);
+};
+
   
-  const handleSubmit = () => {
-    console.log(`Survey: ${selectedSurvey.title}, Responses:`, responses);
-    handleCloseModal();
+const handleSubmit = async () => {
+  if (!selectedSurvey) return;
+
+  const userId = sessionStorage.getItem('userId');  // Get userId from sessionStorage
+
+  const responsePayload = {
+    userId: userId,  // Include the userId
+    surveyId: selectedSurvey.id,
+    responses: Object.entries(responses).map(([questionId, answer]) => ({
+      questionId,
+      answer
+    })),
   };
+
+  try {
+    await axios.post('http://localhost:8080/api/SurveyResponseService/submitSurveyResponse', responsePayload);
+    console.log('Survey responses submitted:', responsePayload);
+    handleCloseModal();  // Close the modal after submission
+  } catch (error) {
+    console.error('Error submitting survey responses:', error);
+  }
+};
+
+
 
 
 
@@ -233,20 +264,77 @@ const SurveyShowcasePage = () => {
           <Modal.Title>Responses for {selectedSurvey?.title}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {userResponses.length > 0 ? (
-            userResponses.map((response, index) => (
-              <div key={index}>
-                <p><strong>User {index + 1}:</strong> {response.answer}</p>
-              </div>
-            ))
-          ) : (
-            <p>No responses yet.</p>
-          )}
+          {/* Toggle between response or question view */}
+          <div className="d-flex justify-content-center mb-3">
+            <Button
+              variant={viewMode === 'response' ? 'primary' : 'secondary'}
+              onClick={() => handleViewToggle('response')}
+              className="me-2"
+            >
+              View by Response
+            </Button>
+            <Button
+              variant={viewMode === 'question' ? 'primary' : 'secondary'}
+              onClick={() => handleViewToggle('question')}
+            >
+              View by Question
+            </Button>
+          </div>
+
+          {/* Conditionally render based on selected view mode */}
+          {viewMode === 'response' ? (
+  // Response by response view
+  userResponses.length > 0 ? (
+    userResponses.map((response, index) => (
+      <div key={index} className="mb-4">
+        <h5><strong>Response {index + 1}:</strong></h5>
+        {response.responses.map((questionResponse, idx) => (
+          <div key={idx} style={{ marginLeft: '20px' }}>
+            <p><strong>{questionResponse.questionText}:</strong> {questionResponse.answer}</p>
+          </div>
+        ))}
+      </div>
+    ))
+  ) : (
+    <p>No responses yet.</p>
+  )
+) : (
+  // Question by question view
+  userResponses.length > 0 ? (
+    // Displaying questions based on the first user's responses
+    userResponses[0].responses.map((questionResponse, qIndex) => (
+      <div key={qIndex} className="mb-4">
+        <h5><strong>{questionResponse.questionText}:</strong></h5>
+        {userResponses.map((response, rIndex) => {
+          // Find the matching response for the current questionId
+          const matchingResponse = response.responses.find(
+            (r) => r.questionId === questionResponse.questionId
+          );
+          return (
+            <div key={rIndex} style={{ marginLeft: '20px' }}>
+              {matchingResponse ? (
+                <p><strong>Response {rIndex + 1}:</strong> {matchingResponse.answer}</p>
+              ) : (
+                <p><strong>Response {rIndex + 1}:</strong> No response for this question.</p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    ))
+  ) : (
+    <p>No responses yet.</p>
+  )
+)}
+
+
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowResponseModal(false)}>Close</Button>
         </Modal.Footer>
       </Modal>
+
+
 
       {/* Update Survey Modal */}
       <Modal show={showUpdateModal} onHide={() => setShowUpdateModal(false)} centered>
