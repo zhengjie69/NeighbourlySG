@@ -72,18 +72,5 @@ public class SurveyController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
-
-    @PostMapping("/submitSurveyResponses")
-    public ResponseEntity<String> submitSurveyResponses(@RequestBody SurveyResponseDTO response) {
-        surveyService.saveSurveyResponse(response);
-        return ResponseEntity.ok("Responses submitted successfully!");
-    }
-
-    @GetMapping("/getSurveyResponses/{surveyId}")
-    public ResponseEntity<List<SurveyResponseDTO>> getSurveyResponses(@PathVariable Long surveyId) {
-        List<SurveyResponseDTO> responses = surveyService.getSurveyResponses(surveyId);
-        return ResponseEntity.ok(responses);
-    }
-
 }
 
