@@ -1,103 +1,153 @@
 package com.nusiss.neighbourlysg.controller;
 
-import com.nusiss.neighbourlysg.NeighbourlysgBackendApplication;
-
 import com.nusiss.neighbourlysg.dto.SurveyDTO;
+import com.nusiss.neighbourlysg.dto.SurveyResponseDTO;
+import com.nusiss.neighbourlysg.exception.SurveyNotFoundException;
 import com.nusiss.neighbourlysg.service.SurveyService;
-import com.nusiss.neighbourlysg.util.MasterDTOTestUtil;
-import com.nusiss.neighbourlysg.util.TestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-@SpringBootTest(classes = NeighbourlysgBackendApplication.class)
-class SurveyControllerTest {
+public class SurveyControllerTest {
+
     @Mock
-    SurveyService surveyService;
+    private SurveyService surveyService;
 
-    private MockMvc mockMvc;
-
+    @InjectMocks
     private SurveyController surveyController;
 
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
     @BeforeEach
-    void setup() {
+    public void setUp() {
         MockitoAnnotations.openMocks(this);
-        surveyController = new SurveyController(surveyService);
-        this.mockMvc = MockMvcBuilders.standaloneSetup(surveyController)
-                .setCustomArgumentResolvers(pageableArgumentResolver)
-                .setConversionService(TestUtil.createFormattingConversionService())
-                .setMessageConverters(jacksonMessageConverter)
-                .build();
     }
 
     @Test
-    void createSurveyTest() throws Exception {
-        SurveyDTO surveyDTO=MasterDTOTestUtil.createSurveyDTO();
+    public void testCreateSurvey() {
+        SurveyDTO surveyDTO = new SurveyDTO();
+        when(surveyService.createSurvey(any(SurveyDTO.class))).thenReturn(surveyDTO);
 
-        when(surveyService.createSurvey(any())).thenReturn(surveyDTO);
+        ResponseEntity<SurveyDTO> response = surveyController.createSurvey(surveyDTO);
 
-        byte[] data = TestUtil.convertObjectToJsonBytes(surveyDTO);
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/" + "/SurveyService/createSurvey")
-                        .contentType(TestUtil.APPLICATION_JSON_UTF8).content(data)).andExpect(status().isOk());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(surveyDTO, response.getBody());
+        verify(surveyService, times(1)).createSurvey(surveyDTO);
     }
 
     @Test
-    void getAllSurveys_shouldReturnListOfSurveyDTOs() throws Exception {
-        // Arrange
-        SurveyDTO surveyDTO=MasterDTOTestUtil.createSurveyDTO();
+    public void testGetAllSurveys() {
+        List<SurveyDTO> surveys = new ArrayList<>();
+        when(surveyService.getAllSurveys()).thenReturn(surveys);
 
-        List<SurveyDTO> surveyDTOs = new ArrayList<>();
-        surveyDTOs.add(surveyDTO);
+        ResponseEntity<List<SurveyDTO>> response = surveyController.getAllSurveys();
 
-        when(surveyService.getAllSurveys()).thenReturn(surveyDTOs);
-
-        // Act and Assert
-        mockMvc.perform(get("/api/SurveyService/getAllSurveys")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0]").exists()) // Customize this based on the properties of SurveyDTO
-                .andExpect(jsonPath("$[0].id").value(surveyDTO.getId())); // Example property check
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(surveys, response.getBody());
+        verify(surveyService, times(1)).getAllSurveys();
     }
 
+    @Test
+    public void testGetSurveyById_Success() {
+        Long surveyId = 1L;
+        SurveyDTO surveyDTO = new SurveyDTO();
+        when(surveyService.getSurveyById(surveyId)).thenReturn(Optional.of(surveyDTO));
+
+        ResponseEntity<SurveyDTO> response = surveyController.getSurveyById(surveyId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(surveyDTO, response.getBody());
+        verify(surveyService, times(1)).getSurveyById(surveyId);
+    }
 
     @Test
-    void getSurveyTest() throws Exception {
-        SurveyDTO surveyDTO=MasterDTOTestUtil.createSurveyDTO();
+    public void testGetSurveyById_NotFound() {
+        Long surveyId = 1L;
+        when(surveyService.getSurveyById(surveyId)).thenReturn(Optional.empty());
 
-        when(surveyService.getSurveyById(any())).thenReturn(Optional.of(surveyDTO));
+        ResponseEntity<SurveyDTO> response = surveyController.getSurveyById(surveyId);
 
-        byte[] objectToJson = TestUtil.convertObjectToJsonBytes(surveyDTO);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(surveyService, times(1)).getSurveyById(surveyId);
+    }
 
-        mockMvc .perform(get("/api/" + "/SurveyService/survey/{id}", surveyDTO.getId()).contentType(TestUtil.APPLICATION_JSON_UTF8).content(objectToJson))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.id").value(surveyDTO.getId()))
-                .andExpect(jsonPath("$.description").value(surveyDTO.getDescription()))
-                .andExpect(jsonPath("$.title").value(surveyDTO.getTitle()));
+    @Test
+    public void testUpdateSurvey_Success() {
+        SurveyDTO updatedSurvey = new SurveyDTO();
+        when(surveyService.updateSurvey(any(SurveyDTO.class))).thenReturn(updatedSurvey);
+
+        ResponseEntity<SurveyDTO> response = surveyController.updateSurvey(updatedSurvey);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(updatedSurvey, response.getBody());
+        verify(surveyService, times(1)).updateSurvey(updatedSurvey);
+    }
+
+    @Test
+    public void testDeleteSurvey_Success() {
+        Long surveyId = 1L;
+
+        ResponseEntity<String> response = surveyController.deleteProfile(surveyId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Profile deleted successfully!", response.getBody());
+        verify(surveyService, times(1)).deleteSurveyById(surveyId);
+    }
+
+    @Test
+    public void testDeleteSurvey_NotFound() {
+        Long surveyId = 1L;
+        doThrow(new SurveyNotFoundException("")).when(surveyService).deleteSurveyById(surveyId);
+
+        ResponseEntity<String> response = surveyController.deleteProfile(surveyId);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(surveyService, times(1)).deleteSurveyById(surveyId);
+    }
+
+    @Test
+    public void testUpdateSurvey_InternalServerError() {
+        SurveyDTO updatedSurvey = new SurveyDTO();
+
+        // Simulate an unexpected exception being thrown
+        when(surveyService.updateSurvey(any(SurveyDTO.class))).thenThrow(new RuntimeException("Unexpected error"));
+
+        ResponseEntity<SurveyDTO> response = surveyController.updateSurvey(updatedSurvey);
+
+        // Assert that the response status is INTERNAL_SERVER_ERROR
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertNull(response.getBody());
+
+        // Verify that the service method was called
+        verify(surveyService, times(1)).updateSurvey(updatedSurvey);
+    }
+
+    @Test
+    public void testDeleteSurvey_InternalServerError() {
+        Long surveyId = 1L;
+
+        // Simulate an unexpected exception being thrown
+        doThrow(new RuntimeException("Unexpected error")).when(surveyService).deleteSurveyById(surveyId);
+
+        ResponseEntity<String> response = surveyController.deleteProfile(surveyId);
+
+        // Assert that the response status is INTERNAL_SERVER_ERROR
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertNull(response.getBody());
+
+        // Verify that the service method was called
+        verify(surveyService, times(1)).deleteSurveyById(surveyId);
     }
 }

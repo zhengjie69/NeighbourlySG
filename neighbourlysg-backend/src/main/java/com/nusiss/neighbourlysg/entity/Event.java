@@ -102,5 +102,19 @@ public class Event {
         this.location = location;
     }
 
+    public Profile getProfile() {
+        return profile;
+    }
 
+    public void setProfile(Profile profile) {
+        this.profile = profile;
+    }
+
+    public List<EventParticipant> getEventParticipants() {
+        return eventParticipants;
+    }
+
+    public void setEventParticipants(List<EventParticipant> eventParticipants) {
+        this.eventParticipants = eventParticipants;
+    }
 }

@@ -8,6 +8,8 @@ import ResidentMainPage from './auth/Resident/ResidentMainPage';
 import ProfileSettingsPage from './auth/Resident/ProfileSettingsPage';
 import SurveyShowcasePage from './auth/Resident/SurveyShowcasePage';
 import CreateSurveyForm from './auth/Resident/CreateSurveyForm';
+import SurveyResponsesPage from './auth/Resident/SurveyResponsesPage';
+import SurveyDetailPage from './auth/Resident/SurveyDetailPage';
 import EventShowcasePage from './auth/Resident/EventShowcasePage';
 import CommunityPost from './auth/Resident/CommunityPost';
 import ManageUsers from './auth/Admin/ManageUsers';
@@ -39,6 +41,8 @@ const App = () => {
             <Route path="/ProfileSettings" element={<ProfileSettingsPage />} />
             <Route path="/surveys" element={<SurveyShowcasePage />} /> {/* Route for SurveyShowcasePage */}
             <Route path="/CreateSurveyForm" element={<CreateSurveyForm />} /> {/* Route for CreateSurveyPage */}
+            <Route path="/survey-responses" element={<SurveyResponsesPage />} />
+            <Route path="/survey-detail" element={<SurveyDetailPage />} />
             <Route path="/events" element={<EventShowcasePage />} /> {/* Route for ResidentEventPage */}
             <Route path="/posts" element={<CommunityPost />} /> {/* Route for CommunityPost */}
           <Route path='/manageusers' element={<ManageUsers />} />
