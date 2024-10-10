@@ -27,6 +27,7 @@ function CommunityPost() {
   const [selectedTags, setSelectedTags] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
+  const [commentContent, setCommentContent] = useState("");
   const userId = sessionStorage.getItem("userId");
 
   useEffect(() => {
@@ -83,6 +84,81 @@ function CommunityPost() {
     } catch (error) {
       console.error("Error fetching profile or creating post:", error);
     }
+  };
+
+  // Like
+  const handleLikePost = async (postId) => {  
+    try {
+      const postToUpdate = posts.find((post) => post.id === postId);
+  
+      const hasLiked = postToUpdate.likedBy?.includes(userId);
+  
+      if (!hasLiked) {
+        const likePost = {
+          id: 0,
+          profileId: userId,
+          postId: postId,
+          likedAt: new Date().toISOString()
+        };
+  
+        await axios.post(`http://localhost:8080/api/LikeService/${userId}/posts/${postId}`, likePost);
+  
+        const updatedPosts = posts.map((post) =>
+          post.id === postId ? { ...post, likeCount: post.likeCount + 1, likedBy: [...(post.likedBy || []), userId] } : post
+        );
+        setPosts(updatedPosts);
+      } else {
+        await axios.delete(`http://localhost:8080/api/LikeService/${userId}/posts/${postId}`);
+  
+        const updatedPosts = posts.map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                likeCount: post.likeCount > 0 ? post.likeCount - 1 : 0,
+                likedBy: post.likedBy.filter((id) => id !== userId)
+              }
+            : post
+        );
+        setPosts(updatedPosts);
+      }
+    } catch (error) {
+      console.error("Error toggling like/unlike: ", error);
+    }
+  };
+  
+
+  // Comment
+  const handleAddComment = async (postId) => {
+    if (!commentContent.trim()) return; // Do nothing if the comment is empty
+
+    try {
+      const comment = {
+        postId: postId,
+        profileId: userId,
+        content: commentContent,
+        creationDate: new Date().toISOString(),
+      };
+
+      // POST comment to the server (replace with your actual endpoint)
+      const response = await axios.post(`http://localhost:8080/api/CommentService/${postId}`, comment);
+
+      if (response.status === 200 || response.status === 201) {
+        // Update posts state with new comment
+        const updatedPosts = posts.map((post) =>
+          post.id === postId ? { ...post, comments: [...(post.comments || []), comment] } : post
+        );
+        setPosts(updatedPosts);
+        setCommentContent(""); // Reset comment input
+        toast.success("Comment added successfully!");
+      }
+    } catch (error) {
+      console.error("Error adding comment:", error);
+    }
+  };
+
+  const handleShowComments = (post) => {
+    setSelectedPost(post); // Set the selected post
+    setShowModal(true); // Open the modal
   };
   
   const resetForm = () => {
@@ -165,6 +241,17 @@ function CommunityPost() {
                   <span key={tag} className="badge bg-secondary me-1">{tag}</span>
                 ))}
               </p>
+
+              <div class="card-footer d-flex justify-content-between text-center">
+                <Button variant="btn btn-theme" onClick={() => handleLikePost(post.id)}>
+                  {post.likeCount} Like
+                </Button>
+
+                <Button variant="btn btn-theme" onClick={() => handleShowComments(post)}>
+                    Comment
+                </Button>
+              </div>
+
             </div>
           </div>
         </div>
@@ -172,7 +259,7 @@ function CommunityPost() {
     </div>
 
         {/* Modal for Editing Post */}
-        {selectedPost && (
+        {/* {selectedPost && (
           <Modal show={showModal} onHide={() => setShowModal(false)}>
             <Modal.Header closeButton>
               <Modal.Title>Edit Post</Modal.Title>
@@ -202,9 +289,36 @@ function CommunityPost() {
               </Button>
             </Modal.Footer>
           </Modal>
+        )} */}
+
+        {selectedPost && (
+          <Modal show={showModal} onHide={() => setShowModal(false)}>
+            <Modal.Header closeButton>
+              <Modal.Title>Comments for {selectedPost.profileName}</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <div className="comments-list">
+                {selectedPost.comments && selectedPost.comments.map((comment, index) => (
+                  <div key={index} className="comment-item">
+                    <strong>{sessionStorage.getItem("name")}</strong>: {comment.content}
+                  </div>
+                ))}
+              </div>
+              <Form.Group className="mt-3">
+                <Form.Control
+                  type="text"
+                  placeholder="Add a comment..."
+                  value={commentContent}
+                  onChange={(e) => setCommentContent(e.target.value)}
+                />
+                <Button variant="primary" onClick={() => { handleAddComment(selectedPost.id); setShowModal(false); }}>
+                  Submit
+                </Button>
+              </Form.Group>
+            </Modal.Body>
+          </Modal>
         )}
       </div>
-
       <footer className="bg-dark text-white text-center py-3 mt-auto">
         <p>NeighbourlySG &copy; 2024. All rights reserved.</p>
       </footer>
