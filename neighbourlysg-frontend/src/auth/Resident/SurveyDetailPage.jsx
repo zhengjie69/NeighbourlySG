@@ -11,7 +11,7 @@ const SurveyDetailPage = () => {
   const [survey, setSurvey] = useState(null);
   const [responses, setResponses] = useState({});
   const [existingResponseId, setExistingResponseId] = useState(null); // State for existing response ID
-  const [isEditing, setIsEditing] = useState(false); // Allow editing by default for new users
+  const [isEditing, setIsEditing] = useState(true); // Allow editing by default for new users
   const [submissionSuccess, setSubmissionSuccess] = useState(false); // Track submission success
   const [hasExistingResponse, setHasExistingResponse] = useState(false); // Track if the user has an existing response
 
