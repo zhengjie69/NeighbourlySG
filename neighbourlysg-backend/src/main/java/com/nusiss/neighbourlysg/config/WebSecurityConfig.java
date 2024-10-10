@@ -21,6 +21,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -69,8 +70,10 @@ public class WebSecurityConfig {
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http.csrf(csrf ->
-                    csrf.requireCsrfProtectionMatcher(new AntPathRequestMatcher("/secure/**")) // Enable CSRF only for secure paths
+    http
+            .csrf(csrf -> csrf
+                    .requireCsrfProtectionMatcher(new AntPathRequestMatcher("/secure/**")) // Enable CSRF only for secure paths
+                    .ignoringRequestMatchers("/api/auth/**", "/api/**") // Ignore CSRF for other API paths
             )
             .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -82,9 +85,26 @@ public class WebSecurityConfig {
             );
 
     http.authenticationProvider(authenticationProvider());
+    http.addFilterAfter(new CsrfTokenRelaxingFilter(), CsrfFilter.class);
     http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
   }
+
+  class CsrfTokenRelaxingFilter extends OncePerRequestFilter {
+    public static final String CSRF_TOKEN_RELAXED = "CSRF_TOKEN_RELAXED"; // Define the constant here
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+      // Relax CSRF protection for AJAX requests
+      if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+        request.setAttribute(CSRF_TOKEN_RELAXED, Boolean.TRUE);
+      }
+      filterChain.doFilter(request, response);
+    }
+  }
+
+
 
 }
