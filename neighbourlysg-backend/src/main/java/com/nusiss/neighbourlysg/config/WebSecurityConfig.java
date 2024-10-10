@@ -5,10 +5,6 @@ import com.nusiss.neighbourlysg.security.jwt.AuthEntryPointJwt;
 import com.nusiss.neighbourlysg.security.jwt.AuthTokenFilter;
 import com.nusiss.neighbourlysg.security.jwt.JwtUtils;
 import com.nusiss.neighbourlysg.service.impl.UserDetailsServiceImpl;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,11 +17,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.csrf.CsrfFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.web.filter.OncePerRequestFilter;
-
-import java.io.IOException;
 
 @Configuration
 @EnableMethodSecurity
@@ -68,13 +59,11 @@ public class WebSecurityConfig {
     return new BCryptPasswordEncoder();
   }
 
+
+
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http
-            .csrf(csrf -> csrf
-                    .requireCsrfProtectionMatcher(new AntPathRequestMatcher("/secure/**")) // Enable CSRF only for secure paths
-                    .ignoringRequestMatchers("/api/auth/**", "/api/**") // Ignore CSRF for other API paths
-            )
+    http.csrf(csrf -> csrf.disable())
             .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth ->
@@ -84,27 +73,11 @@ public class WebSecurityConfig {
                             .anyRequest().authenticated()
             );
 
+    // Additional configurations (authentication provider, filters, etc.)
     http.authenticationProvider(authenticationProvider());
-    http.addFilterAfter(new CsrfTokenRelaxingFilter(), CsrfFilter.class);
     http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
   }
-
-  class CsrfTokenRelaxingFilter extends OncePerRequestFilter {
-    public static final String CSRF_TOKEN_RELAXED = "CSRF_TOKEN_RELAXED"; // Define the constant here
-
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-      // Relax CSRF protection for AJAX requests
-      if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
-        request.setAttribute(CSRF_TOKEN_RELAXED, Boolean.TRUE);
-      }
-      filterChain.doFilter(request, response);
-    }
-  }
-
-
 
 }
