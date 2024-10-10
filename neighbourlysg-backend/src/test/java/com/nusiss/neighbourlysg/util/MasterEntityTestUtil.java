@@ -1,5 +1,6 @@
 package com.nusiss.neighbourlysg.util;
 
+import com.nusiss.neighbourlysg.common.RoleConstants;
 import com.nusiss.neighbourlysg.entity.Event;
 import com.nusiss.neighbourlysg.entity.EventParticipant;
 import com.nusiss.neighbourlysg.entity.Profile;
@@ -9,6 +10,8 @@ import com.nusiss.neighbourlysg.entity.Survey;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public final class MasterEntityTestUtil {
 
@@ -17,7 +20,9 @@ public final class MasterEntityTestUtil {
         profile.setConstituency("con");
         profile.setEmail("email");
         profile.setId(1L);
-        profile.setRoles(Arrays.asList(createRoleEntity()));
+        Set<Role> roles = new HashSet<>();
+        roles.add(createRoleEntity());
+        profile.setRoles(roles);
         profile.setName("name");
         profile.setPassword("password");
         return profile;
@@ -26,7 +31,7 @@ public final class MasterEntityTestUtil {
     public static Role createRoleEntity(){
         Role role = new Role();
         role.setId(1);
-        role.setName("USER");
+        role.setName(RoleConstants.ROLE_USER);
         return role;
     }
 

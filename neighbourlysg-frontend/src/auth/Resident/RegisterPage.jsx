@@ -6,6 +6,7 @@ import axios from 'axios'; // Import axios
 import { Modal, Button } from 'react-bootstrap';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 import { Link } from 'react-router-dom';
+import CryptoJS from 'crypto-js';
 
 function RegisterPage() {
   const [name, setName] = useState('');
@@ -65,10 +66,10 @@ function RegisterPage() {
     } 
 
     try {
-      const response = await axios.post('http://localhost:8080/api/ProfileService/register', {
+      const response = await axios.post('http://localhost:8080/api/auth/register', {
         name: name,
         email: email,
-        password: password,
+        password: password,  // Send the encrypted password
         constituency: selectedConstituency,
       });
 

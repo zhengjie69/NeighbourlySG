@@ -17,12 +17,14 @@ function ResidentLogin() {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:8080/login', { email, password });
+      const response = await axios.post('http://localhost:8080/api/auth/login', { email, password });
 
       if (response.status === 200) {
         sessionStorage.setItem('userId', response.data.id);
         sessionStorage.setItem('roles', response.data.roles);
         sessionStorage.setItem('constituency', response.data.constituency);
+        sessionStorage.setItem('accessToken', response.data.accessToken);
+        sessionStorage.setItem('auth-user', JSON.stringify(response.data));
         navigate('/ResidentMainPage', { state: { message: "welcome back!" } });
       }
     } catch (error) {

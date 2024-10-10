@@ -1,12 +1,15 @@
 package com.nusiss.neighbourlysg.util;
 
+import com.nusiss.neighbourlysg.common.RoleConstants;
 import com.nusiss.neighbourlysg.dto.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public final class MasterDTOTestUtil {
 
@@ -22,9 +25,23 @@ public final class MasterDTOTestUtil {
         profile.setConstituency("con");
         profile.setEmail("email");
         profile.setId(1L);
-        profile.setRoles(Arrays.asList(1));
         profile.setName("name");
         profile.setPassword("password");
+        return profile;
+    }
+
+    public static ProfileDto createProfileDTOWithRoles() {
+        ProfileDto profile = new ProfileDto();
+        profile.setConstituency("con");
+        profile.setEmail("email");
+        profile.setId(1L);
+        profile.setName("name");
+        profile.setPassword("password");
+        Set<String> roles = new HashSet<>();
+        roles.add(RoleConstants.ROLE_USER);
+        roles.add(RoleConstants.ROLE_ORGANISER);
+        roles.add(RoleConstants.ROLE_ADMIN);
+        profile.setRoles(roles);
         return profile;
     }
 
