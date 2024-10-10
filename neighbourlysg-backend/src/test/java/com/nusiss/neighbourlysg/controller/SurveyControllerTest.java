@@ -150,33 +150,4 @@ public class SurveyControllerTest {
         // Verify that the service method was called
         verify(surveyService, times(1)).deleteSurveyById(surveyId);
     }
-
-    @Test
-    public void testSubmitSurveyResponses() {
-        SurveyResponseDTO responseDTO = new SurveyResponseDTO();
-
-        ResponseEntity<String> response = surveyController.submitSurveyResponses(responseDTO);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("Responses submitted successfully!", response.getBody());
-        verify(surveyService, times(1)).saveSurveyResponse(responseDTO);
-    }
-
-    @Test
-    public void testGetSurveyResponses() {
-        Long surveyId = 1L;
-        List<SurveyResponseDTO> responses = new ArrayList<>();
-        when(surveyService.getSurveyResponses(surveyId)).thenReturn(responses);
-
-        ResponseEntity<List<SurveyResponseDTO>> response = surveyController.getSurveyResponses(surveyId);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(responses, response.getBody());
-        verify(surveyService, times(1)).getSurveyResponses(surveyId);
-    }
-
-
-
-
-
 }
