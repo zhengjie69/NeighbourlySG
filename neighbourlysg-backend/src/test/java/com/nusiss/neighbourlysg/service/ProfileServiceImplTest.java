@@ -13,9 +13,11 @@ import com.nusiss.neighbourlysg.repository.RoleRepository;
 import com.nusiss.neighbourlysg.service.impl.ProfileServiceImpl;
 import com.nusiss.neighbourlysg.util.MasterDTOTestUtil;
 import com.nusiss.neighbourlysg.util.MasterEntityTestUtil;
+import com.nusiss.neighbourlysg.util.RSAUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -54,25 +57,41 @@ class ProfileServiceImplTest {
 		MockitoAnnotations.openMocks(this);
 		profileService = new ProfileServiceImpl(profileRepository, profileMapper,roleRepository,encoder);
 	}
-	
-	@Test
-	void createProfileSuccessWithoutRole() throws RoleNotFoundException {
-		when(profileRepository.findByEmail(any())).thenReturn(Optional.empty());
-		when(roleRepository.findByName(any())).thenReturn(Optional.of(MasterEntityTestUtil.createRoleEntity()));
-		when(profileRepository.save(any())).thenReturn(MasterEntityTestUtil.createProfileEntity());
-		final ProfileDto dto = MasterDTOTestUtil.createProfileDTO();
-		ProfileDto result = profileService.createProfile(MasterDTOTestUtil.createProfileDTO());
-		assertEquals(dto.getId(), result.getId());
-    }
 
 	@Test
-	void createProfileSuccessWithRole() throws RoleNotFoundException {
+	void createProfileSuccessWithoutRole() throws Exception {
 		when(profileRepository.findByEmail(any())).thenReturn(Optional.empty());
 		when(roleRepository.findByName(any())).thenReturn(Optional.of(MasterEntityTestUtil.createRoleEntity()));
 		when(profileRepository.save(any())).thenReturn(MasterEntityTestUtil.createProfileEntity());
-		final ProfileDto dto = MasterDTOTestUtil.createProfileDTO();
-		ProfileDto result = profileService.createProfile(MasterDTOTestUtil.createProfileDTOWithRoles());
-		assertEquals(dto.getId(), result.getId());
+
+		// Use try-with-resources to mock static methods to ensure proper closure
+		try (MockedStatic<RSAUtil> mockedRSAUtil = mockStatic(RSAUtil.class)) {
+			String password = "password";
+			String decryptedPassword = "decryptedPassword";
+			mockedRSAUtil.when(() -> RSAUtil.decrypt(password)).thenReturn(decryptedPassword);
+
+			final ProfileDto dto = MasterDTOTestUtil.createProfileDTO();
+			ProfileDto result = profileService.createProfile(MasterDTOTestUtil.createProfileDTO());
+			assertEquals(dto.getId(), result.getId());
+		}
+	}
+
+	@Test
+	void createProfileSuccessWithRole() throws Exception {
+		when(profileRepository.findByEmail(any())).thenReturn(Optional.empty());
+		when(roleRepository.findByName(any())).thenReturn(Optional.of(MasterEntityTestUtil.createRoleEntity()));
+		when(profileRepository.save(any())).thenReturn(MasterEntityTestUtil.createProfileEntity());
+
+		// Use try-with-resources to mock static methods to ensure proper closure
+		try (MockedStatic<RSAUtil> mockedRSAUtil = mockStatic(RSAUtil.class)) {
+			String password = "password";
+			String decryptedPassword = "decryptedPassword";
+			mockedRSAUtil.when(() -> RSAUtil.decrypt(password)).thenReturn(decryptedPassword);
+
+			final ProfileDto dto = MasterDTOTestUtil.createProfileDTO();
+			ProfileDto result = profileService.createProfile(MasterDTOTestUtil.createProfileDTOWithRoles());
+			assertEquals(dto.getId(), result.getId());
+		}
 	}
 
 	@Test
