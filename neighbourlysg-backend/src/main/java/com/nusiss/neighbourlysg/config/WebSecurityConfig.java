@@ -73,8 +73,8 @@ public class WebSecurityConfig {
                             .anyRequest().authenticated()
             );
 
-    // Additional configurations (authentication provider, filters, etc.)
     http.authenticationProvider(authenticationProvider());
+
     http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
     return http.build();

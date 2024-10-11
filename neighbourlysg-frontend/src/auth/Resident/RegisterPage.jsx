@@ -6,7 +6,7 @@ import axios from 'axios'; // Import axios
 import { Modal, Button } from 'react-bootstrap';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 import { Link } from 'react-router-dom';
-import CryptoJS from 'crypto-js';
+import { rsaEncrypt } from '../Utils/RSAUtil';
 
 function RegisterPage() {
   const [name, setName] = useState('');
@@ -66,12 +66,14 @@ function RegisterPage() {
     } 
 
     try {
+       // Encrypt the password using the RSA utility
+      const encryptedPassword = rsaEncrypt(password);
       const response = await axios.post('http://localhost:8080/api/auth/register', {
         name: name,
         email: email,
-        password: password,  // Send the encrypted password
+        password: encryptedPassword,  // Send the encrypted password
         constituency: selectedConstituency,
-      });
+    });
 
       // Handle success response
       // const { message, data } = response.data;
