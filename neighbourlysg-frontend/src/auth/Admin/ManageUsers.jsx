@@ -20,7 +20,7 @@ const ManageUsers = () => {
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/ProfileService/profiles');
+        const response = await axios.get('http://localhost:5000/api/ProfileService/profiles');
         if (response.status === 200) {
           setProfiles(response.data);
         }
@@ -36,7 +36,7 @@ const ManageUsers = () => {
     setSelectedProfileId(profileId);
     try {
       // get profile, precheck user role 
-      const response = await axios.get(`http://localhost:8080/api/ProfileService/profile/${profileId}`);
+      const response = await axios.get(`http://localhost:5000/api/ProfileService/profile/${profileId}`);
       if (response.status === 200) {
         const roles = response.data.roles || [];
         setSelectedRoles({
@@ -70,9 +70,9 @@ const ManageUsers = () => {
     if (selectedRoles.user) updatedRoles.push(1); // User role
 
     try {
-      const response = await axios.put(`http://localhost:8080/api/ProfileService/assign-role`, {
-          "userId": selectedProfileId,
-          "roleIds": updatedRoles
+      const response = await axios.put(`http://localhost:5000/api/ProfileService/assign-role`, {
+        "userId": selectedProfileId,
+        "roleIds": updatedRoles
       });
 
       if (response.status === 200) {
@@ -97,7 +97,7 @@ const ManageUsers = () => {
       }}
     >
       <ToastContainer />
-      
+
       <div className="container mt-5 flex-grow-1">
         <div className="mb-4" style={{ width: "100%" }}>
           <h2
@@ -179,46 +179,46 @@ const ManageUsers = () => {
               <div className="modal-body">
                 <div>
                   <div className="form-check">
-                      <input
-                        className="form-check-input"
-                        type="checkbox"
-                        id="admin"
-                        name="admin"
-                        checked={selectedRoles.admin}
-                        onChange={handleCheckboxChange}
-                      />
-                      <label className="form-check-label" htmlFor="admin">
-                        Admin
-                      </label>
-                    </div>
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      id="admin"
+                      name="admin"
+                      checked={selectedRoles.admin}
+                      onChange={handleCheckboxChange}
+                    />
+                    <label className="form-check-label" htmlFor="admin">
+                      Admin
+                    </label>
+                  </div>
 
-                    <div className="form-check">
-                      <input
-                        className="form-check-input"
-                        type="checkbox"
-                        id="org"
-                        name="org"
-                        checked={selectedRoles.org}
-                        onChange={handleCheckboxChange}
-                      />
-                      <label className="form-check-label" htmlFor="org">
-                        Organizer
-                      </label>
-                    </div>
+                  <div className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      id="org"
+                      name="org"
+                      checked={selectedRoles.org}
+                      onChange={handleCheckboxChange}
+                    />
+                    <label className="form-check-label" htmlFor="org">
+                      Organizer
+                    </label>
+                  </div>
 
-                    <div className="form-check">
-                      <input
-                        className="form-check-input"
-                        type="checkbox"
-                        id="user"
-                        name="user"
-                        checked={selectedRoles.user}
-                        onChange={handleCheckboxChange}
-                      />
-                      <label className="form-check-label" htmlFor="user">
-                        User
-                      </label>
-                    </div>
+                  <div className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      id="user"
+                      name="user"
+                      checked={selectedRoles.user}
+                      onChange={handleCheckboxChange}
+                    />
+                    <label className="form-check-label" htmlFor="user">
+                      User
+                    </label>
+                  </div>
                 </div>
               </div>
               <div className="modal-footer">

@@ -51,10 +51,13 @@ public class AuthenticationController {
                 .map(item -> item.getAuthority())
                 .toList();
 
+        ProfileDto profileDto = profileService.getProfileById(userDetails.getId());
+
         return ResponseEntity.ok(new JwtResponse(jwt,
                 userDetails.getId(),
                 userDetails.getUsername(),
                 userDetails.getEmail(),
+                profileDto.getConstituency(),
                 roles));
     }
 

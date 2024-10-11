@@ -16,7 +16,7 @@ const SurveyResponsesPage = () => {
   useEffect(() => {
     if (survey) {
       // Fetch user responses for the survey from the backend
-      axios.get(`http://localhost:8080/api/SurveyResponseService/getSurveyResponses/${survey.id}`)
+      axios.get(`http://localhost:5000/api/SurveyResponseService/getSurveyResponses/${survey.id}`)
         .then(response => {
           setUserResponses(response.data); // Set the responses in the state
         })
@@ -32,9 +32,9 @@ const SurveyResponsesPage = () => {
   };
 
   return (
-    <div 
-      className="d-flex flex-column align-items-center vh-100" 
-      style={{ 
+    <div
+      className="d-flex flex-column align-items-center vh-100"
+      style={{
         backgroundImage: `url(${neighbourlySGbackground})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
@@ -70,8 +70,8 @@ const SurveyResponsesPage = () => {
           userResponses.length > 0 ? (
             <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
               {userResponses.map((response, index) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className="list-group-item list-group-item-action flex-grow-1"
                   style={{
                     borderRadius: '10px',
@@ -150,8 +150,8 @@ const SurveyResponsesPage = () => {
 
         {/* Back button */}
         <div className="mt-4 text-center">
-          <Button 
-            onClick={() => navigate(-1)} 
+          <Button
+            onClick={() => navigate(-1)}
             style={{ borderRadius: '10px', padding: '10px 20px', fontSize: '1rem' }}
           >
             Go Back

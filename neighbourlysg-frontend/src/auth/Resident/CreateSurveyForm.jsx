@@ -12,14 +12,14 @@ const CreateSurveyPage = () => {
   ]);
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false);
-  
+
   const location = useLocation();
   const surveyId = location.state?.surveyId; // Get surveyId from state
 
   // Function to fetch existing survey data based on surveyId
   const fetchSurvey = async (id) => {
     //const token = sessionStorage.getItem('accessToken');
-    const response = await fetch(`http://localhost:8080/api/SurveyService/getSurvey/${id}`, {
+    const response = await fetch(`http://localhost:5000/api/SurveyService/getSurvey/${id}`, {
       method: 'GET',
       headers: {
         //'Authorization': `Bearer ${token}`,
@@ -85,7 +85,7 @@ const CreateSurveyPage = () => {
         })),
       };
 
-      const response = await fetch(`http://localhost:8080/api/SurveyService/${surveyId ? 'updateSurvey' : 'createSurvey'}`, { // Check if it's an update or create
+      const response = await fetch(`http://localhost:5000/api/SurveyService/${surveyId ? 'updateSurvey' : 'createSurvey'}`, { // Check if it's an update or create
         method: surveyId ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -224,7 +224,7 @@ const CreateSurveyPage = () => {
             {surveyId ? "Update Survey" : "Create Survey"}
           </Button>
         </Form>
-        
+
         {message && (
           <div className={`alert ${isError ? 'alert-danger' : 'alert-success'} mt-4`} role="alert">
             {message}

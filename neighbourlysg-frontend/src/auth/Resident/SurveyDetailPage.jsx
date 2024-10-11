@@ -31,7 +31,7 @@ const SurveyDetailPage = () => {
   const fetchExistingResponses = async (surveyId) => {
     const userId = sessionStorage.getItem('userId'); // Get userId from sessionStorage
     try {
-      const response = await axios.get(`http://localhost:8080/api/SurveyResponseService/getUserResponses/${surveyId}/${userId}`);
+      const response = await axios.get(`http://localhost:5000/api/SurveyResponseService/getUserResponses/${surveyId}/${userId}`);
       const existingResponse = response.data;
 
       if (existingResponse && existingResponse.responses.length > 0) {
@@ -77,7 +77,7 @@ const SurveyDetailPage = () => {
     };
 
     try {
-      await axios.post('http://localhost:8080/api/SurveyResponseService/submitSurveyResponse', responsePayload);
+      await axios.post('http://localhost:5000/api/SurveyResponseService/submitSurveyResponse', responsePayload);
       console.log('Responses submitted:', responsePayload);
       setSubmissionSuccess(true); // Mark submission as successful
       setIsEditing(false); // Exit editing mode after submission
