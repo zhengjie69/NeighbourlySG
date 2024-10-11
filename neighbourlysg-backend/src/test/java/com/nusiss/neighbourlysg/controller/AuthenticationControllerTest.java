@@ -6,8 +6,6 @@ import com.nusiss.neighbourlysg.dto.ProfileDto;
 import com.nusiss.neighbourlysg.security.jwt.JwtUtils;
 import com.nusiss.neighbourlysg.service.impl.UserDetailsImpl;
 import com.nusiss.neighbourlysg.service.ProfileService;
-import com.nusiss.neighbourlysg.util.MasterDTOTestUtil;
-import com.nusiss.neighbourlysg.util.RSAUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

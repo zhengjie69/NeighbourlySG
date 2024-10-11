@@ -13,7 +13,6 @@ import com.nusiss.neighbourlysg.repository.RoleRepository;
 import com.nusiss.neighbourlysg.service.impl.ProfileServiceImpl;
 import com.nusiss.neighbourlysg.util.MasterDTOTestUtil;
 import com.nusiss.neighbourlysg.util.MasterEntityTestUtil;
-import com.nusiss.neighbourlysg.util.RSAUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
