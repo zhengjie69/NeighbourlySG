@@ -67,11 +67,11 @@ function RegisterPage() {
 
     try {
        // Encrypt the password using the RSA utility
-      const encryptedPassword = rsaEncrypt(password);
+      // const encryptedPassword = rsaEncrypt(password);
       const response = await axios.post('http://localhost:8080/api/auth/register', {
         name: name,
         email: email,
-        password: encryptedPassword,  // Send the encrypted password
+        password: password,  // Send the encrypted password
         constituency: selectedConstituency,
     });
 

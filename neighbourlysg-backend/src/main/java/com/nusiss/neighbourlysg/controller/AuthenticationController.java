@@ -3,7 +3,6 @@ import com.nusiss.neighbourlysg.dto.JwtResponse;
 import com.nusiss.neighbourlysg.security.jwt.JwtUtils;
 import com.nusiss.neighbourlysg.service.impl.UserDetailsImpl;
 import com.nusiss.neighbourlysg.service.ProfileService;
-import com.nusiss.neighbourlysg.util.RSAUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -41,16 +40,8 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@RequestBody LoginRequestDTO loginRequest) {
 
-        // Decrypt the password using RSA
-        String decryptedPassword;
-        try {
-            decryptedPassword = RSAUtil.decrypt(loginRequest.getPassword());
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to decrypt password", e);
-        }
-
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), decryptedPassword));
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJwtToken(authentication);

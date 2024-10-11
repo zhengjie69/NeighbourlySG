@@ -57,11 +57,7 @@ class AuthenticationControllerTest {
     void testLoginSuccess() {
         LoginRequestDTO loginRequest = new LoginRequestDTO("test@example.com", "password");
 
-        // Use try-with-resources to mock static methods to ensure proper closure
-        try (MockedStatic<RSAUtil> mockedRSAUtil = mockStatic(RSAUtil.class)) {
             String password = loginRequest.getPassword();
-            String decryptedPassword = "decryptedPassword";
-            mockedRSAUtil.when(() -> RSAUtil.decrypt(password)).thenReturn(decryptedPassword);
             when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                     .thenReturn(authentication);
             when(jwtUtils.generateJwtToken(authentication)).thenReturn("mockJwtToken");
@@ -75,9 +71,6 @@ class AuthenticationControllerTest {
             assertEquals(1L, jwtResponse.getId());
             assertEquals("testuser", jwtResponse.getUsername());
             assertEquals("test@example.com", jwtResponse.getEmail());
-        }
-
-
 
     }
 
