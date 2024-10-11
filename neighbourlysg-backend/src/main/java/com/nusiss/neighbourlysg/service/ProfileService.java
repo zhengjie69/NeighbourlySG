@@ -10,8 +10,6 @@ import java.util.List;
 public interface ProfileService {
     ProfileDto createProfile(ProfileDto profileDto) throws RoleNotFoundException;
 
-    ProfileDto login(LoginRequestDTO loginRequestDTO);
-
     void deleteProfile(Long profileId);
 
     List<ProfileDto> getAllProfiles();
