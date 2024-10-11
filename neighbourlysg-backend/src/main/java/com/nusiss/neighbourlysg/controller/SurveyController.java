@@ -34,12 +34,6 @@ public class SurveyController {
         return ResponseEntity.ok(surveyService.getAllSurveys());
     }
 
-    @GetMapping("/getAllSurveys2")
-    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
-    public ResponseEntity<List<SurveyDTO>> getAllSurveys2() {
-        return ResponseEntity.ok(surveyService.getAllSurveys());
-    }
-
     @GetMapping("/getSurvey/{id}")
     public ResponseEntity<SurveyDTO> getSurveyById(@PathVariable Long id) {
         return surveyService.getSurveyById(id)
