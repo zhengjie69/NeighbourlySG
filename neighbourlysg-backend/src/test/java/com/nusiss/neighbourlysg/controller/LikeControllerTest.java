@@ -3,6 +3,7 @@ package com.nusiss.neighbourlysg.controller;
 
 import com.nusiss.neighbourlysg.NeighbourlysgBackendApplication;
 import com.nusiss.neighbourlysg.dto.LikeDto;
+import com.nusiss.neighbourlysg.dto.ProfileDto;
 import com.nusiss.neighbourlysg.repository.LikeRepository;
 import com.nusiss.neighbourlysg.service.LikeService;
 import com.nusiss.neighbourlysg.util.TestUtil;
@@ -19,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -116,5 +118,41 @@ class LikeControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").value(isLiked));
+    }
+
+    @Test
+    void testGetProfilesWhoLikedPost() throws Exception {
+        Long postId = 1L;
+
+        ProfileDto profileDto1 = new ProfileDto();
+        profileDto1.setId(1L);
+        profileDto1.setName("User 1");
+        profileDto1.setEmail("user1@example.com");
+        profileDto1.setConstituency("Constituency 1");
+        profileDto1.setRoles(List.of(1, 2));
+
+        ProfileDto profileDto2 = new ProfileDto();
+        profileDto2.setId(2L);
+        profileDto2.setName("User 2");
+        profileDto2.setEmail("user2@example.com");
+        profileDto2.setConstituency("Constituency 2");
+        profileDto2.setRoles(List.of(1));
+
+        List<ProfileDto> profilesWhoLiked = List.of(profileDto1, profileDto2);
+
+        when(likeService.getProfilesWhoLikedPost(postId)).thenReturn(profilesWhoLiked);
+
+        mockMvc.perform(get("/api/LikeService/{postId}/likes/profiles", postId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].id").value(profileDto1.getId()))
+                .andExpect(jsonPath("$[0].name").value(profileDto1.getName()))
+                .andExpect(jsonPath("$[0].email").value(profileDto1.getEmail()))
+                .andExpect(jsonPath("$[0].constituency").value(profileDto1.getConstituency()))
+                .andExpect(jsonPath("$[1].id").value(profileDto2.getId()))
+                .andExpect(jsonPath("$[1].name").value(profileDto2.getName()))
+                .andExpect(jsonPath("$[1].email").value(profileDto2.getEmail()))
+                .andExpect(jsonPath("$[1].constituency").value(profileDto2.getConstituency()));
     }
 }

@@ -1,9 +1,11 @@
 package com.nusiss.neighbourlysg.service.impl;
 
 import com.nusiss.neighbourlysg.dto.LikeDto;
+import com.nusiss.neighbourlysg.dto.ProfileDto;
 import com.nusiss.neighbourlysg.entity.Like;
 import com.nusiss.neighbourlysg.entity.Post;
 import com.nusiss.neighbourlysg.entity.Profile;
+import com.nusiss.neighbourlysg.entity.Role;
 import com.nusiss.neighbourlysg.exception.PostAlreadyLikedByProfileException;
 import com.nusiss.neighbourlysg.exception.PostNotFoundException;
 import com.nusiss.neighbourlysg.exception.ProfileNotFoundException;
@@ -14,6 +16,7 @@ import com.nusiss.neighbourlysg.service.LikeService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -94,5 +97,28 @@ public class LikeServiceImpl implements LikeService {
     @Override
     public boolean isPostLikedByProfile(Long profileId, Long postId) {
         return likeRepository.findByProfileIdAndPostId(profileId, postId).isPresent();
+    }
+
+    @Override
+    public List<ProfileDto> getProfilesWhoLikedPost(Long postId) {
+        // Retrieve all Likes for the given postId
+        List<Like> likes = likeRepository.findByPostId(postId);
+
+        // Convert List<Like> to List<ProfileDto>
+        return likes.stream()
+                .map(like -> {
+                    ProfileDto profileDto = new ProfileDto();
+                    profileDto.setId(like.getProfile().getId());
+                    profileDto.setName(like.getProfile().getName());
+                    profileDto.setEmail(like.getProfile().getEmail());
+                    profileDto.setConstituency(like.getProfile().getConstituency());
+                    List<Integer> roleIds = like.getProfile().getRoles().stream()
+                            .map(Role::getId)
+                            .toList();
+                    profileDto.setRoles(roleIds);
+
+                    return profileDto;
+                })
+                .toList();
     }
 }
