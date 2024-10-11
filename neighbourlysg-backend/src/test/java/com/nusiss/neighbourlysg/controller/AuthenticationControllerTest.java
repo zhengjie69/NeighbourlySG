@@ -6,10 +6,13 @@ import com.nusiss.neighbourlysg.dto.ProfileDto;
 import com.nusiss.neighbourlysg.security.jwt.JwtUtils;
 import com.nusiss.neighbourlysg.service.impl.UserDetailsImpl;
 import com.nusiss.neighbourlysg.service.ProfileService;
+import com.nusiss.neighbourlysg.util.MasterDTOTestUtil;
+import com.nusiss.neighbourlysg.util.RSAUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,19 +56,29 @@ class AuthenticationControllerTest {
     @Test
     void testLoginSuccess() {
         LoginRequestDTO loginRequest = new LoginRequestDTO("test@example.com", "password");
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenReturn(authentication);
-        when(jwtUtils.generateJwtToken(authentication)).thenReturn("mockJwtToken");
 
-        ResponseEntity<JwtResponse> response = authenticationController.login(loginRequest);
+        // Use try-with-resources to mock static methods to ensure proper closure
+        try (MockedStatic<RSAUtil> mockedRSAUtil = mockStatic(RSAUtil.class)) {
+            String password = loginRequest.getPassword();
+            String decryptedPassword = "decryptedPassword";
+            mockedRSAUtil.when(() -> RSAUtil.decrypt(password)).thenReturn(decryptedPassword);
+            when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                    .thenReturn(authentication);
+            when(jwtUtils.generateJwtToken(authentication)).thenReturn("mockJwtToken");
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        JwtResponse jwtResponse = response.getBody();
-        assert jwtResponse != null;
-        assertEquals("mockJwtToken", jwtResponse.getAccessToken());
-        assertEquals(1L, jwtResponse.getId());
-        assertEquals("testuser", jwtResponse.getUsername());
-        assertEquals("test@example.com", jwtResponse.getEmail());
+            ResponseEntity<JwtResponse> response = authenticationController.login(loginRequest);
+
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            JwtResponse jwtResponse = response.getBody();
+            assert jwtResponse != null;
+            assertEquals("mockJwtToken", jwtResponse.getAccessToken());
+            assertEquals(1L, jwtResponse.getId());
+            assertEquals("testuser", jwtResponse.getUsername());
+            assertEquals("test@example.com", jwtResponse.getEmail());
+        }
+
+
+
     }
 
     @Test
