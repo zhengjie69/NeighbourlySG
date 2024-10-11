@@ -10,9 +10,9 @@ name: Pipeline
 
 on:
   push:
-    branches: [ "dev", "feature/*" ]
+    branches: [ "dev", "feature/*", "bugfix/*" ]
   pull_request:
-    branches: [ "dev", "feature/*" ]
+    branches: [ "dev", "feature/*", "bugfix/*" ]
 
 jobs:
   BuildBackEnd:
