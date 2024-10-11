@@ -8,7 +8,9 @@ import neighbourlySGbackground from "../../assets/neighbourlySGbackground.jpg";
 import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import { IoMdSend } from "react-icons/io";
+import { BiLike } from "react-icons/bi";
+import { FaRegComment } from "react-icons/fa";
 
 const animatedComponents = makeAnimated();
 
@@ -89,9 +91,10 @@ function CommunityPost() {
   // Like
   const handleLikePost = async (postId) => {  
     try {
-      const postToUpdate = posts.find((post) => post.id === postId);
-  
-      const hasLiked = postToUpdate.likedBy?.includes(userId);
+      // get list of people who liked the post 
+      const response = await axios.get(`http://localhost:8080/api/LikeService/${postId}/likes/profiles`); 
+      const likedByProfiles = response.data.map(profile => profile.id);
+      const hasLiked = likedByProfiles.includes(Number(userId));
   
       if (!hasLiked) {
         const likePost = {
@@ -104,7 +107,7 @@ function CommunityPost() {
         await axios.post(`http://localhost:8080/api/LikeService/${userId}/posts/${postId}`, likePost);
   
         const updatedPosts = posts.map((post) =>
-          post.id === postId ? { ...post, likeCount: post.likeCount + 1, likedBy: [...(post.likedBy || []), userId] } : post
+          post.id === postId ? { ...post, likeCount: post.likeCount + 1, likedBy: [...(post.likedBy || []), Number(userId)] } : post
         );
         setPosts(updatedPosts);
       } else {
@@ -115,7 +118,7 @@ function CommunityPost() {
             ? {
                 ...post,
                 likeCount: post.likeCount > 0 ? post.likeCount - 1 : 0,
-                likedBy: post.likedBy.filter((id) => id !== userId)
+                likedBy: (post.likedBy || []).filter((id) => id !== Number(userId))
               }
             : post
         );
@@ -133,17 +136,16 @@ function CommunityPost() {
 
     try {
       const comment = {
-        postId: postId,
-        profileId: userId,
+        id: 0,
         content: commentContent,
         creationDate: new Date().toISOString(),
+        postId: postId,
+        profileId: userId,
       };
-
-      // POST comment to the server (replace with your actual endpoint)
-      const response = await axios.post(`http://localhost:8080/api/CommentService/${postId}`, comment);
+      
+      const response = await axios.post(`http://localhost:8080/api/PostService/${postId}/comments/${profileId}`, comment);
 
       if (response.status === 200 || response.status === 201) {
-        // Update posts state with new comment
         const updatedPosts = posts.map((post) =>
           post.id === postId ? { ...post, comments: [...(post.comments || []), comment] } : post
         );
@@ -244,11 +246,13 @@ function CommunityPost() {
 
               <div class="card-footer d-flex justify-content-between text-center">
                 <Button variant="btn btn-theme" onClick={() => handleLikePost(post.id)}>
-                  {post.likeCount} Like
+                  {post.likeCount} Like {}
+                  <BiLike />
                 </Button>
 
                 <Button variant="btn btn-theme" onClick={() => handleShowComments(post)}>
-                    Comment
+                    Comment {}
+                    <FaRegComment />
                 </Button>
               </div>
 
@@ -297,24 +301,41 @@ function CommunityPost() {
               <Modal.Title>Comments for {selectedPost.profileName}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              <div className="comments-list">
+              <div className="card">
+                <div className="card-body">
+                  <h5 className="card-title">{selectedPost.content}</h5>
+                  <p>
+                  {selectedPost.tags.map((tag) => (
+                    <span key={tag} className="badge bg-secondary me-1">{tag}</span>
+                  ))} 
+                  </p>
+                </div>
+              </div>
+
+              {/* <div className="comments-list">
                 {selectedPost.comments && selectedPost.comments.map((comment, index) => (
                   <div key={index} className="comment-item">
                     <strong>{sessionStorage.getItem("name")}</strong>: {comment.content}
                   </div>
                 ))}
+              </div> */}
+              <div className="row">
+                <div className="col-sm-10">
+                  <Form.Group className="mt-3">
+                    <Form.Control
+                      type="text"
+                      placeholder="Add a comment..."
+                      value={commentContent}
+                      onChange={(e) => setCommentContent(e.target.value)}
+                    />
+                  </Form.Group>
+                </div>
+                <div className="col-sm-2 mt-3">
+                  <Button variant="btn btn-outline-secondary w-100" style={{ borderColor: '#ccc' }} onClick={() => {handleAddComment(selectedPost.id); setShowModal(false);}}>
+                    <IoMdSend />
+                  </Button>
+                </div>
               </div>
-              <Form.Group className="mt-3">
-                <Form.Control
-                  type="text"
-                  placeholder="Add a comment..."
-                  value={commentContent}
-                  onChange={(e) => setCommentContent(e.target.value)}
-                />
-                <Button variant="primary" onClick={() => { handleAddComment(selectedPost.id); setShowModal(false); }}>
-                  Submit
-                </Button>
-              </Form.Group>
             </Modal.Body>
           </Modal>
         )}
