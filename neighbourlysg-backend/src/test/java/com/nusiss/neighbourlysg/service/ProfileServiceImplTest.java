@@ -13,7 +13,6 @@ import com.nusiss.neighbourlysg.repository.RoleRepository;
 import com.nusiss.neighbourlysg.service.impl.ProfileServiceImpl;
 import com.nusiss.neighbourlysg.util.MasterDTOTestUtil;
 import com.nusiss.neighbourlysg.util.MasterEntityTestUtil;
-import com.nusiss.neighbourlysg.util.RSAUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -64,16 +63,10 @@ class ProfileServiceImplTest {
 		when(roleRepository.findByName(any())).thenReturn(Optional.of(MasterEntityTestUtil.createRoleEntity()));
 		when(profileRepository.save(any())).thenReturn(MasterEntityTestUtil.createProfileEntity());
 
-		// Use try-with-resources to mock static methods to ensure proper closure
-		try (MockedStatic<RSAUtil> mockedRSAUtil = mockStatic(RSAUtil.class)) {
-			String password = "password";
-			String decryptedPassword = "decryptedPassword";
-			mockedRSAUtil.when(() -> RSAUtil.decrypt(password)).thenReturn(decryptedPassword);
-
-			final ProfileDto dto = MasterDTOTestUtil.createProfileDTO();
+		final ProfileDto dto = MasterDTOTestUtil.createProfileDTO();
 			ProfileDto result = profileService.createProfile(MasterDTOTestUtil.createProfileDTO());
 			assertEquals(dto.getId(), result.getId());
-		}
+
 	}
 
 	@Test
@@ -82,16 +75,12 @@ class ProfileServiceImplTest {
 		when(roleRepository.findByName(any())).thenReturn(Optional.of(MasterEntityTestUtil.createRoleEntity()));
 		when(profileRepository.save(any())).thenReturn(MasterEntityTestUtil.createProfileEntity());
 
-		// Use try-with-resources to mock static methods to ensure proper closure
-		try (MockedStatic<RSAUtil> mockedRSAUtil = mockStatic(RSAUtil.class)) {
-			String password = "password";
-			String decryptedPassword = "decryptedPassword";
-			mockedRSAUtil.when(() -> RSAUtil.decrypt(password)).thenReturn(decryptedPassword);
+
 
 			final ProfileDto dto = MasterDTOTestUtil.createProfileDTO();
 			ProfileDto result = profileService.createProfile(MasterDTOTestUtil.createProfileDTOWithRoles());
 			assertEquals(dto.getId(), result.getId());
-		}
+
 	}
 
 	@Test

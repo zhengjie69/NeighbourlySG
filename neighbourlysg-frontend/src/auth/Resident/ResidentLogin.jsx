@@ -18,11 +18,11 @@ function ResidentLogin() {
     e.preventDefault();
 
       try {
-        // Encrypt the password using the RSA utility
-        const encryptedPassword = rsaEncrypt(password);
+        // // Encrypt the password using the RSA utility
+        // const encryptedPassword = rsaEncrypt(password);
         const response = await axios.post('http://localhost:8080/api/auth/login', {
           email: email,
-          password: encryptedPassword,  // Send the encrypted password
+          password: password,  // Send the encrypted password
         });
 
       if (response.status === 200) {
