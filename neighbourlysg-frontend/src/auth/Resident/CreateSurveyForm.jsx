@@ -254,11 +254,6 @@ const CreateSurveyPage = () => {
 
       <footer className="bg-dark text-white text-center py-3 mt-auto" style={{ position: "relative", bottom: 0, width: "100%" }}>
         <p>NeighbourlySG &copy; 2024. All rights reserved.</p>
-        <p>
-          <Link to="/contact" className="text-white">
-            Contact Support
-          </Link>
-        </p>
       </footer>
     </div>
   );
