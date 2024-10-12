@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Create an Axios instance
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:8080/api', // Adjust the base URL as needed
+  baseURL: 'http://localhost:5000/api', // Adjust the base URL as needed
 });
 
 // Add a request interceptor
@@ -15,7 +15,7 @@ axiosInstance.interceptors.request.use(
     if (token && !config.url.startsWith('/auth')) {
       config.headers.Authorization = `Bearer ${token}`; // Set the token in the Authorization header
     }
-    
+
     return config;
   },
   (error) => {

@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Form, Button, Alert, Modal } from 'react-bootstrap';
-import { Link } from 'react-router-dom'; 
+import { Link } from 'react-router-dom';
 import SGLogo from '../../assets/SGLogo.avif';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const grcSmcOptions = [
-    'Aljunied GRC', 'Ang Mo Kio GRC', 'Bishan-Toa Payoh GRC', 'Chua Chu Kang GRC',
-    'East Coast GRC', 'Holland-Bukit Timah GRC', 'Jalan Besar GRC', 'Jurong GRC',
-    'Marine Parade GRC', 'Marsiling-Yew Tee GRC', 'Nee Soon GRC', 'Pasir Ris-Punggol GRC',
-    'Sembawang GRC', 'Tampines GRC', 'Tanjong Pagar GRC', 'West Coast GRC',
-    'Bukit Batok SMC', 'Bukit Panjang SMC', 'Hong Kah North SMC', 'Hougang SMC',
-    'Kebun Baru SMC', 'MacPherson SMC', 'Marymount SMC', 'Mountbatten SMC',
-    'Pioneer SMC', 'Potong Pasir SMC', 'Punggol West SMC', 'Radin Mas SMC',
-    'Yio Chu Kang SMC', 'Yuhua SMC'
+  'Aljunied GRC', 'Ang Mo Kio GRC', 'Bishan-Toa Payoh GRC', 'Chua Chu Kang GRC',
+  'East Coast GRC', 'Holland-Bukit Timah GRC', 'Jalan Besar GRC', 'Jurong GRC',
+  'Marine Parade GRC', 'Marsiling-Yew Tee GRC', 'Nee Soon GRC', 'Pasir Ris-Punggol GRC',
+  'Sembawang GRC', 'Tampines GRC', 'Tanjong Pagar GRC', 'West Coast GRC',
+  'Bukit Batok SMC', 'Bukit Panjang SMC', 'Hong Kah North SMC', 'Hougang SMC',
+  'Kebun Baru SMC', 'MacPherson SMC', 'Marymount SMC', 'Mountbatten SMC',
+  'Pioneer SMC', 'Potong Pasir SMC', 'Punggol West SMC', 'Radin Mas SMC',
+  'Yio Chu Kang SMC', 'Yuhua SMC'
 ];
 
 function ProfileSettingsPage() {
@@ -73,7 +73,7 @@ function ProfileSettingsPage() {
     } else {
       setErrors({});
       try {
-        const response = await axios.put(`http://localhost:8080/api/ProfileService/updateProfile/${userId}`, {
+        const response = await axios.put(`http://localhost:5000/api/ProfileService/updateProfile/${userId}`, {
           name,
           email,
           password: newPassword,
@@ -89,7 +89,7 @@ function ProfileSettingsPage() {
   const handleDeleteAccount = async () => {
     if (deleteConfirm === 'delete account') {
       try {
-        const response = await axios.delete(`http://localhost:8080/api/ProfileService/profile/${userId}`);
+        const response = await axios.delete(`http://localhost:5000/api/ProfileService/profile/${userId}`);
         if (response.status === 200) {
           alert('Your account has been deleted.');
           setShowModal(false);
@@ -104,11 +104,11 @@ function ProfileSettingsPage() {
   };
 
   return (
-    <div 
-      className="d-flex flex-column align-items-center vh-100" 
-      style={{ 
-        backgroundImage: `url(${neighbourlySGbackground})`, 
-        backgroundSize: 'cover', 
+    <div
+      className="d-flex flex-column align-items-center vh-100"
+      style={{
+        backgroundImage: `url(${neighbourlySGbackground})`,
+        backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -127,7 +127,7 @@ function ProfileSettingsPage() {
 
         <div
           className="card mb-4"
-          style={{ width: "100%", padding: "20px"}}
+          style={{ width: "100%", padding: "20px" }}
         >
           <Form onSubmit={handleProfileUpdate}>
             <Form.Group controlId="formName" className="mb-3">
@@ -136,11 +136,11 @@ function ProfileSettingsPage() {
                   <Form.Label className="form-label">Name</Form.Label>
                 </div>
                 <div className="col-sm-8">
-                  <Form.Control 
-                    type="text" 
-                    placeholder="Enter your name" 
-                    value={name} 
-                    onChange={(e) => setName(e.target.value)} 
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter your name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     isInvalid={errors.name}
                   />
                   <Form.Control.Feedback type="invalid">{errors.name}</Form.Control.Feedback>
@@ -154,11 +154,11 @@ function ProfileSettingsPage() {
                   <Form.Label className="form-label">Email Address</Form.Label>
                 </div>
                 <div className="col-sm-8">
-                  <Form.Control 
-                    type="email" 
-                    placeholder="Enter your email" 
-                    value={email} 
-                    onChange={(e) => setEmail(e.target.value)} 
+                  <Form.Control
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     isInvalid={errors.email}
                   />
                   <Form.Control.Feedback type="invalid">{errors.email}</Form.Control.Feedback>
@@ -167,59 +167,59 @@ function ProfileSettingsPage() {
             </Form.Group>
 
             <Form.Group controlId="formOldPassword" className="mb-3">
-                <div className="row align-items-center">
+              <div className="row align-items-center">
                 <div className="col-sm-4">
-                    <Form.Label className="form-label">Old Password</Form.Label>
+                  <Form.Label className="form-label">Old Password</Form.Label>
                 </div>
                 <div className="col-sm-8">
-                    <Form.Control 
-                    type="password" 
-                    placeholder="Enter old password" 
-                    value={oldPassword} 
-                    onChange={(e) => setOldPassword(e.target.value)} 
+                  <Form.Control
+                    type="password"
+                    placeholder="Enter old password"
+                    value={oldPassword}
+                    onChange={(e) => setOldPassword(e.target.value)}
                     isInvalid={errors.oldPassword}
-                    />
-                    <Form.Control.Feedback type="invalid">{errors.oldPassword}</Form.Control.Feedback>
+                  />
+                  <Form.Control.Feedback type="invalid">{errors.oldPassword}</Form.Control.Feedback>
                 </div>
-                </div>
+              </div>
             </Form.Group>
 
             <Form.Group controlId="formNewPassword" className="mb-3">
-                <div className="row align-items-center">
+              <div className="row align-items-center">
                 <div className="col-sm-4">
-                    <Form.Label className="form-label">New Password</Form.Label>
+                  <Form.Label className="form-label">New Password</Form.Label>
                 </div>
                 <div className="col-sm-8">
-                    <Form.Control 
-                    type="password" 
-                    placeholder="Enter new password" 
-                    value={newPassword} 
-                    onChange={(e) => setNewPassword(e.target.value)} 
+                  <Form.Control
+                    type="password"
+                    placeholder="Enter new password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
                     isInvalid={errors.newPassword}
-                    />
-                    <Form.Control.Feedback type="invalid">{errors.newPassword}</Form.Control.Feedback>
+                  />
+                  <Form.Control.Feedback type="invalid">{errors.newPassword}</Form.Control.Feedback>
                 </div>
-                </div>
+              </div>
             </Form.Group>
 
             <Form.Group controlId="formConfirmPassword" className="mb-3">
-                <div className="row align-items-center">
+              <div className="row align-items-center">
                 <div className="col-sm-4">
-                    <Form.Label className="form-label">Confirm Password</Form.Label>
+                  <Form.Label className="form-label">Confirm Password</Form.Label>
                 </div>
                 <div className="col-sm-8">
-                    <Form.Control 
-                    type="password" 
-                    placeholder="Confirm new password" 
-                    value={confirmPassword} 
-                    onChange={(e) => setConfirmPassword(e.target.value)} 
+                  <Form.Control
+                    type="password"
+                    placeholder="Confirm new password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     isInvalid={errors.confirmPassword}
-                    />
-                    <Form.Control.Feedback type="invalid">{errors.confirmPassword}</Form.Control.Feedback>
+                  />
+                  <Form.Control.Feedback type="invalid">{errors.confirmPassword}</Form.Control.Feedback>
                 </div>
-                </div>
+              </div>
             </Form.Group>
-              
+
 
             <Form.Group controlId="formConstituency" className="mb-3">
               <div className="row align-items-center">
@@ -227,8 +227,8 @@ function ProfileSettingsPage() {
                   <Form.Label className="form-label">Constituency</Form.Label>
                 </div>
                 <div className="col-sm-8">
-                  <Form.Select 
-                    value={constituency} 
+                  <Form.Select
+                    value={constituency}
                     onChange={(e) => setConstituency(e.target.value)}
                     isInvalid={errors.constituency}
                   >
@@ -244,19 +244,19 @@ function ProfileSettingsPage() {
 
             <div className="row">
               <div className="col d-flex justify-content-start">
-                <Button 
-                  variant="danger" 
-                  type="button" 
-                  className="mt-2" 
+                <Button
+                  variant="danger"
+                  type="button"
+                  className="mt-2"
                   onClick={() => setShowModal(true)}
                 >
                   Delete Account
                 </Button>
               </div>
               <div className="col d-flex justify-content-end">
-                <Button 
-                  variant="primary" 
-                  type="submit" 
+                <Button
+                  variant="primary"
+                  type="submit"
                   className="mt-2"
                 >
                   Update
@@ -278,10 +278,10 @@ function ProfileSettingsPage() {
             <p style={{ color: '#d9534f' }}>Are you sure you want to delete your account? This action cannot be undone.</p>
             <Form.Group controlId="formDeleteAccount" className="mb-3">
               <Form.Label>Type 'delete account' to delete your account</Form.Label>
-              <Form.Control 
-                placeholder="delete account" 
-                value={deleteConfirm} 
-                onChange={(e) => setDeleteConfirm(e.target.value)} 
+              <Form.Control
+                placeholder="delete account"
+                value={deleteConfirm}
+                onChange={(e) => setDeleteConfirm(e.target.value)}
               />
             </Form.Group>
           </Form>

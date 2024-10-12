@@ -17,13 +17,13 @@ function ResidentLogin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-      try {
-        // // Encrypt the password using the RSA utility
-        // const encryptedPassword = rsaEncrypt(password);
-        const response = await axios.post('http://localhost:8080/api/auth/login', {
-          email: email,
-          password: password,  // Send the encrypted password
-        });
+    try {
+      // // Encrypt the password using the RSA utility
+      // const encryptedPassword = rsaEncrypt(password);
+      const response = await axios.post('http://localhost:5000/api/auth/login', {
+        email: email,
+        password: password,  // Send the encrypted password
+      });
 
       if (response.status === 200) {
         sessionStorage.setItem('userId', response.data.id);

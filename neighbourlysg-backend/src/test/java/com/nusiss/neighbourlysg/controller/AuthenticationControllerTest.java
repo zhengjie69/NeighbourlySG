@@ -10,7 +10,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +22,7 @@ import javax.management.relation.RoleNotFoundException;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
 class AuthenticationControllerTest {
@@ -55,20 +55,23 @@ class AuthenticationControllerTest {
     void testLoginSuccess() {
         LoginRequestDTO loginRequest = new LoginRequestDTO("test@example.com", "password");
 
-            String password = loginRequest.getPassword();
-            when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                    .thenReturn(authentication);
-            when(jwtUtils.generateJwtToken(authentication)).thenReturn("mockJwtToken");
+        ProfileDto profileDto = new ProfileDto();
+        profileDto.setConstituency("testConstituency");
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenReturn(authentication);
+        when(jwtUtils.generateJwtToken(authentication)).thenReturn("mockJwtToken");
+        when(profileService.getProfileById(any(Long.class))).thenReturn(profileDto);
 
-            ResponseEntity<JwtResponse> response = authenticationController.login(loginRequest);
+        ResponseEntity<JwtResponse> response = authenticationController.login(loginRequest);
 
-            assertEquals(HttpStatus.OK, response.getStatusCode());
-            JwtResponse jwtResponse = response.getBody();
-            assert jwtResponse != null;
-            assertEquals("mockJwtToken", jwtResponse.getAccessToken());
-            assertEquals(1L, jwtResponse.getId());
-            assertEquals("testuser", jwtResponse.getUsername());
-            assertEquals("test@example.com", jwtResponse.getEmail());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        JwtResponse jwtResponse = response.getBody();
+        assert jwtResponse != null;
+        assertEquals("mockJwtToken", jwtResponse.getAccessToken());
+        assertEquals(1L, jwtResponse.getId());
+        assertEquals("testConstituency", jwtResponse.getConstituency());
+        assertEquals("testuser", jwtResponse.getUsername());
+        assertEquals("test@example.com", jwtResponse.getEmail());
 
     }
 
@@ -93,6 +96,6 @@ class AuthenticationControllerTest {
         ResponseEntity<ProfileDto> response = authenticationController.createProfile(profileDto);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals(null, response.getBody());
+        assertNull(response.getBody());
     }
 }
