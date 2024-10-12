@@ -6,7 +6,6 @@ import { Link } from 'react-router-dom';
 import { Modal, Button, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
-import SGLogo from '../../assets/SGLogo.avif';
 
 const grcSmcOptions = [
   'All Locations', 'Aljunied GRC', 'Ang Mo Kio GRC', 'Bishan-Toa Payoh GRC', 'Chua Chu Kang GRC',
@@ -27,47 +26,31 @@ function ResidentEventPage() {
   const [showUpcomingModal, setShowUpcomingModal] = useState(false);
   const [showPastModal, setShowPastModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [showCancelModal, setShowCancelModal] = useState(false);
   const [showCreateEventModal, setShowCreateEventModal] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null); // For error messages
-  const [successMessage, setSuccessMessage] = useState(null); // For success messages
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
   const [upcomingEventSearchLocation, setUpcomingEventSearchLocation] = useState('');
   const [pastEventSearchLocation, setPastEventSearchLocation] = useState('');
-
+  const userRoles = sessionStorage.getItem("roles") || "";
+  const isOrganiser = userRoles.includes("ROLE_ORGANISER");
   const profileId = sessionStorage.getItem('userId');
   const constituency = sessionStorage.getItem('constituency');
 
   const [newEvent, setNewEvent] = useState({
-    title: '',
-    location: '',
-    description: '',
-    date: '',
-    startTime: '',
-    endTime: '',
+    title: '', location: '', description: '', date: '', startTime: '', endTime: ''
   });
 
   const [editEvent, setEditEvent] = useState({
-    id: '',
-    title: '',
-    location: '',
-    description: '',
-    date: '',
-    startTime: '',
-    endTime: '',
+    id: '', title: '', location: '', description: '', date: '', startTime: '', endTime: ''
   });
 
   const fetchUpcomingEvents = async () => {
     try {
-      if (upcomingEventSearchLocation == "") {
-        const response = await axios.get('http://localhost:5000/api/EventService/getAllCurrentEvent/' + profileId + '/' + constituency);
-        const upcomingEventsWithoutFilter = response.data;
-        setUpcomingEvents(upcomingEventsWithoutFilter);
-      }
-      else {
-        const response = await axios.get('http://localhost:5000/api/EventService/getAllCurrentEvent/' + profileId + '/' + constituency + "?location=" + upcomingEventSearchLocation);
-        const upComingEventsWithFilter = response.data;
-        setUpcomingEvents(upComingEventsWithFilter);
-      }
+      const response = await axios.get(
+        `http://localhost:5000/api/EventService/getAllCurrentEvent/${profileId}/${constituency}`,
+        { params: { location: upcomingEventSearchLocation } }
+      );
+      setUpcomingEvents(response.data);
     } catch (error) {
       console.error('Error fetching upcoming events:', error);
     }
@@ -75,10 +58,8 @@ function ResidentEventPage() {
 
   const fetchUserEvents = async () => {
     try {
-      // Example URL, adjust based on your actual API endpoint
-      const response = await axios.get('http://localhost:5000/api/EventService/getAllUserEvent/' + profileId);
-      const events = response.data;
-      setUserEvents(events);
+      const response = await axios.get(`http://localhost:5000/api/EventService/getAllUserEvent/${profileId}`);
+      setUserEvents(response.data);
     } catch (error) {
       console.error('Error fetching user events:', error);
     }
@@ -86,112 +67,67 @@ function ResidentEventPage() {
 
   const fetchPastEvents = async () => {
     try {
-      if (pastEventSearchLocation == "") {
-        const response = await axios.get('http://localhost:5000/api/EventService/getAllPastEvent/' + profileId + '/' + constituency);
-        const pastEventsWithoutFilter = response.data;
-        setPastEvents(pastEventsWithoutFilter);
-      }
-      else {
-        const response = await axios.get('http://localhost:5000/api/EventService/getAllPastEvent/' + profileId + '/' + constituency + "?location=" + pastEventSearchLocation);
-        const pastEventsWithFilter = response.data;
-        setPastEvents(pastEventsWithFilter);
-      }
+      const response = await axios.get(
+        `http://localhost:5000/api/EventService/getAllPastEvent/${profileId}/${constituency}`,
+        { params: { location: pastEventSearchLocation } }
+      );
+      setPastEvents(response.data);
     } catch (error) {
       console.error('Error fetching past events:', error);
     }
   };
 
   useEffect(() => {
-
     fetchUserEvents();
     fetchUpcomingEvents();
     fetchPastEvents();
-
   }, []);
 
   const rsvpAsParticipant = async (profileId, eventId) => {
     try {
       const response = await axios.post('http://localhost:5000/api/EventService/rsvpParticipant', {
-        profileId: profileId,
-        eventId: eventId,
+        profileId, eventId
       });
-      const rsvpResponse = response.data;
-
-      handleCloseModal();
-
-      if (rsvpResponse == "RSVP is completed") {
+      if (response.data === "RSVP is completed") {
         setSuccessMessage('Successfully RSVP\'d to the event!');
         setErrorMessage(null);
+        fetchUpcomingEvents();
       }
-
-      fetchUpcomingEvents();
-
     } catch (error) {
-
-      handleCloseModal();
-
-      setErrorMessage('Error adding RSVP for this event. Are you already enrolled to the event?');
-      setSuccessMessage(null);
-
+      setErrorMessage('Error adding RSVP for this event.');
       console.error('Error rsvping for this event:', error);
     }
+    setShowUpcomingModal(false);
   };
 
   const deleteRsvpAsParticipant = async (profileId, eventId) => {
     try {
       const response = await axios.post('http://localhost:5000/api/EventService/deleteRsvpAsParticipant', {
-        profileId: profileId,
-        eventId: eventId,
+        profileId, eventId
       });
-      const rsvpResponse = response.data;
-
-      handleCloseModal();
-      setShowCancelModal(false);
-
-      if (rsvpResponse == "RSVP is removed") {
-        setSuccessMessage('Successfully remove RSVP\'d to the event!');
-        setErrorMessage(null);
+      if (response.data === "RSVP is removed") {
+        setSuccessMessage('Successfully removed RSVP to the event!');
+        fetchUpcomingEvents();
       }
-
-      fetchUpcomingEvents();
-
     } catch (error) {
-
-      handleCloseModal();
-      setShowCancelModal(false);
-
-      setErrorMessage('Error removing RSVP for this event. Are you enrolled to the event?');
-      setSuccessMessage(null);
-
+      setErrorMessage('Error removing RSVP for this event.');
       console.error('Error removing RSVP for this event:', error);
     }
+    setShowUpcomingModal(false);
   };
 
   const handleCreateEvent = async (e) => {
     e.preventDefault();
     try {
-      // Replace with your API endpoint
-      await axios.post('http://localhost:5000/api/EventService/createEvent/' + profileId, newEvent);
+      await axios.post(`http://localhost:5000/api/EventService/createEvent/${profileId}`, newEvent);
       setSuccessMessage('Event created successfully!');
-      setErrorMessage(null);
-      setShowCreateEventModal(false);
-
-      setNewEvent({
-        title: '',
-        location: '',
-        description: '',
-        date: '',
-        startTime: '',
-        endTime: '',
-      });
-
-      fetchUserEvents(); // Refresh the events list
-
+      setNewEvent({ title: '', location: '', description: '', date: '', startTime: '', endTime: '' });
+      fetchUserEvents();
     } catch (error) {
-      setErrorMessage('Error creating event. Please try again.');
-      setSuccessMessage(null);
+      setErrorMessage('Error creating event.');
       console.error('Error creating event:', error);
     }
+    setShowCreateEventModal(false);
   };
 
   const handleEditEvent = async (e) => {
@@ -199,50 +135,34 @@ function ResidentEventPage() {
     try {
       await axios.put('http://localhost:5000/api/EventService/updateEvent', editEvent);
       setSuccessMessage('Event updated successfully!');
-      setErrorMessage(null);
-      setShowEditModal(false);
-
       fetchUserEvents();
-
     } catch (error) {
-      setErrorMessage('Error updating event. Please try again.');
-      setSuccessMessage(null);
+      setErrorMessage('Error updating event.');
       console.error('Error updating event:', error);
     }
+    setShowEditModal(false);
   };
 
-  const handleDeleteEvent = async (e) => {
-    e.preventDefault();
+  const handleDeleteEvent = async () => {
     try {
-      await axios.delete('http://localhost:5000/api/EventService/deleteEvent/' + editEvent.id);
+      await axios.delete(`http://localhost:5000/api/EventService/deleteEvent/${editEvent.id}`);
       setSuccessMessage('Event deleted successfully!');
-      setErrorMessage(null);
-      setShowEditModal(null);
-
       fetchUserEvents();
     } catch (error) {
-      setErrorMessage('Error deleting event. Please try again.');
-      setSuccessMessage(null);
+      setErrorMessage('Error deleting event.');
       console.error('Error deleting event:', error);
     }
-  }
-
-  const handleSearchUpcomingEventChange = (event) => {
-    setUpcomingEventSearchLocation(event.target.value);
+    setShowEditModal(false);
   };
 
-  const handleSearchUpcomingEventSubmit = (event) => {
-    event.preventDefault();
-    fetchUpcomingEvents(upcomingEventSearchLocation);
+  const handleSearchUpcomingEventSubmit = (e) => {
+    e.preventDefault();
+    fetchUpcomingEvents();
   };
 
-  const handleSearchPastEventChange = (event) => {
-    setPastEventSearchLocation(event.target.value);
-  };
-
-  const handleSearchPastEventSubmit = (event) => {
-    event.preventDefault();
-    fetchPastEvents(pastEventSearchLocation);
+  const handleSearchPastEventSubmit = (e) => {
+    e.preventDefault();
+    fetchPastEvents();
   };
 
   const handleShowUpcomingModal = (upcomingEvent) => {
@@ -250,24 +170,15 @@ function ResidentEventPage() {
     setShowUpcomingModal(true);
   };
 
-  const handleShowPastModal = (pastEvent) => {
-    setSelectedEvent(pastEvent);
-    setShowPastModal(true);
-  };
-
   const handleShowUserEventModal = (userEvents) => {
     setSelectedEvent(userEvents);
     setEditEvent({
-      id: userEvents.id,
-      title: userEvents.title,
-      location: userEvents.location,
-      description: userEvents.description,
-      date: userEvents.date,
-      startTime: userEvents.startTime,
-      endTime: userEvents.endTime,
+      id: userEvents.id, title: userEvents.title, location: userEvents.location,
+      description: userEvents.description, date: userEvents.date,
+      startTime: userEvents.startTime, endTime: userEvents.endTime
     });
     setShowEditModal(true);
-  }
+  };
 
   const handleCloseModal = () => {
     setShowUpcomingModal(false);
@@ -277,11 +188,8 @@ function ResidentEventPage() {
   };
 
   const closeMessage = (type) => {
-    if (type === 'success') {
-      setSuccessMessage(null);
-    } else if (type === 'error') {
-      setErrorMessage(null);
-    }
+    if (type === 'success') setSuccessMessage(null);
+    else if (type === 'error') setErrorMessage(null);
   };
 
   return (
@@ -289,30 +197,28 @@ function ResidentEventPage() {
       className="d-flex flex-column min-vh-100"
       style={{
         backgroundImage: `url(${neighbourlySGbackground})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
+        backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat'
       }}
     >
       <div className="container mt-5 flex-grow-1">
         <h2 className="mb-4 text-white">Community Events</h2>
 
-        {/* Create Event Button */}
-        <div className="mb-4 row">
-          <div className="col-md-12 mt-3">
+        {/* Conditionally render Create Event Button only for organizer accounts */}
+        {isOrganiser && (
+          <div className="mb-4">
             <button className="btn btn-primary" onClick={() => setShowCreateEventModal(true)}>
               Create Event
             </button>
           </div>
-        </div>
+        )}
 
         {/* User's Events */}
-        <div className="mb-5" style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', padding: '20px', borderRadius: '8px', overflowX: 'auto', whiteSpace: 'nowrap' }}>
+        <div className="mb-5 p-3" style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', borderRadius: '8px', whiteSpace: 'nowrap' }}>
           <h3 className="text-dark">Your Events</h3>
           {userEvents.length > 0 ? (
             <div className="d-flex">
               {userEvents.map(event => (
-                <div key={event.id} className="card h-100 me-3" style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', flex: '0 0 auto', width: '300px' }} onClick={() => handleShowUserEventModal(event)}>
+                <div key={event.id} className="card h-100 me-3" style={{ flex: '0 0 auto', width: '300px' }} onClick={() => handleShowUserEventModal(event)}>
                   <div className="card-body">
                     <h4 className="card-title">{event.title}</h4>
                     <h6 className="card-subtitle mb-2 text-muted">{event.date}</h6>
@@ -328,28 +234,21 @@ function ResidentEventPage() {
         </div>
 
         {/* Upcoming Events */}
-        <div className="mb-5" style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', padding: '20px', borderRadius: '8px', overflowX: 'auto', whiteSpace: 'nowrap' }}>
+        <div className="mb-5 p-3" style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', borderRadius: '8px', whiteSpace: 'nowrap' }}>
           <h3 className="text-dark">Upcoming Events</h3>
-          <div className="mb-4 row">
-            <div className="col-md-12 mt-3">
-              <form className="d-flex align-items-center my-2 my-lg-0" onSubmit={handleSearchUpcomingEventSubmit}>
-                <label htmlFor="SearchUpcomingEvent" className="form-label me-2 mb-0">Search:</label>
-                <input
-                  type="text"
-                  className="form-control me-2"
-                  placeholder="Search for Upcoming Events Location"
-                  onChange={handleSearchUpcomingEventChange}
-                />
-                <Button type="submit" variant="primary" className="btn">
-                  Search
-                </Button>
-              </form>
-            </div>
-          </div>
+          <form className="d-flex mb-3" onSubmit={handleSearchUpcomingEventSubmit}>
+            <input
+              type="text"
+              className="form-control me-2"
+              placeholder="Search for Upcoming Events Location"
+              onChange={(e) => setUpcomingEventSearchLocation(e.target.value)}
+            />
+            <Button type="submit" variant="primary">Search</Button>
+          </form>
           {upcomingEvents.length > 0 ? (
             <div className="d-flex">
               {upcomingEvents.map(event => (
-                <div key={event.id} className="card h-100 me-3" style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', flex: '0 0 auto', width: '300px' }} onClick={() => handleShowUpcomingModal(event)}>
+                <div key={event.id} className="card h-100 me-3" style={{ flex: '0 0 auto', width: '300px' }} onClick={() => handleShowUpcomingModal(event)}>
                   <div className="card-body">
                     <h4 className="card-title">{event.title}</h4>
                     <h6 className="card-subtitle mb-2 text-muted">{event.date}</h6>
@@ -365,28 +264,21 @@ function ResidentEventPage() {
         </div>
 
         {/* Past Events */}
-        <div className="mb-5" style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', padding: '20px', borderRadius: '8px', overflowX: 'auto', whiteSpace: 'nowrap' }}>
+        <div className="mb-5 p-3" style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', borderRadius: '8px', whiteSpace: 'nowrap' }}>
           <h3 className="text-dark">Past Events</h3>
-          <div className="mb-4 row">
-            <div className="col-md-12 mt-3">
-              <form className="d-flex align-items-center my-2 my-lg-0" onSubmit={handleSearchPastEventSubmit}>
-                <label htmlFor="SearchPastEvent" className="form-label me-2 mb-0">Search:</label>
-                <input
-                  type="text"
-                  className="form-control me-2"
-                  placeholder="Search for Past Events Location"
-                  onChange={handleSearchPastEventChange}
-                />
-                <Button type="submit" variant="primary" className="btn">
-                  Search
-                </Button>
-              </form>
-            </div>
-          </div>
+          <form className="d-flex mb-3" onSubmit={handleSearchPastEventSubmit}>
+            <input
+              type="text"
+              className="form-control me-2"
+              placeholder="Search for Past Events Location"
+              onChange={(e) => setPastEventSearchLocation(e.target.value)}
+            />
+            <Button type="submit" variant="primary">Search</Button>
+          </form>
           {pastEvents.length > 0 ? (
             <div className="d-flex">
               {pastEvents.map(event => (
-                <div key={event.id} className="card h-100 me-3" style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', flex: '0 0 auto', width: '300px' }} onClick={() => handleShowPastModal(event)}>
+                <div key={event.id} className="card h-100 me-3" style={{ flex: '0 0 auto', width: '300px' }} onClick={() => setSelectedEvent(event)}>
                   <div className="card-body">
                     <h4 className="card-title">{event.title}</h4>
                     <h6 className="card-subtitle mb-2 text-muted">{event.date}</h6>
@@ -401,9 +293,9 @@ function ResidentEventPage() {
         </div>
       </div>
 
-      {/* Modal for Upcoming Event Details */}
+      {/* Modal for Event Details */}
       {selectedEvent && (
-        <Modal show={showUpcomingModal} onHide={handleCloseModal}>
+        <Modal show={showUpcomingModal || showPastModal} onHide={handleCloseModal}>
           <Modal.Header closeButton>
             <Modal.Title>{selectedEvent.title}</Modal.Title>
           </Modal.Header>
@@ -430,10 +322,12 @@ function ResidentEventPage() {
                   <th>End Time</th>
                   <td>{selectedEvent.endTime}</td>
                 </tr>
-                <tr>
-                  <th>RSVP Count</th>
-                  <td>{selectedEvent.rsvpCount}</td>
-                </tr>
+                {selectedEvent.rsvpCount && (
+                  <tr>
+                    <th>RSVP Count</th>
+                    <td>{selectedEvent.rsvpCount}</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </Modal.Body>
@@ -441,52 +335,16 @@ function ResidentEventPage() {
             <Button variant="secondary" onClick={handleCloseModal}>
               Close
             </Button>
-            <Button variant="danger" onClick={() => deleteRsvpAsParticipant(1, selectedEvent.id)}>
-              Cancel
-            </Button>
-            <Button variant="primary" onClick={() => rsvpAsParticipant(1, selectedEvent.id)}>
-              RSVP
-            </Button>
-          </Modal.Footer>
-        </Modal>
-      )}
-
-      {/* Modal for Past Event Details */}
-      {selectedEvent && (
-        <Modal show={showPastModal} onHide={handleCloseModal}>
-          <Modal.Header closeButton>
-            <Modal.Title>{selectedEvent.title}</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <table className="table">
-              <tbody>
-                <tr>
-                  <th>Event Location</th>
-                  <td>{selectedEvent.location}</td>
-                </tr>
-                <tr>
-                  <th>Description</th>
-                  <td>{selectedEvent.description}</td>
-                </tr>
-                <tr>
-                  <th>Date</th>
-                  <td>{selectedEvent.date}</td>
-                </tr>
-                <tr>
-                  <th>Start Time</th>
-                  <td>{selectedEvent.startTime}</td>
-                </tr>
-                <tr>
-                  <th>End Time</th>
-                  <td>{selectedEvent.endTime}</td>
-                </tr>
-              </tbody>
-            </table>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={handleCloseModal}>
-              Close
-            </Button>
+            {showUpcomingModal && (
+              <>
+                <Button variant="danger" onClick={() => deleteRsvpAsParticipant(1, selectedEvent.id)}>
+                  Cancel
+                </Button>
+                <Button variant="primary" onClick={() => rsvpAsParticipant(1, selectedEvent.id)}>
+                  RSVP
+                </Button>
+              </>
+            )}
           </Modal.Footer>
         </Modal>
       )}
