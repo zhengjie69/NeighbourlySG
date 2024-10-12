@@ -8,7 +8,7 @@ import neighbourlySGbackground from "../../assets/neighbourlySGbackground.jpg";
 import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { FaHeart, FaComment, FaShare } from 'react-icons/fa'; // Icons for Like, Comment, Share
+
 
 const animatedComponents = makeAnimated();
 
@@ -27,7 +27,6 @@ function CommunityPost() {
   const [selectedTags, setSelectedTags] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
-  const [newComment, setNewComment] = useState(""); // New comment input
   const userId = sessionStorage.getItem("userId");
 
   useEffect(() => {
@@ -47,6 +46,7 @@ function CommunityPost() {
       try {
         // Fetch the user's profile details to get name
         const response = await axios.get(`http://localhost:5000/api/ProfileService/profile/${userId}`);
+
         if (response.status === 200) {
           const name = response.data.name;
           sessionStorage.setItem("name", name);
@@ -65,7 +65,7 @@ function CommunityPost() {
       // Create a new post
       const newPost = {
         content: newPostContent,
-        creationDate: new Date().toISOString(),
+        creationDate: new Date().toISOString(), // Use the current date
         profileId: userId,
         likeCount: 0,
         comments: [],
@@ -77,39 +77,17 @@ function CommunityPost() {
       if (res.status === 200 || res.status === 201) {
         setPosts([newPost, ...posts]);
         resetForm(); // Reset the form fields after posting
-        toast.success("Your status has been posted successfully!");
+        toast.success("Your status have been posted successfully!");
       }
 
     } catch (error) {
-      console.error("Error creating post:", error);
+      console.error("Error fetching profile or creating post:", error);
     }
   };
 
   const resetForm = () => {
     setNewPostContent("");
     setSelectedTags([]);
-  };
-
-  const handleLikePost = (postId) => {
-    // Increment the like count for the post
-    setPosts(posts.map(post => post.id === postId ? { ...post, likeCount: post.likeCount + 1 } : post));
-  };
-
-  const handleAddComment = (postId) => {
-    if (newComment.trim() === "") return;
-    const updatedPosts = posts.map(post => {
-      if (post.id === postId) {
-        return { ...post, comments: [...post.comments, { text: newComment, profileName: sessionStorage.getItem('name') }] };
-      }
-      return post;
-    });
-    setPosts(updatedPosts);
-    setNewComment("");
-  };
-
-  const handleSharePost = (postId) => {
-    // Simple share function, this can be enhanced further
-    toast.info(`Post ID: ${postId} shared!`);
   };
 
   return (
@@ -122,6 +100,7 @@ function CommunityPost() {
         backgroundRepeat: "no-repeat",
       }}
     >
+
       <ToastContainer />
 
       <div className="container mt-5 flex-grow-1">
@@ -186,51 +165,49 @@ function CommunityPost() {
                       <span key={tag} className="badge bg-secondary me-1">{tag}</span>
                     ))}
                   </p>
-                  <div className="d-flex justify-content-start">
-                    <Button variant="link" onClick={() => handleLikePost(post.id)}>
-                      <FaHeart /> {post.likeCount} Likes
-                    </Button>
-                    <Button variant="link" onClick={() => handleSharePost(post.id)}>
-                      <FaShare /> Share
-                    </Button>
-                    <Button variant="link" onClick={() => setSelectedPost(post)}>
-                      <FaComment /> Comment
-                    </Button>
-                  </div>
-                  <div>
-                    {post.comments.length > 0 && post.comments.map((comment, index) => (
-                      <div key={index} className="mt-2">
-                        <strong>{comment.profileName}</strong>: {comment.text}
-                      </div>
-                    ))}
-                  </div>
-                  {selectedPost && selectedPost.id === post.id && (
-                    <div className="mt-3">
-                      <Form.Group>
-                        <Form.Control
-                          type="text"
-                          placeholder="Write a comment..."
-                          value={newComment}
-                          onChange={(e) => setNewComment(e.target.value)}
-                        />
-                      </Form.Group>
-                      <Button variant="primary" className="mt-2" onClick={() => handleAddComment(post.id)}>
-                        Add Comment
-                      </Button>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
           ))}
         </div>
 
-        <footer className="bg-dark text-white text-center py-3 mt-auto" style={{ position: "relative", bottom: 0, width: "100%" }}>
-        <p>NeighbourlySG &copy; 2024. All rights reserved.</p>
-        <p>
-        </p>
-      </footer>
+        {/* Modal for Editing Post */}
+        {selectedPost && (
+          <Modal show={showModal} onHide={() => setShowModal(false)}>
+            <Modal.Header closeButton>
+              <Modal.Title>Edit Post</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <Form.Group>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  value={newPostContent}
+                  onChange={(e) => setNewPostContent(e.target.value)}
+                />
+                <Form.Control
+                  type="text"
+                  className="mt-2"
+                  value={selectedTags.join(" ")}
+                  readOnly
+                />
+              </Form.Group>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={() => setShowModal(false)}>
+                Close
+              </Button>
+              <Button variant="primary" onClick={handleEditPost}>
+                Save Changes
+              </Button>
+            </Modal.Footer>
+          </Modal>
+        )}
       </div>
+
+      <footer className="bg-dark text-white text-center py-3 mt-auto">
+        <p>NeighbourlySG &copy; 2024. All rights reserved.</p>
+      </footer>
     </div>
   );
 }
