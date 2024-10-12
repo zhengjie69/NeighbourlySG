@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import React, { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import axios from 'axios';
@@ -66,7 +67,7 @@ const SurveyResponsesPage = () => {
 
         {/* Conditionally render based on selected view mode */}
         {viewMode === 'response' ? (
-          // Response by response view
+          // "Response by response" view
           userResponses.length > 0 ? (
             <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
               {userResponses.map((response, index) => (
@@ -87,7 +88,20 @@ const SurveyResponsesPage = () => {
                   <h5><strong>Response {index + 1}:</strong></h5>
                   {response.responses.map((questionResponse, idx) => (
                     <div key={idx} style={{ marginLeft: '20px' }}>
-                      <p><strong>{questionResponse.questionText}:</strong> {questionResponse.answer}</p>
+                      <strong>{questionResponse.questionText}:</strong> 
+                      {parseInt(questionResponse.answer, 10) >= 1 && parseInt(questionResponse.answer, 10) <= 5 ? (
+                        <div className="mb-3">
+                          <div style={{ display: "flex", justifyContent: "space-between", maxWidth: "120px" }}>
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <span key={star} style={{ fontSize: "1.5rem", color: star <= questionResponse.answer ? "#ffc107" : "#e4e5e9" }}>
+                                ★
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        <p>{questionResponse.answer}</p>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -97,10 +111,9 @@ const SurveyResponsesPage = () => {
             <p>No responses yet.</p>
           )
         ) : (
-          // Question by question view
+          // "Question by question" view
           userResponses.length > 0 ? (
             userResponses[0].responses.map((questionResponse, qIndex) => {
-              // Count how many responses there are for the current question
               const responseCount = userResponses.reduce((count, response) => {
                 return response.responses.some(r => r.questionId === questionResponse.questionId) ? count + 1 : count;
               }, 0);
@@ -132,7 +145,22 @@ const SurveyResponsesPage = () => {
                       return (
                         <div key={rIndex} style={{ marginBottom: '5px', color: '#495057' }}>
                           {matchingResponse ? (
-                            <p><strong>Response {rIndex + 1}:</strong> {matchingResponse.answer}</p>
+                            <>
+                              <strong>Response {rIndex + 1}:</strong>
+                              {parseInt(matchingResponse.answer, 10) >= 1 && parseInt(matchingResponse.answer, 10) <= 5 ? (
+                                <div className="mb-3">
+                                  <div style={{ display: "flex", justifyContent: "space-between", maxWidth: "120px" }}>
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                      <span key={star} style={{ fontSize: "1.5rem", color: star <= matchingResponse.answer ? "#ffc107" : "#e4e5e9" }}>
+                                        ★
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              ) : (
+                                <p>{matchingResponse.answer}</p>
+                              )}
+                            </>
                           ) : (
                             <p><strong>Response {rIndex + 1}:</strong> No response for this question.</p>
                           )}

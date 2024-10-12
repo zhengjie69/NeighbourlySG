@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button, Form, OverlayTrigger, Tooltip } from 'react-bootstrap';
@@ -15,9 +16,10 @@ const SurveyShowcasePage = () => {
   const [selectedSurvey, setSelectedSurvey] = useState(null);
   const [surveyToDelete, setSurveyToDelete] = useState(null);
   const [responses, setResponses] = useState({});
-  const [userResponses, setUserResponses] = useState([]);
+  const [userResponses] = useState([]);
   const userRoles = sessionStorage.getItem("roles") || "";
   const isOrganiser = userRoles.includes("ROLE_ORGANISER");
+  const isResident = userRoles.includes("ROLE_USER");  // Updated to check for ROLE_USER
   const navigate = useNavigate(); // Initialize navigate
   const [viewMode, setViewMode] = useState('response'); // Default to "response by response"
 
@@ -27,6 +29,7 @@ const SurveyShowcasePage = () => {
       try {
         const response = await axios.get('http://localhost:5000/api/SurveyService/getAllSurveys');
         setSurveys(response.data);
+        console.log("Surveys:", response.data);  // Log surveys to check if data is being fetched correctly
       } catch (error) {
         console.error('Error fetching surveys:', error);
       }
@@ -35,11 +38,14 @@ const SurveyShowcasePage = () => {
     fetchSurveys();
   }, []);
 
-  // Open Survey Modal
-  // Replace the existing handleShowModal function in SurveyShowcasePage
-  const handleShowModal = (survey) => {
+ // Open Survey Modal
+const handleShowModal = (survey) => {
+  if (isResident) {
     navigate('/survey-detail', { state: { survey } });
-  };
+  } else {
+    alert('Only residents can access the survey detail page.');
+  }
+};
 
 
   // Close Survey Modal
@@ -49,18 +55,12 @@ const SurveyShowcasePage = () => {
   };
 
   // View Responses Modal
-  // View Responses - Navigate to SurveyResponsesPage
   const handleViewResponses = (survey) => {
     navigate('/survey-responses', { state: { survey } });
   };
 
-
-
   // Update Survey Modal
   const handleUpdateSurvey = (survey) => {
-    // setSelectedSurvey(survey);
-    // setShowUpdateModal(true);
-    // Navigate to CreateSurveyPage with the survey ID
     navigate('/CreateSurveyForm', { state: { surveyId: survey.id } });
   };
 
@@ -88,7 +88,6 @@ const SurveyShowcasePage = () => {
     setViewMode(mode);
   };
 
-
   const handleSubmit = async () => {
     if (!selectedSurvey) return;
 
@@ -112,10 +111,6 @@ const SurveyShowcasePage = () => {
     }
   };
 
-
-
-
-
   return (
     <div
       className="d-flex flex-column align-items-center vh-100"
@@ -126,8 +121,32 @@ const SurveyShowcasePage = () => {
         backgroundRepeat: 'no-repeat',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
         backdropFilter: 'blur(5px)',
+        position: 'relative',
       }}
     >
+      {/* Back Button positioned at the top-right */}
+      <Button
+        onClick={() => navigate(-1)}
+        style={{
+          position: 'absolute',
+          top: '20px',
+          right: '20px',
+          zIndex: '1000',
+          backgroundColor: '#fff',
+          color: '#333',
+          borderRadius: '50%',
+          border: 'none',
+          width: '50px',
+          height: '50px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          boxShadow: '0px 2px 5px rgba(0,0,0,0.2)',
+        }}
+      >
+        ←
+      </Button>
+
       <div className="card p-5 mt-5 mb-4" style={{ width: '800px', boxShadow: '0 12px 24px rgba(0, 0, 0, 0.2)', borderRadius: '16px', backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div>
@@ -142,53 +161,66 @@ const SurveyShowcasePage = () => {
             </Button>
           )}
         </div>
+
+        {/* Display each survey with different buttons for Residents and Organizers */}
         <div className="list-group">
           {surveys.map((survey) => (
-            <div key={survey.id} className="d-flex align-items-center mb-3">
-              <button
-                className="list-group-item list-group-item-action flex-grow-1"
-                style={{ borderRadius: '10px', transition: 'background-color 0.3s ease', cursor: 'pointer' }}
-                onClick={() => handleShowModal(survey)}
-              >
-                <div className="d-flex justify-content-between">
-                  <h5 className="mb-1" style={{ fontWeight: '600', color: '#333' }}>{survey.title}</h5>
-                </div>
-                <p className="mb-1" style={{ color: '#495057' }}>{survey.description}</p>
-              </button>
-
-
-              {isOrganiser && <div className="d-flex ms-3">
-                {/* View Responses Icon */}
-                <OverlayTrigger
-                  placement="top"
-                  overlay={<Tooltip>View Responses</Tooltip>}
+            <div key={survey.id} className="d-flex align-items-center justify-content-between mb-3">
+              <div className="flex-grow-1">
+                <button
+                  className="list-group-item list-group-item-action"
+                  style={{ borderRadius: '10px', transition: 'background-color 0.3s ease', cursor: 'pointer' }}
+                  onClick={() => handleShowModal(survey)}
                 >
-                  <Button variant="outline-primary" className="ms-2" onClick={() => handleViewResponses(survey)}>
-                    <FaEye />
-                  </Button>
-                </OverlayTrigger>
-
-                {/* Update Survey Icon */}
-                <OverlayTrigger
-                  placement="top"
-                  overlay={<Tooltip>Update Survey</Tooltip>}
-                >
-                  <Button variant="outline-warning" className="ms-2" onClick={() => handleUpdateSurvey(survey)}>
-                    <FaEdit />
-                  </Button>
-                </OverlayTrigger>
-
-                {/* Delete Survey Icon */}
-                <OverlayTrigger
-                  placement="top"
-                  overlay={<Tooltip>Delete Survey</Tooltip>}
-                >
-                  <Button variant="outline-danger" className="ms-2" onClick={() => { setSurveyToDelete(survey); setShowDeleteModal(true); }}>
-                    <FaTrash />
-                  </Button>
-                </OverlayTrigger>
+                  <div className="d-flex justify-content-between">
+                    <h5 className="mb-1" style={{ fontWeight: '600', color: '#333' }}>{survey.title}</h5>
+                  </div>
+                  <p className="mb-1" style={{ color: '#495057' }}>{survey.description}</p>
+                </button>
               </div>
-              }
+
+              {/* Resident Role: Show "Respond to Survey" button */}
+              {isResident && (
+               <Button
+               variant="success"
+               onClick={() => handleShowModal(survey)}
+               style={{ marginLeft: '15px' }}  // No comments inside style
+             >
+               Respond to Survey
+             </Button>
+              )}
+
+              {/* Organizer Role: Show "View Responses," "Update Survey," and "Delete Survey" buttons */}
+              {isOrganiser && (
+                <div className="d-flex ms-3">
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={<Tooltip>View Responses</Tooltip>}
+                  >
+                    <Button variant="outline-primary" className="ms-2" onClick={() => handleViewResponses(survey)}>
+                      <FaEye />
+                    </Button>
+                  </OverlayTrigger>
+
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={<Tooltip>Update Survey</Tooltip>}
+                  >
+                    <Button variant="outline-warning" className="ms-2" onClick={() => handleUpdateSurvey(survey)}>
+                      <FaEdit />
+                    </Button>
+                  </OverlayTrigger>
+
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={<Tooltip>Delete Survey</Tooltip>}
+                  >
+                    <Button variant="outline-danger" className="ms-2" onClick={() => { setSurveyToDelete(survey); setShowDeleteModal(true); }}>
+                      <FaTrash />
+                    </Button>
+                  </OverlayTrigger>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -283,7 +315,6 @@ const SurveyShowcasePage = () => {
 
           {/* Conditionally render based on selected view mode */}
           {viewMode === 'response' ? (
-            // Response by response view
             userResponses.length > 0 ? (
               userResponses.map((response, index) => (
                 <div key={index} className="mb-4">
@@ -299,14 +330,11 @@ const SurveyShowcasePage = () => {
               <p>No responses yet.</p>
             )
           ) : (
-            // Question by question view
             userResponses.length > 0 ? (
-              // Displaying questions based on the first user's responses
               userResponses[0].responses.map((questionResponse, qIndex) => (
                 <div key={qIndex} className="mb-4">
                   <h5><strong>{questionResponse.questionText}:</strong></h5>
                   {userResponses.map((response, rIndex) => {
-                    // Find the matching response for the current questionId
                     const matchingResponse = response.responses.find(
                       (r) => r.questionId === questionResponse.questionId
                     );
@@ -326,15 +354,11 @@ const SurveyShowcasePage = () => {
               <p>No responses yet.</p>
             )
           )}
-
-
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowResponseModal(false)}>Close</Button>
         </Modal.Footer>
       </Modal>
-
-
 
       {/* Update Survey Modal */}
       <Modal show={showUpdateModal} onHide={() => setShowUpdateModal(false)} centered>
@@ -342,7 +366,6 @@ const SurveyShowcasePage = () => {
           <Modal.Title>Update Survey: {selectedSurvey?.title}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {/* Add form to update survey */}
           <Form>
             <Form.Group className="mb-3">
               <Form.Label>Title</Form.Label>
