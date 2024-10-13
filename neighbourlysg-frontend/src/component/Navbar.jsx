@@ -58,11 +58,14 @@ const Navbar = () => {
         return null; // If no role is matched, don't render any links
     };
 
+    // Paths where the logo is not clickable and Logout button is hidden
+    const hideLogoutAndLogoLink = location.pathname === '/register' || location.pathname === '/ResidentLogin';
+
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-light" style={{ zIndex: 2, padding: '10px 20px', width: '100%' }}>
             <div className="container-fluid">
                 {/* Conditionally render the logo and link */}
-                {location.pathname !== '/register' ? (
+                {!hideLogoutAndLogoLink ? (
                     <Link className="navbar-brand" to="/ResidentMainPage">
                         <img src={SGLogo} alt="SG Logo" style={{ marginRight: '10px', width: '50px', height: '35px' }} />
                         NeighbourlySG
@@ -84,7 +87,7 @@ const Navbar = () => {
                     </ul>
 
                     {/* Conditionally render the Logout button */}
-                    {location.pathname !== '/register' && (
+                    {!hideLogoutAndLogoLink && (
                         <button className="btn btn-outline-danger ms-2" onClick={handleLogout}>
                             Logout
                         </button>
