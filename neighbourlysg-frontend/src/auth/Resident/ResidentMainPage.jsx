@@ -10,30 +10,6 @@ import { ToastContainer, toast } from 'react-toastify';
 
 const ResidentMainPage = () => {
   const location = useLocation();
-  const sampleSurveys = [
-    { title: "Community Garden Feedback", description: "Share your thoughts on our new community garden initiative.", link: "/surveys" },
-    { title: "Safety in the Neighborhood", description: "Provide input on how we can improve safety in our area.", link: "/surveys" }
-  ];
-
-  const sampleEvents = [
-    { title: "Neighborhood Cleanup", date: "August 15, 2024", description: "Join us for a community cleanup event.", link: "/events" },
-    { title: "Fall Festival", date: "September 10, 2024", description: "Celebrate the season with food, games, and fun!", link: "/events" }
-  ];
-
-  const samplePosts = [
-    { 
-      author: "Jane Doe", 
-      content: "Had a great time at the community park today. It's looking beautiful!", 
-      image: "https://via.placeholder.com/150",
-      link: "/posts"
-    },
-    { 
-      author: "John Smith", 
-      content: "Excited for the upcoming Fall Festival. Who else is going?", 
-      image: "",
-      link: "/posts"
-    },
-  ];
 
   useEffect(() => {
     if (location.state?.message) {
@@ -84,16 +60,6 @@ const ResidentMainPage = () => {
             <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
               <h4>Active Surveys</h4>
               <p>Participate in ongoing community surveys to share your thoughts.</p>
-              {sampleSurveys.map((survey, index) => (
-                <Link to={survey.link} key={index} className="text-decoration-none text-dark">
-                  <div className="card mb-3" style={{ borderRadius: '10px', cursor: 'pointer' }}>
-                    <div className="card-body">
-                      <h5 className="card-title">{survey.title}</h5>
-                      <p className="card-text">{survey.description}</p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
               <div className="d-flex justify-content-end">
                 <Link to="/surveys" className="btn btn-primary">View More</Link> {/* Redirects to /surveys */}
               </div>
@@ -101,17 +67,7 @@ const ResidentMainPage = () => {
 
             <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
               <h4>Upcoming Events</h4>
-              {sampleEvents.map((event, index) => (
-                <Link to={event.link} key={index} className="text-decoration-none text-dark">
-                  <div className="card mb-3" style={{ borderRadius: '10px', cursor: 'pointer' }}>
-                    <div className="card-body">
-                      <h5 className="card-title">{event.title}</h5>
-                      <h6 className="card-subtitle mb-2 text-muted">{event.date}</h6>
-                      <p className="card-text">{event.description}</p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
+              <p>Stay updated on future community gatherings and activities. RSVP to join and participate in your local events.</p>
               <div className="d-flex justify-content-end">
                 <Link to="/events" className="btn btn-primary">View More</Link>
               </div>
@@ -120,17 +76,7 @@ const ResidentMainPage = () => {
             {/* Community News Feed with Clickable Containers */}
             <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
               <h4>Community News Feed</h4>
-              {samplePosts.map((post, index) => (
-                <Link to={post.link} key={index} className="text-decoration-none text-dark">
-                  <div className="card mb-3" style={{ borderRadius: '10px', padding: '15px', cursor: 'pointer' }}>
-                    <div className="card-body">
-                      <h5 className="card-title">{post.author}</h5>
-                      <p className="card-text">{post.content}</p>
-                      {post.image && <img src={post.image} alt="Post" className="img-fluid rounded mb-2" />}
-                    </div>
-                  </div>
-                </Link>
-              ))}
+              <p>Discover the latest updates, posts, and discussions happening in your community. Share your thoughts, comment, and engage with your neighbors.</p>
               <div className="d-flex justify-content-end">
                 <Link to="/posts" className="btn btn-primary">View More</Link>
               </div>
