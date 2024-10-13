@@ -8,6 +8,12 @@ import SGLogo from '../../assets/SGLogo.avif'; // Import the Singapore logo
 import { useLocation } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 
+// Fetch user roles from sessionStorage
+const userRoles = sessionStorage.getItem("roles") || "";
+const isOrganiser = userRoles.includes("ROLE_ORGANISER");
+const isResident = userRoles.includes("ROLE_USER");
+const isAdmin = userRoles.includes("ROLE_ADMIN");
+
 const ResidentMainPage = () => {
   const location = useLocation();
 
@@ -57,30 +63,75 @@ const ResidentMainPage = () => {
             <h2>Community Dashboard</h2>
             <p>Welcome to NeighbourlySG! Here’s what’s happening in your community:</p>
 
-            <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
-              <h4>Active Surveys</h4>
-              <p>Participate in ongoing community surveys to share your thoughts.</p>
-              <div className="d-flex justify-content-end">
-                <Link to="/surveys" className="btn btn-primary">View More</Link> {/* Redirects to /surveys */}
+            {/* Admin sees Manage User */}
+            {isAdmin && (
+              <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
+                <h4>Manage User</h4>
+                <p>Oversee and manage user profiles and account settings within the community platform.</p>
+                <div className="d-flex justify-content-end">
+                  <Link to="/manageusers" className="btn btn-primary">View More</Link>
+                </div>
               </div>
-            </div>
+            )}
 
-            <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
-              <h4>Upcoming Events</h4>
-              <p>Stay updated on future community gatherings and activities. RSVP to join and participate in your local events.</p>
-              <div className="d-flex justify-content-end">
-                <Link to="/events" className="btn btn-primary">View More</Link>
-              </div>
-            </div>
+            {/* Resident sees Surveys, Events, Community Posts, Profile */}
+            {isResident && (
+              <>
+                <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
+                  <h4>Active Surveys</h4>
+                  <p>Participate in ongoing community surveys to share your thoughts.</p>
+                  <div className="d-flex justify-content-end">
+                    <Link to="/surveys" className="btn btn-primary">View More</Link>
+                  </div>
+                </div>
 
-            {/* Community News Feed with Clickable Containers */}
-            <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
-              <h4>Community News Feed</h4>
-              <p>Discover the latest updates, posts, and discussions happening in your community. Share your thoughts, comment, and engage with your neighbors.</p>
-              <div className="d-flex justify-content-end">
-                <Link to="/posts" className="btn btn-primary">View More</Link>
-              </div>
-            </div>
+                <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
+                  <h4>Upcoming Events</h4>
+                  <p>Stay updated on future community gatherings and activities. RSVP to join and participate in your local events.</p>
+                  <div className="d-flex justify-content-end">
+                    <Link to="/events" className="btn btn-primary">View More</Link>
+                  </div>
+                </div>
+
+                <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
+                  <h4>Community Posts</h4>
+                  <p>Discover the latest updates, posts, and discussions happening in your community. Share your thoughts, comment, and engage with your neighbors.</p>
+                  <div className="d-flex justify-content-end">
+                    <Link to="/posts" className="btn btn-primary">View More</Link>
+                  </div>
+                </div>
+
+                <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
+                  <h4>Profile</h4>
+                  <p>Manage your profile and account settings. Keep your details up to date.</p>
+                  <div className="d-flex justify-content-end">
+                    <Link to="/profile" className="btn btn-primary">View More</Link>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Organiser sees Surveys and Events */}
+            {isOrganiser && !isAdmin && !isResident && (
+              <>
+                <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
+                  <h4>Active Surveys</h4>
+                  <p>Manage ongoing community surveys and view responses.</p>
+                  <div className="d-flex justify-content-end">
+                    <Link to="/surveys" className="btn btn-primary">View More</Link>
+                  </div>
+                </div>
+
+                <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
+                  <h4>Upcoming Events</h4>
+                  <p>Plan and manage community events. Keep your community updated.</p>
+                  <div className="d-flex justify-content-end">
+                    <Link to="/events" className="btn btn-primary">View More</Link>
+                  </div>
+                </div>
+              </>
+            )}
+
           </div>
         </div>
       </div>
