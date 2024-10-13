@@ -112,7 +112,7 @@ const ResidentMainPage = () => {
             )}
 
             {/* Organiser sees Surveys and Events */}
-            {isOrganiser && !isAdmin && !isResident && (
+            {isOrganiser && (
               <>
                 <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
                   <h4>Active Surveys</h4>

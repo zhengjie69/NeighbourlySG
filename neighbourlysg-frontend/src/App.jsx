@@ -16,14 +16,16 @@ import ManageUsers from './auth/Admin/ManageUsers';
 
 
 const Layout = ({ children }) => {
+  const location = useLocation();
+  const isLoginPage = location.pathname === '/ResidentLogin'; // Check if the current route is login page
+  
   return (
     <div>
-      <Navbar /> {/* Always render Navbar on all pages */}
+      {!isLoginPage && <Navbar />} {/* Render Navbar unless on the login page */}
       {children}
     </div>
   );
 };
-
 
 const App = () => {
     // const roles = JSON.parse(sessionStorage.getItem('roles')) || [];
