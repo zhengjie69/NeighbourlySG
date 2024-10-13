@@ -1,10 +1,11 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import SGLogo from '../assets/SGLogo.avif';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Navbar = () => {
     const navigate = useNavigate();
+    const location = useLocation(); // Get current route
 
     // Fetch user roles from sessionStorage
     const userRoles = sessionStorage.getItem("roles") || "";
@@ -56,6 +57,11 @@ const Navbar = () => {
         }
         return null; // If no role is matched, don't render any links
     };
+
+    // Don't render the Navbar on specific routes like /register
+    if (location.pathname === '/register') {
+        return null;
+    }
 
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-light" style={{ zIndex: 2, padding: '10px 20px', width: '100%' }}>
