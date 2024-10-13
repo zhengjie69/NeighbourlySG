@@ -5,7 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Navbar = () => {
     const navigate = useNavigate();
-    const location = useLocation(); // Get current route
+    const location = useLocation(); // Get the current route
 
     // Fetch user roles from sessionStorage
     const userRoles = sessionStorage.getItem("roles") || "";
@@ -58,29 +58,37 @@ const Navbar = () => {
         return null; // If no role is matched, don't render any links
     };
 
-    // Don't render the Navbar on specific routes like /register
-    if (location.pathname === '/register') {
-        return null;
-    }
-
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-light" style={{ zIndex: 2, padding: '10px 20px', width: '100%' }}>
             <div className="container-fluid">
-                <Link className="navbar-brand" to="/ResidentMainPage">
-                    <img src={SGLogo} alt="SG Logo" style={{ marginRight: '10px', width: '50px', height: '35px' }} />
-                    NeighbourlySG
-                </Link>
+                {/* Conditionally render the logo and link */}
+                {location.pathname !== '/register' ? (
+                    <Link className="navbar-brand" to="/ResidentMainPage">
+                        <img src={SGLogo} alt="SG Logo" style={{ marginRight: '10px', width: '50px', height: '35px' }} />
+                        NeighbourlySG
+                    </Link>
+                ) : (
+                    <div className="navbar-brand">
+                        <img src={SGLogo} alt="SG Logo" style={{ marginRight: '10px', width: '50px', height: '35px' }} />
+                        NeighbourlySG
+                    </div>
+                )}
+
                 <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
                     <span className="navbar-toggler-icon"></span>
                 </button>
+
                 <div className="collapse navbar-collapse" id="navbarNavDropdown">
                     <ul className="navbar-nav me-auto mb-2 mb-lg-0">
                         {renderNavLinks()}
                     </ul>
 
-                    <button className="btn btn-outline-danger ms-2" onClick={handleLogout}>
-                        Logout
-                    </button>
+                    {/* Conditionally render the Logout button */}
+                    {location.pathname !== '/register' && (
+                        <button className="btn btn-outline-danger ms-2" onClick={handleLogout}>
+                            Logout
+                        </button>
+                    )}
                 </div>
             </div>
         </nav>
