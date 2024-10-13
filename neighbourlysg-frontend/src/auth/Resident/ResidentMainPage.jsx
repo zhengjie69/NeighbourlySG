@@ -1,5 +1,3 @@
-// ResidentMainPage.jsx
-// eslint-disable-next-line no-unused-vars
 import React, { useState, useEffect } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link } from 'react-router-dom';
@@ -8,15 +6,23 @@ import SGLogo from '../../assets/SGLogo.avif'; // Import the Singapore logo
 import { useLocation } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 
-// Fetch user roles from sessionStorage
-const userRoles = sessionStorage.getItem("roles") || "";
-const isOrganiser = userRoles.includes("ROLE_ORGANISER");
-const isResident = userRoles.includes("ROLE_USER");
-const isAdmin = userRoles.includes("ROLE_ADMIN");
-
 const ResidentMainPage = () => {
   const location = useLocation();
+  const [userRoles, setUserRoles] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isOrganiser, setIsOrganiser] = useState(false);
+  const [isResident, setIsResident] = useState(false);
 
+  // Use useEffect to fetch roles after component mounts
+  useEffect(() => {
+    const roles = sessionStorage.getItem("roles") || "";
+    setUserRoles(roles);
+    setIsAdmin(roles.includes("ROLE_ADMIN"));
+    setIsOrganiser(roles.includes("ROLE_ORGANISER"));
+    setIsResident(roles.includes("ROLE_USER"));
+  }, []);
+
+  // Show toast message if available in the location state
   useEffect(() => {
     if (location.state?.message) {
       toast.success(location.state.message);
@@ -35,7 +41,6 @@ const ResidentMainPage = () => {
         flexDirection: 'column'
       }}
     >
-
       <ToastContainer/>
       {/* Overlay for better text visibility */}
       <div 
@@ -131,7 +136,6 @@ const ResidentMainPage = () => {
                 </div>
               </>
             )}
-
           </div>
         </div>
       </div>
