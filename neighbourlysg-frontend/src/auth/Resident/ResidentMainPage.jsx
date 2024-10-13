@@ -1,3 +1,4 @@
+// ResidentMainPage.jsx
 // eslint-disable-next-line no-unused-vars
 import React, { useState, useEffect } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -74,7 +75,7 @@ const ResidentMainPage = () => {
             )}
 
             {/* Resident sees Surveys, Events, Community Posts, Profile */}
-            {isResident && !isAdmin && !isOrganiser && (
+            {isResident && (
               <>
                 <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
                   <h4>Active Surveys</h4>
