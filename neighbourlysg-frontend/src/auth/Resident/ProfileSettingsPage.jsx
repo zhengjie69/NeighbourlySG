@@ -58,22 +58,34 @@ function ProfileSettingsPage() {
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
 
-    if (!name) errors.name = "Name is required";
-    if (!email) {
-      errors.email = "Email is required";
-    } else if (!emailRegex.test(email)) {
+    // Name is optional, validate only if provided
+    if (name && name.trim() === "") {
+      errors.name = "Name cannot be empty";
+    }
+
+    // Email is optional, validate only if provided
+    if (email && !emailRegex.test(email)) {
       errors.email = "Please enter a valid email address";
     }
-    if (oldPassword && !newPassword) {
-      errors.newPassword = "New password is required if changing password";
-    } else if (newPassword && !passwordRegex.test(newPassword)) {
-      errors.newPassword =
-        "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character";
+
+    // Password fields are only required if oldPassword is provided
+    if (oldPassword) {
+      if (!newPassword) {
+        errors.newPassword = "New password is required if changing password";
+      } else if (!passwordRegex.test(newPassword)) {
+        errors.newPassword =
+          "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character";
+      }
+
+      if (newPassword !== confirmPassword) {
+        errors.confirmPassword = "Passwords do not match";
+      }
     }
-    if (newPassword !== confirmPassword) {
-      errors.confirmPassword = "Passwords do not match";
+
+    // Constituency is optional, validate only if provided
+    if (constituency && !grcSmcOptions.includes(constituency)) {
+      errors.constituency = "Please select a valid constituency";
     }
-    if (!constituency) errors.constituency = "Please select your constituency";
 
     return errors;
   };
@@ -81,28 +93,35 @@ function ProfileSettingsPage() {
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
     const validationErrors = validateForm();
+
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       setSuccessMessage("");
-    } else {
-      setErrors({});
-      try {
-        const response = await axios.put(
-          `http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/ProfileService/updateProfile/${userId}`,
-          {
-            name,
-            email,
-            password: newPassword,
-            constituency,
-          }
-        );
-        setSuccessMessage("Profile updated successfully!");
-        setTimeout(() => {
-          navigate("/main"); // Redirect to the main page after 2 seconds
-        }, 2000);
-      } catch (error) {
-        setErrors({ api: "Failed to update profile. Please try again later." });
-      }
+      return;
+    }
+
+    setErrors({}); // Clear previous errors
+
+    try {
+      // Prepare the data for the profile update
+      const updatedData = {};
+      if (name) updatedData.name = name;
+      if (email) updatedData.email = email;
+      if (newPassword) updatedData.password = newPassword;
+      if (constituency) updatedData.constituency = constituency;
+
+      // Only update the fields that are provided
+      const response = await axios.put(
+        `http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/ProfileService/updateProfile/${userId}`,
+        updatedData
+      );
+
+      setSuccessMessage("Profile updated successfully!");
+      setTimeout(() => {
+        navigate("/ResidentMainPage"); // Redirect to the main page after 2 seconds
+      }, 2000);
+    } catch (error) {
+      setErrors({ api: "Failed to update profile. Please try again later." });
     }
   };
 
