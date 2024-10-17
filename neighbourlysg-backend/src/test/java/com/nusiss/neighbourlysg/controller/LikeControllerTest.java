@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -129,14 +130,14 @@ class LikeControllerTest {
         profileDto1.setName("User 1");
         profileDto1.setEmail("user1@example.com");
         profileDto1.setConstituency("Constituency 1");
-        profileDto1.setRoles(List.of(1, 2));
+        profileDto1.setRoles(Set.of("1, 2"));
 
         ProfileDto profileDto2 = new ProfileDto();
         profileDto2.setId(2L);
         profileDto2.setName("User 2");
         profileDto2.setEmail("user2@example.com");
         profileDto2.setConstituency("Constituency 2");
-        profileDto2.setRoles(List.of(1));
+        profileDto2.setRoles(Set.of("1"));
 
         List<ProfileDto> profilesWhoLiked = List.of(profileDto1, profileDto2);
 
