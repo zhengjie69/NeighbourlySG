@@ -73,7 +73,7 @@ function ProfileSettingsPage() {
     } else {
       setErrors({});
       try {
-        const response = await axios.put(`http://localhost:5000/api/ProfileService/updateProfile/${userId}`, {
+        const response = await axios.put(`http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/ProfileService/updateProfile/${userId}`, {
           name,
           email,
           password: newPassword,
