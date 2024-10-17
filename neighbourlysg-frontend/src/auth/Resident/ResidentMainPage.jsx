@@ -17,9 +17,9 @@ const ResidentMainPage = () => {
   useEffect(() => {
     const roles = sessionStorage.getItem("roles") || "";
     setUserRoles(roles);
-    setIsAdmin(roles.includes("ROLE_ADMIN"));
-    setIsOrganiser(roles.includes("ROLE_ORGANISER"));
-    setIsResident(roles.includes("ROLE_USER"));
+    setIsAdmin(roles.includes("3"));       // Assuming "3" is the Admin role ID
+    setIsOrganiser(roles.includes("2"));   // Assuming "2" is the Organiser role ID
+    setIsResident(roles.includes("1"));    // Assuming "1" is the Resident role ID
   }, []);
 
   // Show toast message if available in the location state
