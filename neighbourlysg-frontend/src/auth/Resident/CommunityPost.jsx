@@ -90,11 +90,13 @@ function CommunityPost() {
 
   // Like
   const handleLikePost = async (postId) => {  
+     console.log("Like button clicked for post:", postId); 
     try {
       // get list of people who liked the post 
-      const response = await axios.get(`http://localhost:8080/api/LikeService/${postId}/likes/profiles`); 
+      const response = await axios.get(`http://localhost:5000/api/LikeService/${postId}/likes/profiles`); 
       const likedByProfiles = response.data.map(profile => profile.id);
       const hasLiked = likedByProfiles.includes(Number(userId));
+      console.log("User has liked this post:", hasLiked);
   
       if (!hasLiked) {
         const likePost = {
@@ -104,14 +106,14 @@ function CommunityPost() {
           likedAt: new Date().toISOString()
         };
   
-        await axios.post(`http://localhost:8080/api/LikeService/${userId}/posts/${postId}`, likePost);
+        await axios.post(`http://localhost:5000/api/LikeService/${userId}/posts/${postId}`, likePost);
   
         const updatedPosts = posts.map((post) =>
           post.id === postId ? { ...post, likeCount: post.likeCount + 1, likedBy: [...(post.likedBy || []), Number(userId)] } : post
         );
         setPosts(updatedPosts);
       } else {
-        await axios.delete(`http://localhost:8080/api/LikeService/${userId}/posts/${postId}`);
+        await axios.delete(`http://localhost:5000/api/LikeService/${userId}/posts/${postId}`);
   
         const updatedPosts = posts.map((post) =>
           post.id === postId

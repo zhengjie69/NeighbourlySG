@@ -1,6 +1,7 @@
 package com.nusiss.neighbourlysg.dto;
 
 import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,9 +17,10 @@ public class ProfileDto {
 	private String username;
     private String name;
     private String email;
-    private String password;
     private String constituency;
 	private Set<String> roles;
+	@JsonIgnore
+	private String password;
 
 	public Long getId() {
 		return id;
