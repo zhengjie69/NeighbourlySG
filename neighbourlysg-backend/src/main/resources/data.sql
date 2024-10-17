@@ -1,4 +1,4 @@
 -- src/main/resources/data.sql
-INSERT INTO role (id, name) VALUES (1, 'USER');
-INSERT INTO role (id, name) VALUES (2, 'ORGANISER');
-INSERT INTO role (id, name) VALUES (3, 'ADMIN');
+INSERT INTO role(name) VALUES('ROLE_USER');
+INSERT INTO role(name) VALUES('ROLE_ORGANISER');
+INSERT INTO role(name) VALUES('ROLE_ADMIN');

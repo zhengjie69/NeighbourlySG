@@ -36,7 +36,7 @@ function CommunityPost() {
     // fetch all posts
     const fetchPosts = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/PostService/`);
+        const response = await axios.get(`http://localhost:5000/api/PostService/`);
         if (response.status === 200) {
           setPosts(response.data);
         }
@@ -48,10 +48,10 @@ function CommunityPost() {
     const fetchProfile = async () => {
       try {
         // Fetch the user's profile details to get name
-        const response = await axios.get(`http://localhost:8080/api/ProfileService/profile/${userId}`);
-  
+        const response = await axios.get(`http://localhost:5000/api/ProfileService/profile/${userId}`);
+
         if (response.status === 200) {
-          const name = response.data.name; 
+          const name = response.data.name;
           sessionStorage.setItem("name", name);
         }
       } catch (error) {
@@ -59,30 +59,30 @@ function CommunityPost() {
       }
     };
 
-    fetchPosts(); 
-    fetchProfile(); 
-  }, []);   
+    fetchPosts();
+    fetchProfile();
+  }, []);
 
   const handleCreatePost = async () => {
     try {
-        // Create a new post
-        const newPost = {
-          content: newPostContent,
-          creationDate: new Date().toISOString(), // Use the current date
-          profileId: userId,
-          likeCount: 0,
-          comments: [],
-          tags: selectedTags,
-          profileName: sessionStorage.getItem('name')
-        };
+      // Create a new post
+      const newPost = {
+        content: newPostContent,
+        creationDate: new Date().toISOString(), // Use the current date
+        profileId: userId,
+        likeCount: 0,
+        comments: [],
+        tags: selectedTags,
+        profileName: sessionStorage.getItem('name')
+      };
 
-        const res = await axios.post(`http://localhost:8080/api/PostService/${userId}`, newPost);
-        if (res.status === 200 || res.status === 201) {
-          setPosts([newPost, ...posts]);
-          resetForm(); // Reset the form fields after posting
-          toast.success("Your status have been posted successfully!");
-        }
-      
+      const res = await axios.post(`http://localhost:5000/api/PostService/${userId}`, newPost);
+      if (res.status === 200 || res.status === 201) {
+        setPosts([newPost, ...posts]);
+        resetForm(); // Reset the form fields after posting
+        toast.success("Your status have been posted successfully!");
+      }
+
     } catch (error) {
       console.error("Error fetching profile or creating post:", error);
     }
@@ -179,57 +179,57 @@ function CommunityPost() {
       }}
     >
 
-    <ToastContainer />
+      <ToastContainer />
 
-    <div className="container mt-5 flex-grow-1">
-    <div className="mb-4" style={{ width: "100%" }}>
-      <h2
-        className="text-dark bg-white bg-opacity-75 p-2 rounded text-center"
-        style={{ display: "inline-block", width: "100%" }}
-      >
-        Community News Feed
-      </h2>
-    </div>
-
-    <div className="card mb-4" style={{ maxWidth: "100%", margin: "0 auto" }}>
-      <div className="card-body">
-        <Form.Group>
-          <Form.Control
-            as="textarea"
-            rows={2}
-            placeholder={`What's on your mind, ${sessionStorage.getItem('name')}?`}
-            value={newPostContent}
-            onChange={(e) => setNewPostContent(e.target.value)}
-          />
-        </Form.Group>
-
-        <div className="mt-2" />
-
-        <div className="row">
-          <div className="col-sm-10">
-          <Form.Group>
-            <Select
-              closeMenuOnSelect={false}
-              components={animatedComponents}
-              isMulti
-              options={tags.map(tag => ({ value: tag, label: tag }))}
-              onChange={(selectedOptions) => setSelectedTags(selectedOptions.map(option => option.value))}
-            />
-          </Form.Group>
-          </div>
-
-          <div className="col d-flex justify-content-end col-sm-2">
-          <Button 
-            variant="primary" 
-            onClick={handleCreatePost} 
-            disabled={!newPostContent.trim()}
+      <div className="container mt-5 flex-grow-1">
+        <div className="mb-4" style={{ width: "100%" }}>
+          <h2
+            className="text-dark bg-white bg-opacity-75 p-2 rounded text-center"
+            style={{ display: "inline-block", width: "100%" }}
           >
-            Post
-          </Button>
+            Community News Feed
+          </h2>
+        </div>
+
+        <div className="card mb-4" style={{ maxWidth: "100%", margin: "0 auto" }}>
+          <div className="card-body">
+            <Form.Group>
+              <Form.Control
+                as="textarea"
+                rows={2}
+                placeholder={`What's on your mind, ${sessionStorage.getItem('name')}?`}
+                value={newPostContent}
+                onChange={(e) => setNewPostContent(e.target.value)}
+              />
+            </Form.Group>
+
+            <div className="mt-2" />
+
+            <div className="row">
+              <div className="col-sm-10">
+                <Form.Group>
+                  <Select
+                    closeMenuOnSelect={false}
+                    components={animatedComponents}
+                    isMulti
+                    options={tags.map(tag => ({ value: tag, label: tag }))}
+                    onChange={(selectedOptions) => setSelectedTags(selectedOptions.map(option => option.value))}
+                  />
+                </Form.Group>
+              </div>
+
+              <div className="col d-flex justify-content-end col-sm-2">
+                <Button
+                  variant="primary"
+                  onClick={handleCreatePost}
+                  disabled={!newPostContent.trim()}
+                >
+                  Post
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
 
       <div className="row">
       {posts.map((post) => (

@@ -8,44 +8,25 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface ProfileMapper {
     ProfileMapper INSTANCE = Mappers.getMapper(ProfileMapper.class);
 
-    @Mapping(source = "roles", target = "roles", qualifiedByName = "rolesToRoleIds")
+    @Mapping(source = "roles", target = "roles", qualifiedByName = "mapRolesToStrRoles")
     ProfileDto toDto(Profile profile);
 
-    @Mapping(source = "roles", target = "roles", qualifiedByName = "roleIdsToRoles")
+    @Mapping(target = "roles", ignore = true)
     Profile toEntity(ProfileDto profileDto);
 
-    @Named("rolesToRoleIds")
-    default List<Integer> rolesToRoleIds(List<Role> roles) {
-        if (roles == null) {
-            // Default to a list with ID 1 if roles is null
-            return Collections.singletonList(1);
-        }
 
+    // Custom mapping for roles
+    @Named("mapRolesToStrRoles")
+    default Set<String> mapRolesToStrRoles(Set<Role> roles) {
         return roles.stream()
-                .map(Role::getId)
-                .toList();
+                .map(Role::getName) // Assuming Role has a getName() method
+                .collect(Collectors.toSet());
     }
-
-    @Named("roleIdsToRoles")
-    default List<Role> roleIdsToRoles(List<Integer> roleIds) {
-        if (roleIds == null) {
-            // Default to a list with the Role having ID 1 if roleIds is null
-            return Collections.singletonList(findRoleById(1));
-        }
-
-        return roleIds.stream()
-                .map(this::findRoleById)
-                .toList();
-    }
-
-    // Note: This method is not implemented in the interface.
-    // Implementation will be in ProfileMapperImpl
-    Role findRoleById(Integer id);
 }

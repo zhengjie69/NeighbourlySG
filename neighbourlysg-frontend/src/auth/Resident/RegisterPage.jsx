@@ -6,6 +6,7 @@ import axios from 'axios'; // Import axios
 import { Modal, Button } from 'react-bootstrap';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 import { Link } from 'react-router-dom';
+import { rsaEncrypt } from '../Utils/RSAUtil';
 
 function RegisterPage() {
   const [name, setName] = useState('');
@@ -62,35 +63,37 @@ function RegisterPage() {
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
-    } 
+    }
 
     try {
-      const response = await axios.post('http://localhost:8080/api/ProfileService/register', {
+      // Encrypt the password using the RSA utility
+      // const encryptedPassword = rsaEncrypt(password);
+      const response = await axios.post('http://localhost:5000/api/auth/register', {
         name: name,
         email: email,
-        password: password,
+        password: password,  // Send the encrypted password
         constituency: selectedConstituency,
       });
 
       // Handle success response
       // const { message, data } = response.data;
       //console.log("Registered Profile:", data); // Optionally use the profile data
-      
+
       setMessage("Register successfully!");
       setIsError(false); // Clear error state
       setErrors({});
 
     } catch (error) {
-      console.error('Registration error:', error); 
-      console.error('Registration error msg:', error.response.data.errorDetails); 
-      
+      console.error('Registration error:', error);
+      console.error('Registration error msg:', error.response.data.errorDetails);
+
       if (error.response && error.response.data && error.response.data.errorDetails) {
-          setMessage(error.response.data.errorDetails); // Display the backend error message
+        setMessage(error.response.data.errorDetails); // Display the backend error message
       } else {
-          setMessage('Registration failed, please try again.'); // Fallback message
+        setMessage('Registration failed, please try again.'); // Fallback message
       }
       setIsError(true); // Set error state
-  }
+    }
   };
 
   useEffect(() => {
@@ -105,11 +108,11 @@ function RegisterPage() {
   }, [showSuccessModal, navigate]);
 
   return (
-    <div 
-      className="d-flex justify-content-center align-items-center vh-100" 
-      style={{ 
-        backgroundImage: `url(${neighbourlySGbackground})`, 
-        backgroundSize: 'cover', 
+    <div
+      className="d-flex justify-content-center align-items-center vh-100"
+      style={{
+        backgroundImage: `url(${neighbourlySGbackground})`,
+        backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -126,60 +129,60 @@ function RegisterPage() {
         <form onSubmit={handleRegister}>
           <div className="mb-3">
             <label htmlFor="name" className="form-label" style={{ fontSize: '1rem', color: '#495057' }}>Name</label>
-            <input 
-              type="text" 
-              className={`form-control ${errors.name && 'is-invalid'}`} 
-              id="name" 
-              placeholder="Enter your name" 
+            <input
+              type="text"
+              className={`form-control ${errors.name && 'is-invalid'}`}
+              id="name"
+              placeholder="Enter your name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              style={{ height: '45px', fontSize: '1rem', borderRadius: '10px' }} 
+              style={{ height: '45px', fontSize: '1rem', borderRadius: '10px' }}
             />
             {errors.name && <div className="invalid-feedback">{errors.name}</div>}
           </div>
           <div className="mb-3">
             <label htmlFor="email" className="form-label" style={{ fontSize: '1rem', color: '#495057' }}>Email Address</label>
-            <input 
-              type="email" 
-              className={`form-control ${errors.email && 'is-invalid'}`} 
-              id="email" 
-              placeholder="Enter your email" 
+            <input
+              type="email"
+              className={`form-control ${errors.email && 'is-invalid'}`}
+              id="email"
+              placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              style={{ height: '45px', fontSize: '1rem', borderRadius: '10px' }} 
+              style={{ height: '45px', fontSize: '1rem', borderRadius: '10px' }}
             />
             {errors.email && <div className="invalid-feedback">{errors.email}</div>}
           </div>
           <div className="mb-3">
             <label htmlFor="password" className="form-label" style={{ fontSize: '1rem', color: '#495057' }}>Password</label>
-            <input 
-              type="password" 
-              className={`form-control ${errors.password && 'is-invalid'}`} 
-              id="password" 
-              placeholder="Enter your password" 
+            <input
+              type="password"
+              className={`form-control ${errors.password && 'is-invalid'}`}
+              id="password"
+              placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{ height: '45px', fontSize: '1rem', borderRadius: '10px' }} 
+              style={{ height: '45px', fontSize: '1rem', borderRadius: '10px' }}
             />
             {errors.password && <div className="invalid-feedback">{errors.password}</div>}
           </div>
           <div className="mb-4">
             <label htmlFor="confirmPassword" className="form-label" style={{ fontSize: '1rem', color: '#495057' }}>Confirm Password</label>
-            <input 
-              type="password" 
-              className={`form-control ${errors.confirmPassword && 'is-invalid'}`} 
-              id="confirmPassword" 
-              placeholder="Confirm your password" 
+            <input
+              type="password"
+              className={`form-control ${errors.confirmPassword && 'is-invalid'}`}
+              id="confirmPassword"
+              placeholder="Confirm your password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              style={{ height: '45px', fontSize: '1rem', borderRadius: '10px' }} 
+              style={{ height: '45px', fontSize: '1rem', borderRadius: '10px' }}
             />
             {errors.confirmPassword && <div className="invalid-feedback">{errors.confirmPassword}</div>}
           </div>
           <div className="mb-4">
             <label htmlFor="constituency" className="form-label" style={{ fontSize: '1rem', color: '#495057' }}>Select Your Constituency</label>
-            <select 
-              id="constituency" 
+            <select
+              id="constituency"
               className={`form-select ${errors.selectedConstituency && 'is-invalid'}`}
               value={selectedConstituency}
               onChange={(e) => setSelectedConstituency(e.target.value)}
@@ -197,9 +200,9 @@ function RegisterPage() {
           </button>
         </form>
         {message && (
-                    <div className={`alert ${isError ? 'alert-danger' : 'alert-success'} mt-4`} role="alert">
-                        {message}
-                    </div>
+          <div className={`alert ${isError ? 'alert-danger' : 'alert-success'} mt-4`} role="alert">
+            {message}
+          </div>
         )}
         <div className="mt-4 text-center">
           <Link to="/ResidentLogin" className="text-primary" style={{ fontSize: '0.9rem', textDecoration: 'none', transition: 'color 0.3s ease' }}>

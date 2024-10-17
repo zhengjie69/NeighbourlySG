@@ -4,6 +4,7 @@ import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 import { Link } from 'react-router-dom';
 import axios from 'axios'; // Import axios for making HTTP requests
 import { useNavigate } from 'react-router-dom';
+import { rsaEncrypt } from '../Utils/RSAUtil';
 
 function ResidentLogin() {
   const [email, setEmail] = useState('');
@@ -17,12 +18,19 @@ function ResidentLogin() {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:8080/login', { email, password });
+      // // Encrypt the password using the RSA utility
+      // const encryptedPassword = rsaEncrypt(password);
+      const response = await axios.post('http://localhost:5000/api/auth/login', {
+        email: email,
+        password: password,  // Send the encrypted password
+      });
 
       if (response.status === 200) {
         sessionStorage.setItem('userId', response.data.id);
         sessionStorage.setItem('roles', response.data.roles);
         sessionStorage.setItem('constituency', response.data.constituency);
+        sessionStorage.setItem('accessToken', response.data.accessToken);
+        sessionStorage.setItem('auth-user', JSON.stringify(response.data));
         navigate('/ResidentMainPage', { state: { message: "welcome back!" } });
       }
     } catch (error) {
