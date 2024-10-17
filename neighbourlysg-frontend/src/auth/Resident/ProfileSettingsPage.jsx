@@ -19,7 +19,6 @@ const grcSmcOptions = [
 ];
 
 function ProfileSettingsPage() {
-  const [key, setKey] = useState('profile');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [oldPassword, setOldPassword] = useState('');
@@ -29,14 +28,14 @@ function ProfileSettingsPage() {
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [deleteConfirm, setDeleteConfirm] = useState('');  // Changed to deleteConfirm
+  const [deleteConfirm, setDeleteConfirm] = useState('');
   const userId = sessionStorage.getItem('userId');
   const navigate = useNavigate();
 
   const validateForm = () => {
     const errors = {};
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
 
     if (!name) errors.name = 'Name is required';
     if (!email) {
@@ -44,22 +43,15 @@ function ProfileSettingsPage() {
     } else if (!emailRegex.test(email)) {
       errors.email = 'Please enter a valid email address';
     }
-    if (key === 'password') {
-      if (!oldPassword) {
-        errors.oldPassword = 'Old password is required';
-      } else if (oldPassword !== "user's stored old password") { // Example comparison
-        errors.oldPassword = 'Old password is incorrect';
-      }
-      if (!newPassword) {
-        errors.newPassword = 'New password is required';
-      } else if (!passwordRegex.test(newPassword)) {
-        errors.newPassword = 'Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character';
-      }
-      if (newPassword !== confirmPassword) {
-        errors.confirmPassword = 'Passwords do not match';
-      }
+    if (oldPassword && !newPassword) {
+      errors.newPassword = 'New password is required if changing password';
+    } else if (newPassword && !passwordRegex.test(newPassword)) {
+      errors.newPassword = 'Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character';
     }
-    if (key === 'constituency' && !constituency) errors.constituency = 'Constituency is required';
+    if (newPassword !== confirmPassword) {
+      errors.confirmPassword = 'Passwords do not match';
+    }
+    if (!constituency) errors.constituency = 'Please select your constituency';
 
     return errors;
   };
@@ -89,7 +81,7 @@ function ProfileSettingsPage() {
   const handleDeleteAccount = async () => {
     if (deleteConfirm === 'delete account') {
       try {
-        const response = await axios.delete(`http://localhost:5000/api/ProfileService/profile/${userId}`);
+        const response = await axios.delete(`http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/ProfileService/profile/${userId}`);
         if (response.status === 200) {
           alert('Your account has been deleted.');
           setShowModal(false);
