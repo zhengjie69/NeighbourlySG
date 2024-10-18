@@ -58,6 +58,8 @@ function ResidentEventPage() {
   const userRoles = sessionStorage.getItem("roles") || "";
   const isResident = userRoles.includes("1"); // Assuming 1 is Resident role ID
   const isOrganiser = userRoles.includes("2");
+  const isAdmin = userRoles.includes("3"); // Assuming 3 is Admin role ID
+  const isOrganiserOrAdmin = isOrganiser || isAdmin; // Combine organizer and admin access
   const profileId = sessionStorage.getItem("userId");
   const constituency = sessionStorage.getItem("constituency");
 
@@ -275,7 +277,7 @@ function ResidentEventPage() {
         <h2 className="mb-4 text-white">Community Events</h2>
 
         {/* Conditionally render Create Event Button only for organizer accounts */}
-        {isOrganiser && (
+        {isOrganiserOrAdmin && (
           <div className="mb-4">
             <button
               className="btn btn-primary"
@@ -315,7 +317,7 @@ function ResidentEventPage() {
                       <strong>RSVP Count:</strong> {event.rsvpCount}
                     </p>
                     {/* Render Edit/Delete buttons for Organisers */}
-                    {isOrganiser && (
+                    {isOrganiserOrAdmin  && (
                       <div className="d-flex justify-content-between mt-3">
                         <Button
                           variant="primary"
