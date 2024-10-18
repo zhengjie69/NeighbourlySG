@@ -1,10 +1,8 @@
 package com.nusiss.neighbourlysg.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import com.nusiss.neighbourlysg.NeighbourlysgBackendApplication;
 import com.nusiss.neighbourlysg.dto.LikeDto;
+import com.nusiss.neighbourlysg.dto.ProfileDto;
 import com.nusiss.neighbourlysg.entity.Like;
 import com.nusiss.neighbourlysg.entity.Post;
 import com.nusiss.neighbourlysg.entity.Profile;
@@ -21,7 +19,12 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest(classes = NeighbourlysgBackendApplication.class)
 class LikeServiceImplTest {
@@ -170,5 +173,58 @@ class LikeServiceImplTest {
         assertTrue(isLiked);
 
         verify(likeRepository).findByProfileIdAndPostId(profileId, postId);
+    }
+
+     @Test
+    void testGetProfilesWhoLikedPost() {
+        Long postId = 1L;
+
+        // Create sample data
+        Profile profile1 = new Profile();
+        profile1.setId(1L);
+        profile1.setName("User 1");
+        profile1.setEmail("user1@example.com");
+        profile1.setConstituency("Constituency 1");
+
+        Profile profile2 = new Profile();
+        profile2.setId(2L);
+        profile2.setName("User 2");
+        profile2.setEmail("user2@example.com");
+        profile2.setConstituency("Constituency 2");
+
+        Like like1 = new Like();
+        like1.setProfile(profile1);
+        like1.setPost(new Post()); // Assuming Post has a default constructor
+
+        Like like2 = new Like();
+        like2.setProfile(profile2);
+        like2.setPost(new Post()); // Assuming Post has a default constructor
+
+        List<Like> likes = List.of(like1, like2);
+
+        // Mock repository behavior
+        when(likeRepository.findByPostId(postId)).thenReturn(likes);
+
+        // Call the method under test
+        List<ProfileDto> result = likeService.getProfilesWhoLikedPost(postId);
+
+        // Assertions
+        assertNotNull(result);
+        assertEquals(2, result.size());
+
+        ProfileDto dto1 = result.get(0);
+        assertEquals(profile1.getId(), dto1.getId());
+        assertEquals(profile1.getName(), dto1.getName());
+        assertEquals(profile1.getEmail(), dto1.getEmail());
+        assertEquals(profile1.getConstituency(), dto1.getConstituency());
+
+        ProfileDto dto2 = result.get(1);
+        assertEquals(profile2.getId(), dto2.getId());
+        assertEquals(profile2.getName(), dto2.getName());
+        assertEquals(profile2.getEmail(), dto2.getEmail());
+        assertEquals(profile2.getConstituency(), dto2.getConstituency());
+
+        // Verify interactions
+        verify(likeRepository).findByPostId(postId);
     }
 }

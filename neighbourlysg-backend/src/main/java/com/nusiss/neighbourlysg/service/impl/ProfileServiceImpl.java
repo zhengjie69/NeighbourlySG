@@ -14,6 +14,7 @@ import com.nusiss.neighbourlysg.service.ProfileService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -113,15 +114,14 @@ public class ProfileServiceImpl implements ProfileService {
                 .orElseThrow(() -> new ProfileNotFoundException(ErrorMessagesConstants.PROFILE_NOT_FOUND + id));
 
         // Update fields only if they are present in the DTO
-        if (profileDto.getName() != null && !Objects.equals(profileDto.getName(), existingProfile.getName())) {
+        if (StringUtils.hasText(profileDto.getName()) && !Objects.equals(profileDto.getName(), existingProfile.getName())) {
             existingProfile.setName(profileDto.getName());
         }
-        if (profileDto.getEmail() != null && !Objects.equals(profileDto.getEmail(), existingProfile.getEmail())) {
+        if (StringUtils.hasText(profileDto.getEmail()) && !Objects.equals(profileDto.getEmail(), existingProfile.getEmail())) {
             existingProfile.setEmail(profileDto.getEmail());
             existingProfile.setUsername(profileDto.getEmail());
         }
-        if (profileDto.getConstituency() != null
-                && !Objects.equals(profileDto.getConstituency(), existingProfile.getConstituency())) {
+        if (StringUtils.hasText(profileDto.getConstituency()) && !Objects.equals(profileDto.getConstituency(), existingProfile.getConstituency())) {
             existingProfile.setConstituency(profileDto.getConstituency());
         }
         if (profileDto.getPassword() != null && !profileDto.getPassword().isEmpty()) {
