@@ -7,7 +7,9 @@ import { Modal, Button, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 import SGLogo from '../../assets/SGLogo.avif';
-import { Client } from "@stomp/stompjs";
+import { Stomp } from '@stomp/stompjs'; // Import Stomp
+import SockJS from 'sockjs-client';
+
 
 const grcSmcOptions = [
   'All Locations', 'Aljunied GRC', 'Ang Mo Kio GRC', 'Bishan-Toa Payoh GRC', 'Chua Chu Kang GRC',
@@ -110,30 +112,31 @@ function ResidentEventPage() {
     fetchUpcomingEvents();
     fetchPastEvents();
 
-    const stompClient = new Client({
-      brokerURL: "http://localhost:5000/ws",
-      onConnect: () => {
-        console.log("Connected to STOMP broker");
+    const socket = new SockJS('http://localhost:5000/ws'); // Ensure this URL is correct
+    const client = Stomp.over(socket);
 
-        // Subscribe to messages
-        stompClient.subscribe("/topic/messages", (message) => {
-          setMessages((prevMessages) => [...prevMessages, message.body]);
+    client.connect({}, (frame) => {
+        console.log('Connected: ' + frame);
+
+        // Subscribe to a topic
+        client.subscribe('/topic/events', (message) => {
+            if (message.body) {
+              setMessages((prevMessages) => [...prevMessages, message.body]);
+              console.log("Message received: ", message.body);
+            }
         });
-      },
-      onWebSocketError: (event) => {
-        console.error("WebSocket Error: ", event);
-      },
+    }, (error) => {
+        console.error('Connection error:', error); // Handle connection errors here
     });
 
-    stompClient.activate();
-    setClient(stompClient);
-
-    // Clean up on component unmount
+    // Clean up the connection on unmount
     return () => {
-      stompClient.deactivate();
-      console.log("Disconnected from STOMP broker");
+        if (client) {
+            client.disconnect();
+            console.log("Disconnected from STOMP broker");
+        }
     };
-  }, []);
+}, []);
 
   const sendMessage = () => {
     if (client && client.connected) {
