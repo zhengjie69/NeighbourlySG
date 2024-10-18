@@ -7,6 +7,7 @@ import { Modal, Button, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 import SGLogo from '../../assets/SGLogo.avif';
+import { Client } from "@stomp/stompjs";
 
 const grcSmcOptions = [
   'All Locations', 'Aljunied GRC', 'Ang Mo Kio GRC', 'Bishan-Toa Payoh GRC', 'Chua Chu Kang GRC',
@@ -33,6 +34,8 @@ function ResidentEventPage() {
   const [successMessage, setSuccessMessage] = useState(null); // For success messages
   const [upcomingEventSearchLocation, setUpcomingEventSearchLocation] = useState('');
   const [pastEventSearchLocation, setPastEventSearchLocation] = useState('');
+  const [client, setClient] = useState(null);
+  const [messages, setMessages] = useState([]);
 
   const profileId = sessionStorage.getItem('userId');
   const constituency = sessionStorage.getItem('constituency');
@@ -107,7 +110,36 @@ function ResidentEventPage() {
     fetchUpcomingEvents();
     fetchPastEvents();
 
+    const stompClient = new Client({
+      brokerURL: "http://localhost:5000/ws",
+      onConnect: () => {
+        console.log("Connected to STOMP broker");
+
+        // Subscribe to messages
+        stompClient.subscribe("/topic/messages", (message) => {
+          setMessages((prevMessages) => [...prevMessages, message.body]);
+        });
+      },
+      onWebSocketError: (event) => {
+        console.error("WebSocket Error: ", event);
+      },
+    });
+
+    stompClient.activate();
+    setClient(stompClient);
+
+    // Clean up on component unmount
+    return () => {
+      stompClient.deactivate();
+      console.log("Disconnected from STOMP broker");
+    };
   }, []);
+
+  const sendMessage = () => {
+    if (client && client.connected) {
+      client.publish({ destination: "/api/EventService/send", body: "Hello, STOMP!" });
+    }
+  };
 
   const rsvpAsParticipant = async (profileId, eventId) => {
     try {
@@ -686,6 +718,14 @@ function ResidentEventPage() {
           {errorMessage}
         </Alert>
       )}
+
+      <button onClick={sendMessage}>Send Message</button>
+      <div>
+        <h2>Messages</h2>
+        {messages.map((msg, index) => (
+          <div key={index}>{msg}</div>
+        ))}
+      </div>
 
       <footer className="bg-dark text-white text-center py-3 mt-auto">
         <p>NeighbourlySG &copy; 2024. All rights reserved.</p>

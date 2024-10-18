@@ -5,6 +5,8 @@ import com.nusiss.neighbourlysg.dto.EventParticipantDto;
 import com.nusiss.neighbourlysg.service.EventService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,9 +17,12 @@ public class EventController {
 
     private final EventService eventService;
 
-    public EventController(EventService eventService)
+    private final SimpMessagingTemplate messagingTemplate;
+
+    public EventController(EventService eventService, SimpMessagingTemplate messagingTemplate)
     {
         this.eventService = eventService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @PostMapping("/createEvent/{profileId}")
@@ -110,5 +115,10 @@ public class EventController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
+    }
+
+    @MessageMapping("/send")
+    public void sendMessage(String message) {
+        messagingTemplate.convertAndSend("/topic/messages", message);
     }
 }
