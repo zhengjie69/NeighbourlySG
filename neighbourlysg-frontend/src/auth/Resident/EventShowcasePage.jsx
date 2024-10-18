@@ -7,6 +7,9 @@ import { Modal, Button, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 import SGLogo from '../../assets/SGLogo.avif';
+import { Stomp } from '@stomp/stompjs'; // Import Stomp
+import SockJS from 'sockjs-client';
+
 
 const grcSmcOptions = [
   'All Locations', 'Aljunied GRC', 'Ang Mo Kio GRC', 'Bishan-Toa Payoh GRC', 'Chua Chu Kang GRC',
@@ -28,11 +31,15 @@ function ResidentEventPage() {
   const [showPastModal, setShowPastModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showNotification, setNotification] = useState(false);
   const [showCreateEventModal, setShowCreateEventModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null); // For error messages
   const [successMessage, setSuccessMessage] = useState(null); // For success messages
   const [upcomingEventSearchLocation, setUpcomingEventSearchLocation] = useState('');
   const [pastEventSearchLocation, setPastEventSearchLocation] = useState('');
+  const [client, setClient] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [notificationMessage, setNotificationMessage] = useState('');
 
   const profileId = sessionStorage.getItem('userId');
   const constituency = sessionStorage.getItem('constituency');
@@ -107,6 +114,36 @@ function ResidentEventPage() {
     fetchUpcomingEvents();
     fetchPastEvents();
 
+    const socket = new SockJS('http://localhost:5000/ws'); // Ensure this URL is correct
+    const client = Stomp.over(socket);
+
+    client.connect({}, (frame) => {
+      console.log('Connected: ' + frame);
+
+      // Subscribe to a topic
+      client.subscribe('/topic/events', (message) => {
+        if (message.body) {
+          setMessages((prevMessages) => [...prevMessages, message.body]);
+          setNotificationMessage(message.body);
+          setNotification(true);
+
+          setTimeout(() => {
+            setNotification(false);
+          }, 3000);
+
+        }
+      });
+    }, (error) => {
+      console.error('Connection error:', error); // Handle connection errors here
+    });
+
+    // Clean up the connection on unmount
+    return () => {
+      if (client) {
+        client.disconnect();
+        console.log("Disconnected from STOMP broker");
+      }
+    };
   }, []);
 
   const rsvpAsParticipant = async (profileId, eventId) => {
@@ -686,6 +723,20 @@ function ResidentEventPage() {
           {errorMessage}
         </Alert>
       )}
+
+      {/* Alert popup for WebSocket messages */}
+      {showNotification && (
+        <Alert variant="info" className="fixed-top" style={{ margin: '20px', zIndex: '9999' }} onClose={() => setShowPopup(false)} dismissible>
+          {notificationMessage}
+        </Alert>
+      )}
+
+      {/* Display messages list */}
+      <ul>
+        {messages.map((message, index) => (
+          <li key={index}>{message}</li>
+        ))}
+      </ul>
 
       <footer className="bg-dark text-white text-center py-3 mt-auto">
         <p>NeighbourlySG &copy; 2024. All rights reserved.</p>

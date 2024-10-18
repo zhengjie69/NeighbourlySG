@@ -70,6 +70,7 @@ public class WebSecurityConfig {
                     auth.requestMatchers("/api/auth/**").permitAll()
                             .requestMatchers("/api/**").permitAll()
                             .requestMatchers("/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui/**", "/webjars/**").permitAll()
+                            .requestMatchers("/ws/**").permitAll() // Allow all WebSocket connections
                             .anyRequest().authenticated()
             );
 
