@@ -31,6 +31,7 @@ function ResidentEventPage() {
   const [showPastModal, setShowPastModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const [showNotification, setNotification] = useState(false);
   const [showCreateEventModal, setShowCreateEventModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null); // For error messages
   const [successMessage, setSuccessMessage] = useState(null); // For success messages
@@ -38,6 +39,7 @@ function ResidentEventPage() {
   const [pastEventSearchLocation, setPastEventSearchLocation] = useState('');
   const [client, setClient] = useState(null);
   const [messages, setMessages] = useState([]);
+  const [notificationMessage, setNotificationMessage] = useState('');
 
   const profileId = sessionStorage.getItem('userId');
   const constituency = sessionStorage.getItem('constituency');
@@ -116,33 +118,33 @@ function ResidentEventPage() {
     const client = Stomp.over(socket);
 
     client.connect({}, (frame) => {
-        console.log('Connected: ' + frame);
+      console.log('Connected: ' + frame);
 
-        // Subscribe to a topic
-        client.subscribe('/topic/events', (message) => {
-            if (message.body) {
-              setMessages((prevMessages) => [...prevMessages, message.body]);
-              console.log("Message received: ", message.body);
-            }
-        });
+      // Subscribe to a topic
+      client.subscribe('/topic/events', (message) => {
+        if (message.body) {
+          setMessages((prevMessages) => [...prevMessages, message.body]);
+          setNotificationMessage(message.body);
+          setNotification(true);
+
+          setTimeout(() => {
+            setNotification(false);
+          }, 3000);
+
+        }
+      });
     }, (error) => {
-        console.error('Connection error:', error); // Handle connection errors here
+      console.error('Connection error:', error); // Handle connection errors here
     });
 
     // Clean up the connection on unmount
     return () => {
-        if (client) {
-            client.disconnect();
-            console.log("Disconnected from STOMP broker");
-        }
+      if (client) {
+        client.disconnect();
+        console.log("Disconnected from STOMP broker");
+      }
     };
-}, []);
-
-  const sendMessage = () => {
-    if (client && client.connected) {
-      client.publish({ destination: "/api/EventService/send", body: "Hello, STOMP!" });
-    }
-  };
+  }, []);
 
   const rsvpAsParticipant = async (profileId, eventId) => {
     try {
@@ -722,13 +724,19 @@ function ResidentEventPage() {
         </Alert>
       )}
 
-      <button onClick={sendMessage}>Send Message</button>
-      <div>
-        <h2>Messages</h2>
-        {messages.map((msg, index) => (
-          <div key={index}>{msg}</div>
+      {/* Alert popup for WebSocket messages */}
+      {showNotification && (
+        <Alert variant="info" className="fixed-top" style={{ margin: '20px', zIndex: '9999' }} onClose={() => setShowPopup(false)} dismissible>
+          {notificationMessage}
+        </Alert>
+      )}
+
+      {/* Display messages list */}
+      <ul>
+        {messages.map((message, index) => (
+          <li key={index}>{message}</li>
         ))}
-      </div>
+      </ul>
 
       <footer className="bg-dark text-white text-center py-3 mt-auto">
         <p>NeighbourlySG &copy; 2024. All rights reserved.</p>

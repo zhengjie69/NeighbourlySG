@@ -3,14 +3,14 @@ package com.nusiss.neighbourlysg.observer;
 import org.springframework.context.ApplicationEvent;
 
 public class EventUpdatedEvent extends ApplicationEvent {
-    private final Long eventId;
+    private final String eventTitle;
 
-    public EventUpdatedEvent(Object source, Long eventId) {
+    public EventUpdatedEvent(Object source, String eventTitle) {
         super(source);
-        this.eventId = eventId;
+        this.eventTitle = eventTitle;
     }
 
-    public Long getEventId() {
-        return eventId;
+    public String getEventTitle() {
+        return eventTitle;
     }
 }

@@ -3,14 +3,14 @@ package com.nusiss.neighbourlysg.observer;
 import org.springframework.context.ApplicationEvent;
 
 public class EventDeletedEvent extends ApplicationEvent {
-    private final Long eventId;
+    private final String eventTitle;
 
-    public EventDeletedEvent(Object source, Long eventId) {
+    public EventDeletedEvent(Object source, String eventTitle) {
         super(source);
-        this.eventId = eventId;
+        this.eventTitle = eventTitle;
     }
 
-    public Long getEventId() {
-        return eventId;
+    public String getEventTitle() {
+        return eventTitle;
     }
 }

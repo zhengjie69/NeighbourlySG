@@ -63,7 +63,7 @@ public class EventServiceImpl implements EventService {
         event.setProfile(profile);
         Event savedEvent = eventRepository.save(event);
 
-        eventPublisher.publishEvent(new EventCreatedEvent(this, savedEvent.getId()));
+        eventPublisher.publishEvent(new EventCreatedEvent(this, savedEvent.getTitle()));
 
         return eventMapper.toDto(savedEvent);
     }
@@ -131,7 +131,7 @@ public class EventServiceImpl implements EventService {
 
         eventRepository.delete(retrievedEvent);
 
-        eventPublisher.publishEvent(new EventDeletedEvent(this, retrievedEvent.getId()));
+        eventPublisher.publishEvent(new EventDeletedEvent(this, retrievedEvent.getTitle()));
     }
 
     @Override
@@ -166,7 +166,7 @@ public class EventServiceImpl implements EventService {
 
         Event updatedEvent = eventRepository.save(existingEvent);
 
-        eventPublisher.publishEvent(new EventUpdatedEvent(this, existingEvent.getId()));
+        eventPublisher.publishEvent(new EventUpdatedEvent(this, existingEvent.getTitle()));
 
         return eventMapper.toDto(updatedEvent);
     }

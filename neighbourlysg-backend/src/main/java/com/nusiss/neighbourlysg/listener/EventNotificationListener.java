@@ -22,16 +22,16 @@ public class EventNotificationListener {
     @EventListener
     public void handleEventCreatedEvent(EventCreatedEvent event) {
         // Broadcast the event to a WebSocket topic
-        messagingTemplate.convertAndSend("/topic/events", "Event created with ID: " + event.getEventId());
+        messagingTemplate.convertAndSend("/topic/events", "A event named " + event.getEventTitle() + " has been created");
     }
 
     @EventListener
     public void handleEventUpdatedEvent(EventUpdatedEvent event) {
-        messagingTemplate.convertAndSend("/topic/events", "Event updated with ID: " + event.getEventId());
+        messagingTemplate.convertAndSend("/topic/events", "A event named " + event.getEventTitle() + " has been updated");
     }
 
     @EventListener
     public void handleEventDeletedEvent(EventDeletedEvent event) {
-        messagingTemplate.convertAndSend("/topic/events", "Event deleted with ID: " + event.getEventId());
+        messagingTemplate.convertAndSend("/topic/events", "A event named " + event.getEventTitle() + " has been deleted");
     }
 }
