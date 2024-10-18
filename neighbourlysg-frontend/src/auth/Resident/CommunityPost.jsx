@@ -32,6 +32,8 @@ function CommunityPost() {
   const [selectedPost, setSelectedPost] = useState(null);
   const [commentContent, setCommentContent] = useState("");
   const userId = sessionStorage.getItem("userId");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [postToDelete, setPostToDelete] = useState(null);
 
   useEffect(() => {
     // fetch all posts
@@ -82,12 +84,13 @@ function CommunityPost() {
         setPosts([newPost, ...posts]);
         resetForm(); // Reset the form fields after posting
         toast.success("Your status have been posted successfully!");
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000); 
       }
-
     } catch (error) {
       console.error("Error fetching profile or creating post:", error);
     }
-    window.location.reload();
   };
 
   // Like
@@ -175,23 +178,38 @@ function CommunityPost() {
   };  
 
 // Delete a Post
-const handleDeletePost = async (postId) => {
+const handleDeletePost = async () => {
+  if (postToDelete === null) return;
+
   try {
+    // Use postToDelete instead of postId
+    console.log(`Attempting to delete post with ID: ${postToDelete}`); 
     // Make an API call to delete the post
-    const response = await axios.delete(`http://localhost:5000/api/PostService/${postId}/${userId}`);
+    const response = await axios.delete(`http://localhost:5000/api/PostService/${postToDelete}/${userId}`);
+
     if (response.status === 200 || response.status === 204) {
       // Remove the deleted post from the state
-      const updatedPosts = posts.filter((post) => post.id !== postId);
+      const updatedPosts = posts.filter((post) => post.id !== postToDelete);
       setPosts(updatedPosts);
       toast.success("Post deleted successfully!");
     }
   } catch (error) {
-    if (error.status === 403){
+    console.error(error); // Log the error for debugging
+    if (error.response && error.response.status === 403) {
       toast.error("You can only delete your own posts.");
     } else {
       toast.error("Failed to delete post, please try again later.");
-    }
+    } 
+  } finally {
+    setShowDeleteModal(false); // Close modal after deleting
+    setPostToDelete(null); // Reset post ID after operation
   }
+};
+
+const confirmDeletePost = (postId) => {
+  console.log(postId);
+  setPostToDelete(postId);
+  setShowDeleteModal(true);
 };
   
   const resetForm = () => {
@@ -287,7 +305,7 @@ const handleDeletePost = async (postId) => {
                     <FaRegComment />
                 </Button>
 
-                <Button variant="btn btn-theme" onClick={() => handleDeletePost(post.id)} 
+                <Button variant="btn btn-theme" onClick={() => confirmDeletePost(post.id)} 
                   style={{ position: "absolute", top: "10px", right: "10px" }}
                 >
                   <MdDeleteOutline/>
@@ -378,6 +396,22 @@ const handleDeletePost = async (postId) => {
             </Modal.Body>
           </Modal>
         )}
+
+<Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+      <Modal.Header closeButton>
+        <Modal.Title>Confirm Delete</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>Are you sure you want to delete this post?</Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+          Cancel
+        </Button>
+        <Button variant="danger" onClick={handleDeletePost}>
+          Delete
+        </Button>
+      </Modal.Footer>
+    </Modal>
+
       </div>
       <footer className="bg-dark text-white text-center py-3 mt-auto">
         <p>NeighbourlySG &copy; 2024. All rights reserved.</p>
