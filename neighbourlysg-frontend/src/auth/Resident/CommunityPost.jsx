@@ -11,6 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { IoMdSend } from "react-icons/io";
 import { BiLike } from "react-icons/bi";
 import { FaRegComment } from "react-icons/fa";
+import { MdDeleteOutline } from "react-icons/md";
 
 const animatedComponents = makeAnimated();
 
@@ -86,17 +87,16 @@ function CommunityPost() {
     } catch (error) {
       console.error("Error fetching profile or creating post:", error);
     }
+    window.location.reload();
   };
 
   // Like
   const handleLikePost = async (postId) => {  
-     console.log("Like button clicked for post:", postId); 
     try {
       // get list of people who liked the post 
       const response = await axios.get(`http://localhost:5000/api/LikeService/${postId}/likes/profiles`); 
       const likedByProfiles = response.data.map(profile => profile.id);
       const hasLiked = likedByProfiles.includes(Number(userId));
-      console.log("User has liked this post:", hasLiked);
   
       if (!hasLiked) {
         const likePost = {
@@ -130,7 +130,6 @@ function CommunityPost() {
       console.error("Error toggling like/unlike: ", error);
     }
   };
-  
 
   // Comment
   const handleAddComment = async (postId) => {
@@ -173,7 +172,27 @@ function CommunityPost() {
     } catch (error) {
       console.error("Error fetching comments:", error);
     }
-  };
+  };  
+
+// Delete a Post
+const handleDeletePost = async (postId) => {
+  try {
+    // Make an API call to delete the post
+    const response = await axios.delete(`http://localhost:5000/api/PostService/${postId}/${userId}`);
+    if (response.status === 200 || response.status === 204) {
+      // Remove the deleted post from the state
+      const updatedPosts = posts.filter((post) => post.id !== postId);
+      setPosts(updatedPosts);
+      toast.success("Post deleted successfully!");
+    }
+  } catch (error) {
+    if (error.status === 403){
+      toast.error("You can only delete your own posts.");
+    } else {
+      toast.error("Failed to delete post, please try again later.");
+    }
+  }
+};
   
   const resetForm = () => {
     setNewPostContent("");
@@ -267,8 +286,13 @@ function CommunityPost() {
                     Comment {}
                     <FaRegComment />
                 </Button>
-              </div>
 
+                <Button variant="btn btn-theme" onClick={() => handleDeletePost(post.id)} 
+                  style={{ position: "absolute", top: "10px", right: "10px" }}
+                >
+                  <MdDeleteOutline/>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
