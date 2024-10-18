@@ -145,7 +145,7 @@ function CommunityPost() {
         profileId: userId,
       };
       
-      const response = await axios.post(`http://localhost:8080/api/PostService/${postId}/comments/${profileId}`, comment);
+      const response = await axios.post(`http://localhost:5000/api/PostService/${postId}/comments/${userId}`, comment);
 
       if (response.status === 200 || response.status === 201) {
         const updatedPosts = posts.map((post) =>
@@ -160,9 +160,19 @@ function CommunityPost() {
     }
   };
 
-  const handleShowComments = (post) => {
+  const handleShowComments = async (post) => {
     setSelectedPost(post); // Set the selected post
     setShowModal(true); // Open the modal
+
+    try {
+      const response = await axios.get(`http://localhost:5000/api/PostService/${post.id}/comments`);
+      if (response.status === 200) {
+        // Assuming your response structure is an array of comments
+        setSelectedPost((prevPost) => ({ ...prevPost, comments: response.data }));
+      }
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+    }
   };
   
   const resetForm = () => {
@@ -315,13 +325,15 @@ function CommunityPost() {
                 </div>
               </div>
 
-              {/* <div className="comments-list">
+              <div className="comments-list mt-3"> 
+                <strong> Comments: </strong>
                 {selectedPost.comments && selectedPost.comments.map((comment, index) => (
                   <div key={index} className="comment-item">
-                    <strong>{sessionStorage.getItem("name")}</strong>: {comment.content}
+                    <strong>{comment.profileName}</strong>: {comment.content}
                   </div>
                 ))}
-              </div> */}
+              </div>
+              
               <div className="row">
                 <div className="col-sm-10">
                   <Form.Group className="mt-3">
