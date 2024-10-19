@@ -12,6 +12,7 @@ import { IoMdSend } from "react-icons/io";
 import { BiLike } from "react-icons/bi";
 import { FaRegComment } from "react-icons/fa";
 import { MdDeleteOutline } from "react-icons/md";
+import { FiEdit2 } from "react-icons/fi";
 
 const animatedComponents = makeAnimated();
 
@@ -31,9 +32,13 @@ function CommunityPost() {
   const [showModal, setShowModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
   const [commentContent, setCommentContent] = useState("");
-  const userId = sessionStorage.getItem("userId");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [postToDelete, setPostToDelete] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editedPostContent, setEditedPostContent] = useState("");
+  const [editedTags, setEditedTags] = useState([]);
+
+  const userId = sessionStorage.getItem("userId");
 
   useEffect(() => {
     // fetch all posts
@@ -177,41 +182,69 @@ function CommunityPost() {
     }
   };  
 
-// Delete a Post
-const handleDeletePost = async () => {
-  if (postToDelete === null) return;
+  // Delete post
+  const handleDeletePost = async () => {
+    if (postToDelete === null) return;
 
-  try {
-    // Use postToDelete instead of postId
-    console.log(`Attempting to delete post with ID: ${postToDelete}`); 
-    // Make an API call to delete the post
-    const response = await axios.delete(`http://localhost:5000/api/PostService/${postToDelete}/${userId}`);
+    try {
+      const response = await axios.delete(`http://localhost:5000/api/PostService/${postToDelete}/${userId}`);
 
-    if (response.status === 200 || response.status === 204) {
-      // Remove the deleted post from the state
-      const updatedPosts = posts.filter((post) => post.id !== postToDelete);
-      setPosts(updatedPosts);
-      toast.success("Post deleted successfully!");
+      if (response.status === 200 || response.status === 204) {
+        // Remove the deleted post from the state
+        const updatedPosts = posts.filter((post) => post.id !== postToDelete);
+        setPosts(updatedPosts);
+        toast.success("Post deleted successfully!");
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 403) {
+        toast.error("You can only delete your own posts.");
+      } else {
+        toast.error("Failed to delete post, please try again later.");
+      } 
+    } finally {
+      setShowDeleteModal(false); 
+      setPostToDelete(null);
     }
-  } catch (error) {
-    console.error(error); // Log the error for debugging
-    if (error.response && error.response.status === 403) {
-      toast.error("You can only delete your own posts.");
-    } else {
-      toast.error("Failed to delete post, please try again later.");
-    } 
-  } finally {
-    setShowDeleteModal(false); // Close modal after deleting
-    setPostToDelete(null); // Reset post ID after operation
-  }
-};
+  };
 
-const confirmDeletePost = (postId) => {
-  console.log(postId);
-  setPostToDelete(postId);
-  setShowDeleteModal(true);
-};
+  const confirmDeletePost = (postId) => {
+    setPostToDelete(postId);
+    setShowDeleteModal(true);
+  };
+
+  // edit post
+  const handleSaveEditedPost = async (postId) => {
+    try {
+      const updatedPost = {
+        ...selectedPost,
+        content: editedPostContent,
+        tags: editedTags
+      };
   
+      const res = await axios.put(`http://localhost:5000/api/PostService/${postId}/${userId}`, updatedPost);
+  
+      if (res.status === 200 || res.status === 204) {
+        const updatedPosts = posts.map(post => 
+          post.id === postId ? { ...post, content: editedPostContent, tags: editedTags } : post
+        );
+        setPosts(updatedPosts); 
+        setShowEditModal(false);
+        toast.success("Post updated successfully!");
+      }
+    } catch (error) {
+      console.error("Error updating post:", error);
+      toast.error("Failed to update post, please try again later.");
+    }
+  };
+  
+  const handleEditPost = (post) => {
+    setSelectedPost(post);
+    setEditedPostContent(post.content);
+    setEditedTags(post.tags);
+    setShowEditModal(true);
+  };
+  
+  // reset form
   const resetForm = () => {
     setNewPostContent("");
     setSelectedTags([]);
@@ -305,50 +338,28 @@ const confirmDeletePost = (postId) => {
                     <FaRegComment />
                 </Button>
 
-                <Button variant="btn btn-theme" onClick={() => confirmDeletePost(post.id)} 
-                  style={{ position: "absolute", top: "10px", right: "10px" }}
-                >
-                  <MdDeleteOutline/>
-                </Button>
+                {post.profileId === Number(userId) && (
+                  <Button variant="btn btn-theme" onClick={() => confirmDeletePost(post.id)} 
+                    style={{ position: "absolute", top: "10px", right: "10px" }}
+                  >
+                    <MdDeleteOutline/>
+                  </Button>
+                )}
+
+                {post.profileId === Number(userId) || Number(userId) === 2 && (
+                  <Button variant="btn btn-theme" onClick={() => confirmDeletePost(post.id)} 
+                    style={{ position: "absolute", top: "10px", right: "10px" }}
+                  >
+                    <MdDeleteOutline/>
+                  </Button>
+                )}
+
               </div>
             </div>
           </div>
         </div>
       ))}
     </div>
-
-        {/* Modal for Editing Post */}
-        {/* {selectedPost && (
-          <Modal show={showModal} onHide={() => setShowModal(false)}>
-            <Modal.Header closeButton>
-              <Modal.Title>Edit Post</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <Form.Group>
-                <Form.Control
-                  as="textarea"
-                  rows={3}
-                  value={newPostContent}
-                  onChange={(e) => setNewPostContent(e.target.value)}
-                />
-                <Form.Control
-                  type="text"
-                  className="mt-2"
-                  value={selectedTags.join(" ")}
-                  readOnly
-                />
-              </Form.Group>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={() => setShowModal(false)}>
-                Close
-              </Button>
-              <Button variant="primary" onClick={handleEditPost}>
-                Save Changes
-              </Button>
-            </Modal.Footer>
-          </Modal>
-        )} */}
 
         {selectedPost && (
           <Modal show={showModal} onHide={() => setShowModal(false)}>
@@ -397,20 +408,55 @@ const confirmDeletePost = (postId) => {
           </Modal>
         )}
 
-<Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
-      <Modal.Header closeButton>
-        <Modal.Title>Confirm Delete</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>Are you sure you want to delete this post?</Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
-          Cancel
-        </Button>
-        <Button variant="danger" onClick={handleDeletePost}>
-          Delete
-        </Button>
-      </Modal.Footer>
-    </Modal>
+        <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Confirm Delete</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>Are you sure you want to delete this post?</Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={handleDeletePost}>
+              Delete
+            </Button>
+          </Modal.Footer>
+        </Modal>
+
+        <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Edit Post</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form.Group>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                value={editedPostContent}
+                onChange={(e) => setEditedPostContent(e.target.value)}
+              />
+            </Form.Group>
+
+            <Form.Group className="mt-3">
+              <Select
+                closeMenuOnSelect={false}
+                components={animatedComponents}
+                isMulti
+                options={tags.map(tag => ({ value: tag, label: tag }))}
+                value={editedTags.map(tag => ({ value: tag, label: tag }))}
+                onChange={(selectedOptions) => setEditedTags(selectedOptions.map(option => option.value))}
+              />
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowEditModal(false)}>
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={() => handleSaveEditedPost(selectedPost.id)}>
+              Save Changes
+            </Button>
+          </Modal.Footer>
+        </Modal>
 
       </div>
       <footer className="bg-dark text-white text-center py-3 mt-auto">
