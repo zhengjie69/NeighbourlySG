@@ -18,4 +18,5 @@ public class CommentDto {
     private LocalDateTime creationDate;
     private Long postId;
     private Long profileId; // To link back to the Profile
+    private String profileName;
 }
