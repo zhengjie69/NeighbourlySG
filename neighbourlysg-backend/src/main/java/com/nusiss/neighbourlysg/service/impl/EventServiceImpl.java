@@ -7,10 +7,14 @@ import com.nusiss.neighbourlysg.entity.EventParticipant;
 import com.nusiss.neighbourlysg.entity.Profile;
 import com.nusiss.neighbourlysg.exception.ResourceNotFoundException;
 import com.nusiss.neighbourlysg.mapper.EventMapper;
+import com.nusiss.neighbourlysg.observer.EventCreatedEvent;
+import com.nusiss.neighbourlysg.observer.EventDeletedEvent;
+import com.nusiss.neighbourlysg.observer.EventUpdatedEvent;
 import com.nusiss.neighbourlysg.repository.EventParticipantRepository;
 import com.nusiss.neighbourlysg.repository.EventRepository;
 import com.nusiss.neighbourlysg.repository.ProfileRepository;
 import com.nusiss.neighbourlysg.service.EventService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,11 +32,16 @@ public class EventServiceImpl implements EventService {
     private final EventParticipantRepository eventParticipantRepository;
     private final EventMapper eventMapper;
 
-    public EventServiceImpl(ProfileRepository profileRepository, EventRepository eventRepository, EventParticipantRepository eventParticipantRepository, EventMapper eventMapper) {
+    private final ApplicationEventPublisher eventPublisher;
+
+    public EventServiceImpl(ProfileRepository profileRepository, EventRepository eventRepository,
+                            EventParticipantRepository eventParticipantRepository, EventMapper eventMapper,
+                            ApplicationEventPublisher eventPublisher) {
         this.profileRepository = profileRepository;
         this.eventRepository = eventRepository;
         this.eventParticipantRepository = eventParticipantRepository;
         this.eventMapper = eventMapper;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -53,6 +62,9 @@ public class EventServiceImpl implements EventService {
         Event event = eventMapper.toEntity(eventDto);
         event.setProfile(profile);
         Event savedEvent = eventRepository.save(event);
+
+        eventPublisher.publishEvent(new EventCreatedEvent(this, savedEvent.getTitle()));
+
         return eventMapper.toDto(savedEvent);
     }
 
@@ -118,6 +130,8 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new ResourceNotFoundException("Event with ID " + eventId + " cannot be found"));
 
         eventRepository.delete(retrievedEvent);
+
+        eventPublisher.publishEvent(new EventDeletedEvent(this, retrievedEvent.getTitle()));
     }
 
     @Override
@@ -151,6 +165,8 @@ public class EventServiceImpl implements EventService {
         }
 
         Event updatedEvent = eventRepository.save(existingEvent);
+
+        eventPublisher.publishEvent(new EventUpdatedEvent(this, existingEvent.getTitle()));
 
         return eventMapper.toDto(updatedEvent);
     }

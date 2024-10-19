@@ -20,6 +20,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -42,6 +43,9 @@ class EventServiceImplTest {
     @Mock
     EventParticipantRepository eventParticipantRepository;
 
+    @Mock
+    ApplicationEventPublisher eventPublisher;
+
     @Autowired
     EventMapper eventMapper;
 
@@ -51,7 +55,7 @@ class EventServiceImplTest {
     void setup() {
         MockitoAnnotations.openMocks(this);
         eventService = new EventServiceImpl(profileRepository, eventRepository,
-                eventParticipantRepository, eventMapper);
+                eventParticipantRepository, eventMapper, eventPublisher);
     }
 
     @Test
