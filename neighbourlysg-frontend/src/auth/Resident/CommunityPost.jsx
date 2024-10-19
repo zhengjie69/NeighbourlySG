@@ -339,16 +339,24 @@ function CommunityPost() {
                 </Button>
 
                 {post.profileId === Number(userId) && (
+                  <>
+                  <Button variant="btn btn-theme" onClick={() => handleEditPost(post)} 
+                    style={{ position: "absolute", top: "10px", right: "40px" }}
+                  >
+                    <FiEdit2/>
+                  </Button>
+
                   <Button variant="btn btn-theme" onClick={() => confirmDeletePost(post.id)} 
                     style={{ position: "absolute", top: "10px", right: "10px" }}
                   >
                     <MdDeleteOutline/>
                   </Button>
+                  </>
                 )}
 
                 {post.profileId === Number(userId) || Number(userId) === 2 && (
                   <Button variant="btn btn-theme" onClick={() => confirmDeletePost(post.id)} 
-                    style={{ position: "absolute", top: "10px", right: "10px" }}
+                  style={{ position: "absolute", top: "10px", right: "10px" }}
                   >
                     <MdDeleteOutline/>
                   </Button>
