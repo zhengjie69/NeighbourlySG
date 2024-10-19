@@ -165,14 +165,23 @@ class PostControllerTest {
     @Test
     void testUpdatePost() throws Exception {
         Long postId = 1L;
-        PostDto updatedPost = MasterDTOTestUtil.createPostDTO();
-        PostDto updatedPostResponse = MasterDTOTestUtil.createPostDTO(); // Simulate a successful update
+        Long profileId = 1L;
 
-        when(postService.updatePost(any(), any(PostDto.class))).thenReturn(updatedPostResponse);
+        // Simulate the existing post data that would be fetched
+        PostDto existingPost = MasterDTOTestUtil.createPostDTO();
+        existingPost.setProfileId(profileId); // Ensure it matches the profileId
+
+        // Simulate the updated post data for the response
+        PostDto updatedPost = MasterDTOTestUtil.createPostDTO();
+        PostDto updatedPostResponse = MasterDTOTestUtil.createPostDTO();
+
+        // Mock the methods
+        when(postService.getPostById(postId)).thenReturn(existingPost); // Mock fetching existing post
+        when(postService.updatePost(any(), any(PostDto.class))).thenReturn(updatedPostResponse); // Mock updating post
 
         byte[] objectToJson = TestUtil.convertObjectToJsonBytes(updatedPost);
 
-        mockMvc.perform(put("/api/PostService/{postId}", postId)
+        mockMvc.perform(put("/api/PostService/{postId}/{profileId}", postId, profileId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectToJson))
                 .andExpect(status().isOk());
