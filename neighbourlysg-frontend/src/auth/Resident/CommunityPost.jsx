@@ -32,11 +32,15 @@ function CommunityPost() {
   const [showModal, setShowModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
   const [commentContent, setCommentContent] = useState("");
+  const [editCommentContent, setEditCommentContent] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showDeleteCommentModal, setShowDeleteCommentModal] = useState(false);
   const [postToDelete, setPostToDelete] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editedPostContent, setEditedPostContent] = useState("");
   const [editedTags, setEditedTags] = useState([]);
+  const [selectedComment, setSelectedComment] = useState(null);
+  const [showEditCommentModal, setShowEditCommentModal] = useState(false);
 
   const userId = sessionStorage.getItem("userId");
 
@@ -91,7 +95,7 @@ function CommunityPost() {
         toast.success("Your status have been posted successfully!");
         setTimeout(() => {
           window.location.reload();
-        }, 1000); 
+        }, 100); 
       }
     } catch (error) {
       console.error("Error fetching profile or creating post:", error);
@@ -150,6 +154,7 @@ function CommunityPost() {
           creationDate: new Date().toISOString(),
           postId: postId,
           profileId: userId,
+          profileName: sessionStorage.getItem("name"),
         };
         
         const response = await axios.post(`http://localhost:5000/api/PostService/${postId}/comments/${userId}`, comment);
@@ -188,6 +193,87 @@ function CommunityPost() {
       console.error("Error fetching comments:", error);
     }
   };  
+
+  const handleEditComment = (comment) => {
+    setSelectedComment(comment);
+    setEditCommentContent(comment.content); 
+    setShowEditCommentModal(true);
+  };  
+
+  const confirmDeleteComment = (commentId) => {
+    setSelectedComment(commentId);
+    setShowDeleteCommentModal(true);
+  };
+
+  const handleDeleteComment = async () => {
+    if (!selectedComment) return;
+  
+    try {
+      const response = await axios.delete(`http://localhost:5000/api/PostService/${selectedPost.id}/comments/${selectedComment.id}/${userId}`);
+      if (response.status === 200 || response.status === 204) {
+        const updatedPosts = posts.map(post =>
+          post.id === selectedPost.id
+            ? { ...post, comments: post.comments.filter(comment => comment.id !== selectedComment.id) }
+            : post
+        );
+        setPosts(updatedPosts);
+        setSelectedPost(prevPost => ({
+          ...prevPost,
+          comments: prevPost.comments.filter(comment => comment.id !== selectedComment.id)
+        }));
+        toast.success("Comment deleted successfully!");
+      }
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      toast.error("Failed to delete comment, please try again later.");
+    } finally {
+      setShowDeleteCommentModal(false);
+      setSelectedComment(null);
+    }
+  };
+
+  const handleEditConfirmed = async (postId) => {
+    if (!selectedComment) return; // Ensure there’s a comment selected
+  
+    try {
+      const updatedCommentData = {
+        content: editCommentContent, // Use the state for the updated content
+      };
+  
+      // Update the comment
+      const response = await axios.put(`http://localhost:5000/api/PostService/${postId}/comments/${selectedComment.id}/${userId}`, updatedCommentData);
+  
+      if (response.status === 200) {
+        // Update local state to reflect the edited comment
+        const updatedPosts = posts.map(post =>
+          post.id === postId
+            ? {
+                ...post,
+                comments: post.comments.map(comment =>
+                  comment.id === selectedComment.id ? { ...comment, content: editCommentContent } : comment
+                ),
+              }
+            : post
+        );
+  
+        setPosts(updatedPosts);
+        setSelectedPost((prevPost) => ({
+            ...prevPost,
+            comments: prevPost.comments.map((comment) =>
+                comment.id === selectedComment.id
+                    ? { ...comment, content: editCommentContent }
+                    : comment
+            )
+        }));
+        setShowEditCommentModal(false);
+        toast.success("Comment updated successfully!");
+      }
+    } catch (error) {
+      console.error('Error updating comment:', error);
+      toast.error("Failed to update comment, please try again later.");
+    }
+  };
+  
 
   // Delete post
   const handleDeletePost = async () => {
@@ -344,7 +430,7 @@ function CommunityPost() {
                     <FaRegComment />
                 </Button>
 
-                {post.profileId === Number(userId) && (
+                {post.profileId == userId && (
                   <>
                   <Button variant="btn btn-theme" onClick={() => handleEditPost(post)} 
                     style={{ position: "absolute", top: "10px", right: "40px" }}
@@ -360,7 +446,7 @@ function CommunityPost() {
                   </>
                 )}
 
-                {post.profileId === Number(userId) || Number(userId) === 2 && (
+                {Number(userId) === 2 && (
                   <Button variant="btn btn-theme" onClick={() => confirmDeletePost(post.id)} 
                   style={{ position: "absolute", top: "10px", right: "10px" }}
                   >
@@ -392,12 +478,76 @@ function CommunityPost() {
                 </div>
               </div>
 
-              <div className="comments-list mt-3"> 
+              <div className="comments-list mt-3" > 
                 <strong> Comments: </strong>
                 {selectedPost.comments && selectedPost.comments.map((comment, index) => (
-                  <div key={index} className="comment-item">
+                      <div key={index} className="comment-item" style={{ 
+                        position: "relative", 
+                        padding: "10px", 
+                        marginBottom: "10px", 
+                        border: "1px solid #ccc", 
+                        borderRadius: "8px",
+                      }}>
                     <strong>{comment.profileName}</strong>: {comment.content}
-                  </div>
+
+                  {comment.profileId == userId && (
+                  <>
+                  <Button variant="btn btn-theme" onClick={() => handleEditComment(comment)} 
+                    style={{ 
+                      position: "absolute", 
+                      right: "40px", 
+                      top: "50%", 
+                      transform: "translateY(-50%)", 
+                      display: "flex", 
+                      alignItems: "center", 
+                      justifyContent: "center", 
+                      height: "40px", 
+                      width: "40px", 
+                      padding: "0"
+                    }}
+                  >
+                    <FiEdit2/>
+                  </Button>
+
+                  <Button variant="btn btn-theme" onClick={() => confirmDeleteComment(comment)} 
+                    style={{ 
+                      position: "absolute", 
+                      right: "10px", 
+                      top: "50%", 
+                      transform: "translateY(-50%)", 
+                      display: "flex", 
+                      alignItems: "center", 
+                      justifyContent: "center", 
+                      height: "40px", 
+                      width: "40px", 
+                      padding: "0"
+                    }}
+                  >
+                    <MdDeleteOutline/>
+                  </Button>
+                  </>
+                  )}
+
+                {Number(userId) === 2 && (
+                  <Button variant="btn btn-theme" onClick={() => confirmDeleteComment(comment)} 
+                    style={{ 
+                      position: "absolute", 
+                      right: "10px", 
+                      top: "50%", 
+                      transform: "translateY(-50%)", 
+                      display: "flex", 
+                      alignItems: "center", 
+                      justifyContent: "center", 
+                      height: "40px", 
+                      width: "40px", 
+                      padding: "0"
+                    }}
+                  >
+                    <MdDeleteOutline/>
+                  </Button>
+                )}
+
+                </div>
                 ))}
               </div>
               
@@ -468,6 +618,51 @@ function CommunityPost() {
             </Button>
             <Button variant="primary" onClick={() => handleSaveEditedPost(selectedPost.id)}>
               Save Changes
+            </Button>
+          </Modal.Footer>
+        </Modal>
+
+
+        {/* edit comment */}
+        {showEditCommentModal && (
+        <Modal show={showEditCommentModal} onHide={() => setShowEditCommentModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Edit Comment</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form.Group>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                value={editCommentContent}
+                onChange={(e) => setEditCommentContent(e.target.value)}
+              />
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowEditCommentModal(false)}>
+              Close
+            </Button>
+            <Button variant="primary" onClick={() => handleEditConfirmed(selectedPost.id)}>
+              Save Changes
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      )}
+
+
+      {/* Delete comment */}
+      <Modal show={showDeleteCommentModal} onHide={() => setShowDeleteCommentModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Confirm Delete</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>Are you sure you want to delete this comment?</Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowDeleteCommentModal(false)}>
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={handleDeleteComment}>
+              Delete
             </Button>
           </Modal.Footer>
         </Modal>
