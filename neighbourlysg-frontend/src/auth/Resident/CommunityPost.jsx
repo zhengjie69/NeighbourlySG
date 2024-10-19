@@ -144,28 +144,35 @@ function CommunityPost() {
     if (!commentContent.trim()) return; // Do nothing if the comment is empty
 
     try {
-      const comment = {
-        id: 0,
-        content: commentContent,
-        creationDate: new Date().toISOString(),
-        postId: postId,
-        profileId: userId,
-      };
-      
-      const response = await axios.post(`http://localhost:5000/api/PostService/${postId}/comments/${userId}`, comment);
+        const comment = {
+          id: 0,
+          content: commentContent,
+          creationDate: new Date().toISOString(),
+          postId: postId,
+          profileId: userId,
+        };
+        
+        const response = await axios.post(`http://localhost:5000/api/PostService/${postId}/comments/${userId}`, comment);
 
-      if (response.status === 200 || response.status === 201) {
-        const updatedPosts = posts.map((post) =>
-          post.id === postId ? { ...post, comments: [...(post.comments || []), comment] } : post
-        );
-        setPosts(updatedPosts);
-        setCommentContent(""); // Reset comment input
-        toast.success("Comment added successfully!");
-      }
+        if (response.status === 200 || response.status === 201) {
+            const updatedPosts = posts.map((post) =>
+                post.id === postId ? { ...post, comments: [...(post.comments || []), comment] } : post
+            );
+            setPosts(updatedPosts);
+            
+            // Update selected post to reflect new comment
+            setSelectedPost((prevPost) => ({
+                ...prevPost,
+                comments: [...(prevPost.comments || []), comment]
+            }));
+
+            setCommentContent(""); 
+            toast.success("Comment added successfully!");
+        }
     } catch (error) {
-      console.error("Error adding comment:", error);
+        console.error("Error adding comment:", error);
     }
-  };
+};
 
   const handleShowComments = async (post) => {
     setSelectedPost(post); // Set the selected post
@@ -190,7 +197,6 @@ function CommunityPost() {
       const response = await axios.delete(`http://localhost:5000/api/PostService/${postToDelete}/${userId}`);
 
       if (response.status === 200 || response.status === 204) {
-        // Remove the deleted post from the state
         const updatedPosts = posts.filter((post) => post.id !== postToDelete);
         setPosts(updatedPosts);
         toast.success("Post deleted successfully!");
@@ -407,7 +413,7 @@ function CommunityPost() {
                   </Form.Group>
                 </div>
                 <div className="col-sm-2 mt-3">
-                  <Button variant="btn btn-outline-secondary w-100" style={{ borderColor: '#ccc' }} onClick={() => {handleAddComment(selectedPost.id); setShowModal(false);}}>
+                  <Button variant="btn btn-outline-secondary w-100" style={{ borderColor: '#ccc' }} onClick={() => {handleAddComment(selectedPost.id);}}>
                     <IoMdSend />
                   </Button>
                 </div>
