@@ -49,7 +49,6 @@ function ResidentEventPage() {
   const [showUpcomingModal, setShowUpcomingModal] = useState(false);
   const [showPastModal, setShowPastModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [showNotification, setNotification] = useState(false);
   const [showCreateEventModal, setShowCreateEventModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
@@ -122,36 +121,6 @@ function ResidentEventPage() {
     fetchUserEvents();
     fetchUpcomingEvents();
     fetchPastEvents();
-    const socket = new SockJS('http://localhost:5000/ws'); // Ensure this URL is correct
-    const client = Stomp.over(socket);
-
-    client.connect({}, (frame) => {
-      console.log('Connected: ' + frame);
-
-      // Subscribe to a topic
-      client.subscribe('/topic/events', (message) => {
-        if (message.body) {
-          setMessages((prevMessages) => [...prevMessages, message.body]);
-          setNotificationMessage(message.body);
-          setNotification(true);
-
-          setTimeout(() => {
-            setNotification(false);
-          }, 3000);
-
-        }
-      });
-    }, (error) => {
-      console.error('Connection error:', error); // Handle connection errors here
-    });
-
-    // Clean up the connection on unmount
-    return () => {
-      if (client) {
-        client.disconnect();
-        console.log("Disconnected from STOMP broker");
-      }
-    };
   }, []);
 
   const rsvpAsParticipant = async (profileId, eventId) => {
@@ -821,20 +790,6 @@ function ResidentEventPage() {
           {errorMessage}
         </Alert>
       )}
-
-      {/* Alert popup for WebSocket messages */}
-      {showNotification && (
-        <Alert variant="info" className="fixed-top" style={{ margin: '20px', zIndex: '9999' }} onClose={() => setShowPopup(false)} dismissible>
-          {notificationMessage}
-        </Alert>
-      )}
-
-      {/* Display messages list */}
-      <ul>
-        {messages.map((message, index) => (
-          <li key={index}>{message}</li>
-        ))}
-      </ul>
 
       <footer className="bg-dark text-white text-center py-3 mt-auto">
         <p>NeighbourlySG &copy; 2024. All rights reserved.</p>
