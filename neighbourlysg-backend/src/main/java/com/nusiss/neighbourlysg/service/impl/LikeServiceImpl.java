@@ -1,6 +1,7 @@
 package com.nusiss.neighbourlysg.service.impl;
 
 import com.nusiss.neighbourlysg.dto.LikeDto;
+import com.nusiss.neighbourlysg.dto.ProfileDto;
 import com.nusiss.neighbourlysg.entity.Like;
 import com.nusiss.neighbourlysg.entity.Post;
 import com.nusiss.neighbourlysg.entity.Profile;
@@ -14,7 +15,10 @@ import com.nusiss.neighbourlysg.service.LikeService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class LikeServiceImpl implements LikeService {
@@ -94,5 +98,28 @@ public class LikeServiceImpl implements LikeService {
     @Override
     public boolean isPostLikedByProfile(Long profileId, Long postId) {
         return likeRepository.findByProfileIdAndPostId(profileId, postId).isPresent();
+    }
+
+    @Override
+    public List<ProfileDto> getProfilesWhoLikedPost(Long postId) {
+        // Retrieve all Likes for the given postId
+        List<Like> likes = likeRepository.findByPostId(postId);
+
+        // Convert List<Like> to List<ProfileDto>
+        return likes.stream()
+                .map(like -> {
+                    ProfileDto profileDto = new ProfileDto();
+                    profileDto.setId(like.getProfile().getId());
+                    profileDto.setName(like.getProfile().getName());
+                    profileDto.setEmail(like.getProfile().getEmail());
+                    profileDto.setConstituency(like.getProfile().getConstituency());
+                     Set<String> roleIds = like.getProfile().getRoles().stream()
+                        .map(role -> String.valueOf(role.getId()))
+                        .collect(Collectors.toSet());
+                        profileDto.setRoles(roleIds);
+
+                    return profileDto;
+                })
+                .toList();
     }
 }

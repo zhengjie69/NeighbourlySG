@@ -60,8 +60,16 @@ public class PostController {
     }
 
     // Update a post
-    @PutMapping("/{postId}")
-    public ResponseEntity<PostDto> updatePost(@PathVariable Long postId, @RequestBody PostDto postDto) {
+    @PutMapping("/{postId}/{profileId}")
+    public ResponseEntity<PostDto> updatePost(@PathVariable Long postId, @PathVariable Long profileId, @RequestBody PostDto postDto) {
+        // Fetch the post to check its owner
+        PostDto existingPost = postService.getPostById(postId);
+
+        // Allow update only if the profile ID matches the owner of the post
+        if (!existingPost.getProfileId().equals(profileId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null); // Only the post owner can update
+        }
+
         PostDto updatedPost = postService.updatePost(postId, postDto);
         return ResponseEntity.ok(updatedPost);
     }
@@ -73,9 +81,12 @@ public class PostController {
         PostDto post = postService.getPostById(postId);
 
         // Check if the user is the owner of the post or an admin
-        if (post.getProfileId().equals(profileId) || profileService.isAdmin(profileId)) {
+        boolean isPostOwner = post.getProfileId().equals(profileId);
+        boolean isAdmin = profileService.isAdmin(profileId); // Assuming you have a method like this
+
+        if (isPostOwner || isAdmin) {
             postService.deletePost(postId);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.noContent().build(); // Post deleted successfully
         } else {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // Forbidden if not admin or post owner
         }
