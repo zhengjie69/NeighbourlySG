@@ -78,28 +78,26 @@ function CommunityPost() {
 
   const handleCreatePost = async () => {
     try {
-      // Create a new post
       const newPost = {
         content: newPostContent,
-        creationDate: new Date().toISOString(), // Use the current date
+        creationDate: new Date().toISOString(), 
         profileId: userId,
         likeCount: 0,
         comments: [],
         tags: selectedTags,
-        profileName: sessionStorage.getItem('name')
+        profileName: sessionStorage.getItem("name"),
       };
-
+  
       const res = await axios.post(`http://localhost:5000/api/PostService/${userId}`, newPost);
       if (res.status === 200 || res.status === 201) {
-        setPosts([newPost, ...posts]);
-        resetForm(); // Reset the form fields after posting
-        toast.success("Your status have been posted successfully!");
-        setTimeout(() => {
-          window.location.reload();
-        }, 100); 
+        const savedPost = res.data; 
+        setPosts([savedPost, ...posts]);
+        resetForm(); 
+        toast.success("Your status has been posted successfully!");
       }
     } catch (error) {
       console.error("Error fetching profile or creating post:", error);
+      toast.error("Failed to create post, please try again later.");
     }
   };
 
@@ -145,7 +143,7 @@ function CommunityPost() {
   };
 
   // Comment
-  const handleAddComment = async (postId) => {
+  const handleAddComment = async (selectedPost) => {
     if (!commentContent.trim()) return; // Do nothing if the comment is empty
 
     try {
@@ -153,23 +151,24 @@ function CommunityPost() {
           id: 0,
           content: commentContent,
           creationDate: new Date().toISOString(),
-          postId: postId,
+          postId: selectedPost.id,
           profileId: userId,
           profileName: sessionStorage.getItem("name"),
         };
         
-        const response = await axios.post(`http://localhost:5000/api/PostService/${postId}/comments/${userId}`, comment);
+        const response = await axios.post(`http://localhost:5000/api/PostService/${selectedPost.id}/comments/${userId}`, comment);
 
         if (response.status === 200 || response.status === 201) {
+            const savedComment = response.data;
             const updatedPosts = posts.map((post) =>
-                post.id === postId ? { ...post, comments: [...(post.comments || []), comment] } : post
+                post.id === selectedPost.id ? { ...post, comments: [...(post.comments || []), comment] } : post
             );
             setPosts(updatedPosts);
             
             // Update selected post to reflect new comment
             setSelectedPost((prevPost) => ({
                 ...prevPost,
-                comments: [...(prevPost.comments || []), comment]
+                comments: [...(prevPost.comments || []), savedComment]
             }));
 
             setCommentContent(""); 
@@ -208,7 +207,6 @@ function CommunityPost() {
 
   const handleDeleteComment = async () => {
     if (!selectedComment) return;
-    console.log(selectedComment.id + "here");
   
     try {
       const response = await axios.delete(`http://localhost:5000/api/PostService/${selectedPost.id}/comments/${selectedComment.id}/${userId}`);
@@ -565,7 +563,7 @@ function CommunityPost() {
                   </Form.Group>
                 </div>
                 <div className="col-sm-2 mt-3">
-                  <Button variant="btn btn-outline-secondary w-100" style={{ borderColor: '#ccc' }} onClick={() => {handleAddComment(selectedPost.id);}}>
+                  <Button variant="btn btn-outline-secondary w-100" style={{ borderColor: '#ccc' }} onClick={() => {handleAddComment(selectedPost);}}>
                     <IoMdSend />
                   </Button>
                 </div>
