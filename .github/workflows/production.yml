@@ -45,6 +45,8 @@ jobs:
     - name: Set execute permission for Maven Wrapper
       run: 
         chmod +x neighbourlysg-backend/mvnw
+    - name: Clean and Install with Maven
+      run: ./neighbourlysg-backend/mvnw clean install --file neighbourlysg-backend/pom.xml
     - name: Build with Maven
       run: 
         ./neighbourlysg-backend/mvnw -B package --file neighbourlysg-backend/pom.xml
