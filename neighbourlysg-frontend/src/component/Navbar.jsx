@@ -9,9 +9,9 @@ const Navbar = () => {
 
   // Fetch user roles from sessionStorage
   const userRoles = sessionStorage.getItem("roles") || "";
-  const isOrganiser = userRoles.includes("2"); // Assuming 2 is Organiser role ID
-  const isResident = userRoles.includes("1"); // Assuming 1 is Resident role ID
-  const isAdmin = userRoles.includes("3"); // Assuming 3 is Admin role ID
+  const isOrganiser = userRoles.includes("ROLE_ORGANISER"); // Assuming 2 is Organiser role ID
+  const isResident = userRoles.includes("ROLE_USER"); // Assuming 1 is Resident role ID
+  const isAdmin = userRoles.includes("ROLE_ADMIN"); // Assuming 3 is Admin role ID
 
   const handleLogout = () => {
     sessionStorage.clear();

@@ -56,9 +56,9 @@ function ResidentEventPage() {
     useState("");
   const [pastEventSearchLocation, setPastEventSearchLocation] = useState("");
   const userRoles = sessionStorage.getItem("roles") || "";
-  const isResident = userRoles.includes("1"); // Assuming 1 is Resident role ID
-  const isOrganiser = userRoles.includes("2");
-  const isAdmin = userRoles.includes("3"); // Assuming 3 is Admin role ID
+  const isResident = userRoles.includes("ROLE_USER"); // Assuming 1 is Resident role ID
+  const isOrganiser = userRoles.includes("ROLE_ORGANISER");
+  const isAdmin = userRoles.includes("ROLE_ADMIN"); // Assuming 3 is Admin role ID
   const isOrganiserOrAdmin = isOrganiser || isAdmin; // Combine organizer and admin access
   const profileId = sessionStorage.getItem("userId");
   const constituency = sessionStorage.getItem("constituency");

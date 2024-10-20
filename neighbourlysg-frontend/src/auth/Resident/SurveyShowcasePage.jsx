@@ -20,9 +20,9 @@ const SurveyShowcasePage = () => {
   const userRoles = sessionStorage.getItem("roles")
     ? sessionStorage.getItem("roles").split(",")
     : [];
-  const isOrganiser = userRoles.includes("2");
-  const isResident = userRoles.includes("1"); // Updated to check for ROLE_USER
-  const isAdmin = userRoles.includes("3"); // Check for Admin role
+  const isOrganiser = userRoles.includes("ROLE_ORGANISER");
+  const isResident = userRoles.includes("ROLE_USER"); // Updated to check for ROLE_USER
+  const isAdmin = userRoles.includes("ROLE_ADMIN"); // Check for Admin role
   const isOrganiserOrAdmin = isOrganiser || isAdmin; // Combine organizer and admin access
   const navigate = useNavigate(); // Initialize navigate
   const [viewMode, setViewMode] = useState("response"); // Default to "response by response"
