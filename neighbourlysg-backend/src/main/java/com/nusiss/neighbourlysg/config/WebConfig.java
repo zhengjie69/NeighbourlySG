@@ -9,13 +9,13 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("*") // Adjust as needed
+                .allowedOriginPatterns("*") // Adjust as needed
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
 
         registry.addMapping("/ws/**") // Specifically for WebSocket connections
-                .allowedOrigins("*") // Adjust as needed
+                .allowedOriginPatterns("*") // Adjust as needed
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
