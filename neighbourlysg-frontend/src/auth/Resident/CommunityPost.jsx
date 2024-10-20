@@ -43,6 +43,7 @@ function CommunityPost() {
   const [showEditCommentModal, setShowEditCommentModal] = useState(false);
 
   const userId = sessionStorage.getItem("userId");
+  const roleId = sessionStorage.getItem("roles");
 
   useEffect(() => {
     // fetch all posts
@@ -207,6 +208,7 @@ function CommunityPost() {
 
   const handleDeleteComment = async () => {
     if (!selectedComment) return;
+    console.log(selectedComment.id + "here");
   
     try {
       const response = await axios.delete(`http://localhost:5000/api/PostService/${selectedPost.id}/comments/${selectedComment.id}/${userId}`);
@@ -446,7 +448,7 @@ function CommunityPost() {
                   </>
                 )}
 
-                {Number(userId) === 2 && (
+                {roleId === "ROLE_ADMIN" && (
                   <Button variant="btn btn-theme" onClick={() => confirmDeletePost(post.id)} 
                   style={{ position: "absolute", top: "10px", right: "10px" }}
                   >
@@ -528,7 +530,7 @@ function CommunityPost() {
                   </>
                   )}
 
-                {Number(userId) === 2 && (
+                {roleId === "ROLE_ADMIN" && (
                   <Button variant="btn btn-theme" onClick={() => confirmDeleteComment(comment)} 
                     style={{ 
                       position: "absolute", 
