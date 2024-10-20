@@ -17,9 +17,9 @@ const ResidentMainPage = () => {
   useEffect(() => {
     const roles = sessionStorage.getItem("roles") || "";
     setUserRoles(roles);
-    setIsAdmin(roles.includes("3"));       // Assuming "3" is the Admin role ID
-    setIsOrganiser(roles.includes("2"));   // Assuming "2" is the Organiser role ID
-    setIsResident(roles.includes("1"));    // Assuming "1" is the Resident role ID
+    setIsAdmin(roles.includes("ROLE_ADMIN"));       // Assuming "3" is the Admin role ID
+    setIsOrganiser(roles.includes("ROLE_ORGANISER"));   // Assuming "2" is the Organiser role ID
+    setIsResident(roles.includes("ROLE_USER"));    // Assuming "1" is the Resident role ID
   }, []);
 
   // Show toast message if available in the location state
@@ -143,7 +143,7 @@ const ResidentMainPage = () => {
                   <h4>Profile</h4>
                   <p>Manage your profile and account settings. Keep your details up to date.</p>
                   <div className="d-flex justify-content-end">
-                    <Link to="/profile" className="btn btn-primary">View More</Link>
+                    <Link to="/ProfileSettings" className="btn btn-primary">View More</Link>
                   </div>
                 </div>
               </>

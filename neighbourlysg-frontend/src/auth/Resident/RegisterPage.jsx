@@ -68,7 +68,7 @@ function RegisterPage() {
     try {
       // Encrypt the password using the RSA utility
       // const encryptedPassword = rsaEncrypt(password);
-      const response = await axios.post('http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/ProfileService/register', {
+      const response = await axios.post('http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/auth/register', {
         name: name,
         email: email,
         password: password,  // Send the encrypted password
