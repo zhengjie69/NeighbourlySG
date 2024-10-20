@@ -20,7 +20,7 @@ const CreateSurveyPage = () => {
 
   // Function to fetch existing survey data based on surveyId
   const fetchSurvey = async (id) => {
-    const response = await fetch(`http://localhost:5000/api/SurveyService/getSurvey/${id}`, {
+    const response = await fetch(`http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/SurveyService/getSurvey/${id}`, {
       method: 'GET',
     });
 
@@ -83,13 +83,15 @@ const CreateSurveyPage = () => {
         })),
       };
 
-      const response = await fetch(`http://localhost:5000/api/SurveyService/${surveyId ? 'updateSurvey' : 'createSurvey'}`, { // Check if it's an update or create
+      const response = await fetch(`http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/SurveyService/${surveyId ? 'updateSurvey' : 'createSurvey'}`, { 
+        // Check if it's an update or create
         method: surveyId ? 'PUT' : 'POST',
         headers: {
-          'Content-Type': 'application/json',
+            'Content-Type': 'application/json',
         },
         body: JSON.stringify(surveyData),
-      });
+    });
+    
 
       if (response.ok) {
         setMessage(surveyId ? "Survey updated successfully!" : "Survey created successfully!");

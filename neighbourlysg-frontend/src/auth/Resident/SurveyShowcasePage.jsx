@@ -32,7 +32,7 @@ const SurveyShowcasePage = () => {
     const fetchSurveys = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/SurveyService/getAllSurveys"
+          "http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/SurveyService/getAllSurveys"
         );
         setSurveys(response.data);
         console.log("Surveys:", response.data); // Log surveys to check if data is being fetched correctly
@@ -73,7 +73,7 @@ const SurveyShowcasePage = () => {
   const handleDeleteSurvey = async () => {
     try {
       await axios.delete(
-        `http://localhost:5000/api/SurveyService/survey/${surveyToDelete.id}`
+        `http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/SurveyService/survey/${surveyToDelete.id}`
       );
       setSurveys((prevSurveys) =>
         prevSurveys.filter((survey) => survey.id !== surveyToDelete.id)
@@ -113,7 +113,7 @@ const SurveyShowcasePage = () => {
 
     try {
       await axios.post(
-        "http://localhost:5000/api/SurveyResponseService/submitSurveyResponse",
+        "http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/SurveyResponseService/submitSurveyResponse",
         responsePayload
       );
       console.log("Survey responses submitted:", responsePayload);
