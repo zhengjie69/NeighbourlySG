@@ -17,7 +17,7 @@ const SurveyResponsesPage = () => {
   useEffect(() => {
     if (survey) {
       // Fetch user responses for the survey from the backend
-      axios.get(`http://localhost:5000/api/SurveyResponseService/getSurveyResponses/${survey.id}`)
+      axios.get(`http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/SurveyResponseService/getSurveyResponses/${survey.id}`)
         .then(response => {
           setUserResponses(response.data); // Set the responses in the state
         })
