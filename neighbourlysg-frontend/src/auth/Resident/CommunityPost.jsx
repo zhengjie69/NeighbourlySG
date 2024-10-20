@@ -44,12 +44,13 @@ function CommunityPost() {
 
   const userId = sessionStorage.getItem("userId");
   const roleId = sessionStorage.getItem("roles");
+  const BASE_URL = "http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com";
 
   useEffect(() => {
     // fetch all posts
     const fetchPosts = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/PostService/`);
+        const response = await axios.get(`${BASE_URL}/api/PostService/`);
         if (response.status === 200) {
           setPosts(response.data);
         }
@@ -61,7 +62,7 @@ function CommunityPost() {
     const fetchProfile = async () => {
       try {
         // Fetch the user's profile details to get name
-        const response = await axios.get(`http://localhost:5000/api/ProfileService/profile/${userId}`);
+        const response = await axios.get(`${BASE_URL}/api/ProfileService/profile/${userId}`);
 
         if (response.status === 200) {
           const name = response.data.name;
@@ -88,7 +89,7 @@ function CommunityPost() {
         profileName: sessionStorage.getItem("name"),
       };
   
-      const res = await axios.post(`http://localhost:5000/api/PostService/${userId}`, newPost);
+      const res = await axios.post(`${BASE_URL}/api/PostService/${userId}`, newPost);
       if (res.status === 200 || res.status === 201) {
         const savedPost = res.data; 
         setPosts([savedPost, ...posts]);
@@ -105,7 +106,7 @@ function CommunityPost() {
   const handleLikePost = async (postId) => {  
     try {
       // get list of people who liked the post 
-      const response = await axios.get(`http://localhost:5000/api/LikeService/${postId}/likes/profiles`); 
+      const response = await axios.get(`${BASE_URL}/api/LikeService/${postId}/likes/profiles`); 
       const likedByProfiles = response.data.map(profile => profile.id);
       const hasLiked = likedByProfiles.includes(Number(userId));
   
@@ -117,14 +118,14 @@ function CommunityPost() {
           likedAt: new Date().toISOString()
         };
   
-        await axios.post(`http://localhost:5000/api/LikeService/${userId}/posts/${postId}`, likePost);
+        await axios.post(`${BASE_URL}/api/LikeService/${userId}/posts/${postId}`, likePost);
   
         const updatedPosts = posts.map((post) =>
           post.id === postId ? { ...post, likeCount: post.likeCount + 1, likedBy: [...(post.likedBy || []), Number(userId)] } : post
         );
         setPosts(updatedPosts);
       } else {
-        await axios.delete(`http://localhost:5000/api/LikeService/${userId}/posts/${postId}`);
+        await axios.delete(`${BASE_URL}/api/LikeService/${userId}/posts/${postId}`);
   
         const updatedPosts = posts.map((post) =>
           post.id === postId
@@ -156,7 +157,7 @@ function CommunityPost() {
           profileName: sessionStorage.getItem("name"),
         };
         
-        const response = await axios.post(`http://localhost:5000/api/PostService/${selectedPost.id}/comments/${userId}`, comment);
+        const response = await axios.post(`${BASE_URL}/api/PostService/${selectedPost.id}/comments/${userId}`, comment);
 
         if (response.status === 200 || response.status === 201) {
             const savedComment = response.data;
@@ -184,7 +185,7 @@ function CommunityPost() {
     setShowModal(true); // Open the modal
 
     try {
-      const response = await axios.get(`http://localhost:5000/api/PostService/${post.id}/comments`);
+      const response = await axios.get(`${BASE_URL}/api/PostService/${post.id}/comments`);
       if (response.status === 200) {
         // Assuming your response structure is an array of comments
         setSelectedPost((prevPost) => ({ ...prevPost, comments: response.data }));
@@ -209,7 +210,7 @@ function CommunityPost() {
     if (!selectedComment) return;
   
     try {
-      const response = await axios.delete(`http://localhost:5000/api/PostService/${selectedPost.id}/comments/${selectedComment.id}/${userId}`);
+      const response = await axios.delete(`${BASE_URL}/api/PostService/${selectedPost.id}/comments/${selectedComment.id}/${userId}`);
       if (response.status === 200 || response.status === 204) {
         const updatedPosts = posts.map(post =>
           post.id === selectedPost.id
@@ -241,7 +242,7 @@ function CommunityPost() {
       };
   
       // Update the comment
-      const response = await axios.put(`http://localhost:5000/api/PostService/${postId}/comments/${selectedComment.id}/${userId}`, updatedCommentData);
+      const response = await axios.put(`${BASE_URL}/api/PostService/${postId}/comments/${selectedComment.id}/${userId}`, updatedCommentData);
   
       if (response.status === 200) {
         // Update local state to reflect the edited comment
@@ -280,7 +281,7 @@ function CommunityPost() {
     if (postToDelete === null) return;
 
     try {
-      const response = await axios.delete(`http://localhost:5000/api/PostService/${postToDelete}/${userId}`);
+      const response = await axios.delete(`${BASE_URL}/api/PostService/${postToDelete}/${userId}`);
 
       if (response.status === 200 || response.status === 204) {
         const updatedPosts = posts.filter((post) => post.id !== postToDelete);
@@ -313,7 +314,7 @@ function CommunityPost() {
         tags: editedTags
       };
   
-      const res = await axios.put(`http://localhost:5000/api/PostService/${postId}/${userId}`, updatedPost);
+      const res = await axios.put(`${BASE_URL}/api/PostService/${postId}/${userId}`, updatedPost);
   
       if (res.status === 200 || res.status === 204) {
         const updatedPosts = posts.map(post => 
@@ -380,7 +381,7 @@ function CommunityPost() {
             <div className="mt-2" />
 
             <div className="row">
-              <div className="col-sm-10">
+              <div className="col-sm-11">
                 <Form.Group>
                   <Select
                     closeMenuOnSelect={false}
@@ -393,7 +394,7 @@ function CommunityPost() {
                 </Form.Group>
               </div>
 
-              <div className="col d-flex justify-content-end col-sm-2">
+              <div className="d-flex justify-content-end col-sm-1">
                 <Button
                   variant="primary"
                   onClick={handleCreatePost}
@@ -464,13 +465,13 @@ function CommunityPost() {
         {selectedPost && (
           <Modal show={showModal} onHide={() => setShowModal(false)}>
             <Modal.Header closeButton>
-              <Modal.Title>Comments for {selectedPost.profileName}</Modal.Title>
+              <Modal.Title>Leave a comment</Modal.Title>
             </Modal.Header>
             <Modal.Body>
               <div className="card">
                 <div className="card-body">
-                  <h5 className="card-title">{selectedPost.content}</h5>
-                  <p>
+                  <h5 className="card-title">{selectedPost.profileName}</h5>
+                  <p>{selectedPost.content}
                   {selectedPost.tags.map((tag) => (
                     <span key={tag} className="badge bg-secondary me-1">{tag}</span>
                   ))} 
