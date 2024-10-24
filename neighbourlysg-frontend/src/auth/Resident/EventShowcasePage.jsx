@@ -9,6 +9,7 @@ import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 import SGLogo from '../../assets/SGLogo.avif';
 import { Stomp } from '@stomp/stompjs'; // Import Stomp
 import SockJS from 'sockjs-client';
+import axiosInstance from '../Utils/axiosConfig'
 
 
 const grcSmcOptions = [
@@ -66,12 +67,12 @@ function ResidentEventPage() {
   const fetchUpcomingEvents = async () => {
     try {
       if (upcomingEventSearchLocation == "") {
-        const response = await axios.get('http://localhost:5000/api/EventService/getAllCurrentEvent/' + profileId + '/' + constituency);
+        const response = await axiosInstance.get('/EventService/getAllCurrentEvent/' + profileId + '/' + constituency);
         const upcomingEventsWithoutFilter = response.data;
         setUpcomingEvents(upcomingEventsWithoutFilter);
       }
       else {
-        const response = await axios.get('http://localhost:5000/api/EventService/getAllCurrentEvent/' + profileId + '/' + constituency + "?location=" + upcomingEventSearchLocation);
+        const response = await axiosInstance.get('/EventService/getAllCurrentEvent/' + profileId + '/' + constituency + "?location=" + upcomingEventSearchLocation);
         const upComingEventsWithFilter = response.data;
         setUpcomingEvents(upComingEventsWithFilter);
       }
@@ -83,7 +84,7 @@ function ResidentEventPage() {
   const fetchUserEvents = async () => {
     try {
       // Example URL, adjust based on your actual API endpoint
-      const response = await axios.get('http://localhost:5000/api/EventService/getAllUserEvent/' + profileId);
+      const response = await axiosInstance.get('/EventService/getAllUserEvent/' + profileId);
       const events = response.data;
       setUserEvents(events);
     } catch (error) {
@@ -94,12 +95,12 @@ function ResidentEventPage() {
   const fetchPastEvents = async () => {
     try {
       if (pastEventSearchLocation == "") {
-        const response = await axios.get('http://localhost:5000/api/EventService/getAllPastEvent/' + profileId + '/' + constituency);
+        const response = await axiosInstance.get('/EventService/getAllPastEvent/' + profileId + '/' + constituency);
         const pastEventsWithoutFilter = response.data;
         setPastEvents(pastEventsWithoutFilter);
       }
       else {
-        const response = await axios.get('http://localhost:5000/api/EventService/getAllPastEvent/' + profileId + '/' + constituency + "?location=" + pastEventSearchLocation);
+        const response = await axiosInstance.get('/EventService/getAllPastEvent/' + profileId + '/' + constituency + "?location=" + pastEventSearchLocation);
         const pastEventsWithFilter = response.data;
         setPastEvents(pastEventsWithFilter);
       }
@@ -114,7 +115,7 @@ function ResidentEventPage() {
     fetchUpcomingEvents();
     fetchPastEvents();
 
-    const socket = new SockJS('http://localhost:5000/ws'); // Ensure this URL is correct
+    const socket = new SockJS(`${import.meta.env.VITE_BASE_URL}/ws`); // Ensure this URL is correct
     const client = Stomp.over(socket);
 
     client.connect({}, (frame) => {
@@ -148,7 +149,7 @@ function ResidentEventPage() {
 
   const rsvpAsParticipant = async (profileId, eventId) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/EventService/rsvpParticipant', {
+      const response = await axiosInstance.post('/EventService/rsvpParticipant', {
         profileId: profileId,
         eventId: eventId,
       });
@@ -176,7 +177,7 @@ function ResidentEventPage() {
 
   const deleteRsvpAsParticipant = async (profileId, eventId) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/EventService/deleteRsvpAsParticipant', {
+      const response = await axiosInstance.post('/EventService/deleteRsvpAsParticipant', {
         profileId: profileId,
         eventId: eventId,
       });
@@ -208,7 +209,7 @@ function ResidentEventPage() {
     e.preventDefault();
     try {
       // Replace with your API endpoint
-      await axios.post('http://localhost:5000/api/EventService/createEvent/' + profileId, newEvent);
+      await axiosInstance.post('/EventService/createEvent/' + profileId, newEvent);
       setSuccessMessage('Event created successfully!');
       setErrorMessage(null);
       setShowCreateEventModal(false);
@@ -234,7 +235,7 @@ function ResidentEventPage() {
   const handleEditEvent = async (e) => {
     e.preventDefault();
     try {
-      await axios.put('http://localhost:5000/api/EventService/updateEvent', editEvent);
+      await axiosInstance.put('/EventService/updateEvent', editEvent);
       setSuccessMessage('Event updated successfully!');
       setErrorMessage(null);
       setShowEditModal(false);
@@ -251,7 +252,7 @@ function ResidentEventPage() {
   const handleDeleteEvent = async (e) => {
     e.preventDefault();
     try {
-      await axios.delete('http://localhost:5000/api/EventService/deleteEvent/' + editEvent.id);
+      await axiosInstance.delete('/EventService/deleteEvent/' + editEvent.id);
       setSuccessMessage('Event deleted successfully!');
       setErrorMessage(null);
       setShowEditModal(null);
