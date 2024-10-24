@@ -8,6 +8,7 @@ import neighbourlySGbackground from "../../assets/neighbourlySGbackground.jpg";
 import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import axiosInstance from '../Utils/axiosConfig'
 
 
 const animatedComponents = makeAnimated();
@@ -33,7 +34,7 @@ function CommunityPost() {
     // fetch all posts
     const fetchPosts = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/PostService/`);
+        const response = await axiosInstance.get(`/PostService/`);
         if (response.status === 200) {
           setPosts(response.data);
         }
@@ -45,7 +46,7 @@ function CommunityPost() {
     const fetchProfile = async () => {
       try {
         // Fetch the user's profile details to get name
-        const response = await axios.get(`http://localhost:5000/api/ProfileService/profile/${userId}`);
+        const response = await axiosInstance.get(`/ProfileService/profile/${userId}`);
 
         if (response.status === 200) {
           const name = response.data.name;
@@ -73,7 +74,7 @@ function CommunityPost() {
         profileName: sessionStorage.getItem('name')
       };
 
-      const res = await axios.post(`http://localhost:5000/api/PostService/${userId}`, newPost);
+      const res = await axiosInstance.post(`/PostService/${userId}`, newPost);
       if (res.status === 200 || res.status === 201) {
         setPosts([newPost, ...posts]);
         resetForm(); // Reset the form fields after posting
