@@ -6,6 +6,7 @@ import com.nusiss.neighbourlysg.entity.SurveyResponse;
 import com.nusiss.neighbourlysg.service.SurveyResponseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +28,7 @@ public class SurveyResponseController {
     }
 
     @PostMapping("/submitSurveyResponse")
+    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<SurveyResponseDTO> submitSurveyResponse(@RequestBody SurveyResponseDTO surveyResponseDTO) {
         try {
             SurveyResponseDTO result = surveyResponseService.saveSurveyResponse(surveyResponseDTO);
@@ -37,6 +39,7 @@ public class SurveyResponseController {
     }
 
     @GetMapping("/getSurveyResponses/{surveyId}")
+    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<List<SurveyResponseDTO>> getSurveyResponses(@PathVariable Long surveyId) {
         try {
             List<SurveyResponseDTO> responseDtos = surveyResponseService.getSurveyResponses(surveyId);
@@ -47,6 +50,7 @@ public class SurveyResponseController {
     }
 
     @GetMapping("/getUserResponses/{surveyId}/{userId}")
+    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<SurveyResponseDTO> getUserResponses(@PathVariable Long surveyId, @PathVariable Long userId) {
         try {
             // Call the service method to retrieve the user's responses
