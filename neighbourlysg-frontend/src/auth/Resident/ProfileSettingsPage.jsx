@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Form, Button, Alert, Modal } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
-import SGLogo from '../../assets/SGLogo.avif';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import axiosInstance from '../Utils/axiosConfig'
 
 const grcSmcOptions = [
   'Aljunied GRC', 'Ang Mo Kio GRC', 'Bishan-Toa Payoh GRC', 'Chua Chu Kang GRC',
@@ -73,7 +71,7 @@ function ProfileSettingsPage() {
     } else {
       setErrors({});
       try {
-        const response = await axios.put(`http://localhost:5000/api/ProfileService/updateProfile/${userId}`, {
+        const response = await axiosInstance.put(`/ProfileService/updateProfile/${userId}`, {
           name,
           email,
           password: newPassword,
@@ -89,7 +87,7 @@ function ProfileSettingsPage() {
   const handleDeleteAccount = async () => {
     if (deleteConfirm === 'delete account') {
       try {
-        const response = await axios.delete(`http://localhost:5000/api/ProfileService/profile/${userId}`);
+        const response = await axiosInstance.delete(`/ProfileService/profile/${userId}`);
         if (response.status === 200) {
           alert('Your account has been deleted.');
           setShowModal(false);
