@@ -5,7 +5,6 @@ import makeAnimated from 'react-select/animated';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Modal, Button, Form } from "react-bootstrap";
 import neighbourlySGbackground from "../../assets/neighbourlySGbackground.jpg";
-import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axiosInstance from '../Utils/axiosConfig'
