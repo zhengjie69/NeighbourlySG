@@ -3,6 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Button, Form, Card, InputGroup, FormControl } from "react-bootstrap";
 import { Link, useLocation } from "react-router-dom";
 import neighbourlySGbackground from "../../assets/neighbourlySGbackground.jpg";
+import axiosInstance from '../Utils/axiosConfig'
 
 const CreateSurveyPage = () => {
   const [surveyTitle, setSurveyTitle] = useState("");
@@ -18,15 +19,9 @@ const CreateSurveyPage = () => {
 
   // Function to fetch existing survey data based on surveyId
   const fetchSurvey = async (id) => {
-    //const token = sessionStorage.getItem('accessToken');
-    const response = await fetch(`http://localhost:5000/api/SurveyService/getSurvey/${id}`, {
-      method: 'GET',
-      headers: {
-        //'Authorization': `Bearer ${token}`,
-      },
-    });
+    const response = await axiosInstance.get(`/SurveyService/getSurvey/${id}`);
 
-    if (response.ok) {
+    if (response.data) {
       const surveyData = await response.json();
       setSurveyTitle(surveyData.title);
       setSurveyDescription(surveyData.description);
@@ -85,16 +80,18 @@ const CreateSurveyPage = () => {
         })),
       };
 
-      const response = await fetch(`http://localhost:5000/api/SurveyService/${surveyId ? 'updateSurvey' : 'createSurvey'}`, { // Check if it's an update or create
-        method: surveyId ? 'PUT' : 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          //'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(surveyData),
-      });
+      let response;
+      if (surveyId) {
+        // If surveyId exists, it's an update, so use PUT
+        response = await axiosInstance.put(`/SurveyService/updateSurvey`, surveyData);
+      } else {
+        // If surveyId does not exist, it's a create, so use POST
+        response = await axiosInstance.post(`/SurveyService/createSurvey`, surveyData);
+      }
 
-      if (response.ok) {
+      
+
+      if (response.data) {
         setMessage(surveyId ? "Survey updated successfully!" : "Survey created successfully!");
         setIsError(false);
         // Reset form
