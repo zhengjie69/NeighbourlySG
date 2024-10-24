@@ -5,6 +5,7 @@ import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
 import axios from 'axios';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 import { useNavigate } from 'react-router-dom';
+import axiosInstance from '../Utils/axiosConfig'
 
 const SurveyShowcasePage = () => {
   const [surveys, setSurveys] = useState([]);
@@ -25,13 +26,14 @@ const SurveyShowcasePage = () => {
   useEffect(() => {
     const fetchSurveys = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/SurveyService/getAllSurveys');
+        // Use the custom axios instance instead of axios
+        const response = await axiosInstance.get('/SurveyService/getAllSurveys');
         setSurveys(response.data);
       } catch (error) {
         console.error('Error fetching surveys:', error);
       }
     };
-
+  
     fetchSurveys();
   }, []);
 
@@ -67,7 +69,7 @@ const SurveyShowcasePage = () => {
   // Handle Delete
   const handleDeleteSurvey = async () => {
     try {
-      await axios.delete(`http://localhost:5000/api/SurveyService/survey/${surveyToDelete.id}`);
+      await axiosInstance.delete(`/SurveyService/survey/${surveyToDelete.id}`);
       setSurveys((prevSurveys) => prevSurveys.filter((survey) => survey.id !== surveyToDelete.id));
       setShowDeleteModal(false);
     } catch (error) {
@@ -104,7 +106,7 @@ const SurveyShowcasePage = () => {
     };
 
     try {
-      await axios.post('http://localhost:5000/api/SurveyResponseService/submitSurveyResponse', responsePayload);
+      await axiosInstance.post('/SurveyResponseService/submitSurveyResponse', responsePayload);
       console.log('Survey responses submitted:', responsePayload);
       handleCloseModal();  // Close the modal after submission
     } catch (error) {
