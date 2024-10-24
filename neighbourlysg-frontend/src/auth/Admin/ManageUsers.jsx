@@ -20,7 +20,7 @@ const ManageUsers = () => {
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/ProfileService/profiles');
+        const response = await axiosInstance.get('/ProfileService/profiles');
         if (response.status === 200) {
           setProfiles(response.data);
         }
@@ -36,7 +36,7 @@ const ManageUsers = () => {
     setSelectedProfileId(profileId);
     try {
       // get profile, precheck user role 
-      const response = await axios.get(`http://localhost:5000/api/ProfileService/profile/${profileId}`);
+      const response = await axiosInstance.get(`/ProfileService/profile/${profileId}`);
       if (response.status === 200) {
         const roles = response.data.roles || [];
         setSelectedRoles({
@@ -70,7 +70,7 @@ const ManageUsers = () => {
     if (selectedRoles.user) updatedRoles.push(1); // User role
 
     try {
-      const response = await axios.put(`http://localhost:5000/api/ProfileService/assign-role`, {
+      const response = await axiosInstance.put(`/ProfileService/assign-role`, {
         "userId": selectedProfileId,
         "roleIds": updatedRoles
       });
