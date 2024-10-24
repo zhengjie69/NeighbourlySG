@@ -25,16 +25,19 @@ public class SurveyController {
     }
 
     @PostMapping("/createSurvey")
+    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<SurveyDTO> createSurvey(@RequestBody SurveyDTO surveyDTO) {
         return ResponseEntity.ok(surveyService.createSurvey(surveyDTO));
     }
 
     @GetMapping("/getAllSurveys")
+    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<List<SurveyDTO>> getAllSurveys() {
         return ResponseEntity.ok(surveyService.getAllSurveys());
     }
 
     @GetMapping("/getSurvey/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<SurveyDTO> getSurveyById(@PathVariable Long id) {
         return surveyService.getSurveyById(id)
                 .map(ResponseEntity::ok)
@@ -42,6 +45,7 @@ public class SurveyController {
     }
 
     @PutMapping("/updateSurvey")
+    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<SurveyDTO> updateSurvey(@RequestBody SurveyDTO updatedSurvey) {
 
         try {
@@ -55,6 +59,7 @@ public class SurveyController {
 
     // Delete Profile REST API
     @DeleteMapping("/survey/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<String> deleteProfile(@PathVariable("id") Long id) {
         try {
             surveyService.deleteSurveyById(id);
