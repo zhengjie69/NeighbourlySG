@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Button, Form, Card, InputGroup, FormControl } from "react-bootstrap";
+import { Button, Form, Card, InputGroup, FormControl, OverlayTrigger, Tooltip } from "react-bootstrap";
+import { FaTrash } from 'react-icons/fa';
 import { Link, useLocation } from "react-router-dom";
 import neighbourlySGbackground from "../../assets/neighbourlySGbackground.jpg";
 import axiosInstance from '../Utils/axiosConfig'
@@ -251,8 +252,18 @@ const CreateSurveyPage = () => {
           {questions.map((question, index) => (
             <Card key={question.id} className="mb-3">
               <Card.Body>
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <Form.Label>Question {index + 1}</Form.Label>
+                <OverlayTrigger
+                  placement="top"
+                  overlay={<Tooltip>Delete Question</Tooltip>}
+                >
+                  <Button variant="outline-danger" className="ms-2" onClick={() => { deleteQuestion(question.id); }}>
+                      <FaTrash />
+                  </Button>
+                </OverlayTrigger>
+              </div>
                 <Form.Group className="mb-3">
-                  <Form.Label>Question {index + 1}</Form.Label>
                   <InputGroup>
                     <FormControl
                       placeholder="Enter question"
