@@ -4,9 +4,7 @@ import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link } from 'react-router-dom';
 import { Modal, Button, Alert } from 'react-bootstrap';
-import axios from 'axios';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
-import SGLogo from '../../assets/SGLogo.avif';
 import { Stomp } from '@stomp/stompjs'; // Import Stomp
 import SockJS from 'sockjs-client';
 import axiosInstance from '../Utils/axiosConfig'
