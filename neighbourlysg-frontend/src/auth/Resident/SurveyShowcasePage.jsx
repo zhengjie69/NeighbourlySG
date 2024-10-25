@@ -137,7 +137,7 @@ const SurveyShowcasePage = () => {
       }}
     >
       {/* Back Button positioned at the top-right */}
-      <Button
+      {/* <Button
         onClick={() => navigate(-1)}
         style={{
           position: "absolute",
@@ -157,7 +157,7 @@ const SurveyShowcasePage = () => {
         }}
       >
         ←
-      </Button>
+      </Button> */}
 
       <div
         className="card p-5 mt-5 mb-4"

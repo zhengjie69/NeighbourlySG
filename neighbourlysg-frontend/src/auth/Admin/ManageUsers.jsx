@@ -40,9 +40,9 @@ const ManageUsers = () => {
       if (response.status === 200) {
         const roles = response.data.roles || [];
         setSelectedRoles({
-          admin: roles.includes(3),
-          org: roles.includes(2),
-          user: roles.includes(1),
+          admin: roles.includes("ROLE_ADMIN"),
+          org: roles.includes("ROLE_ORGANISER"),
+          user: roles.includes("ROLE_USER"),
         });
         setIsModalOpen(true);
       }

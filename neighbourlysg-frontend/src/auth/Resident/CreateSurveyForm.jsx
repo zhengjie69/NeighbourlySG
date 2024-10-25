@@ -138,7 +138,7 @@ const CreateSurveyPage = () => {
         </h3>
 
         {/* Back Button positioned at the top-right */}
-      <Button
+      {/* <Button
         onClick={() => navigate(-1)}
         style={{
           position: 'absolute',
@@ -158,7 +158,7 @@ const CreateSurveyPage = () => {
         }}
       >
         ←
-      </Button>
+      </Button> */}
 
         <Form>
           <Form.Group className="mb-4">

@@ -108,7 +108,7 @@ const SurveyDetailPage = () => {
       }}
     >
       {/* Back Button positioned at the top-right */}
-      <Button
+      {/* <Button
         onClick={() => navigate(-1)}
         style={{
           position: 'absolute',
@@ -128,7 +128,7 @@ const SurveyDetailPage = () => {
         }}
       >
         ←
-      </Button>
+      </Button> */}
 
       <div className="card p-5 mt-5 mb-4" style={{ width: '800px', boxShadow: '0 12px 24px rgba(0, 0, 0, 0.2)', borderRadius: '16px', backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
         <h3 style={{ fontWeight: '700', fontSize: '1.8rem', color: '#333' }}>{survey?.title}</h3>

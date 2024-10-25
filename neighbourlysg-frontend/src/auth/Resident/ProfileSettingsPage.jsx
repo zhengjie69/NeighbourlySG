@@ -157,7 +157,7 @@ function ProfileSettingsPage() {
       }}
     >
       {/* Back Button */}
-      <Button
+      {/* <Button
         onClick={() => navigate(-1)}
         style={{
           position: "absolute",
@@ -177,7 +177,7 @@ function ProfileSettingsPage() {
         }}
       >
         ←
-      </Button>
+      </Button> */}
 
       <div className="container mt-5 flex-grow-1">
         <div
@@ -186,7 +186,7 @@ function ProfileSettingsPage() {
         >
           <h2
             className="text-dark bg-white bg-opacity-75 p-2 rounded text-center"
-            style={{ display: "inline-block", width: "90%" }}
+            style={{ display: "inline-block", width: "100%" }}
           >
             Profile Settings
           </h2>

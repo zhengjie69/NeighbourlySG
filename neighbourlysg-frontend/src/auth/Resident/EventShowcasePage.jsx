@@ -336,7 +336,17 @@ function ResidentEventPage() {
       }}
     >
       <div className="container mt-5 flex-grow-1">
-        <h2 className="mb-4 text-white">Community Events</h2>
+      <div
+          className="mb-4 d-flex justify-content-center"
+          style={{ width: "100%" }}
+        >
+          <h2
+            className="text-dark bg-white bg-opacity-75 p-2 rounded text-center"
+            style={{ display: "inline-block", width: "100%" }}
+          >
+            Community Events
+          </h2>
+      </div>
 
         {/* Conditionally render Create Event Button only for organizer accounts */}
         {isOrganiserOrAdmin && (
