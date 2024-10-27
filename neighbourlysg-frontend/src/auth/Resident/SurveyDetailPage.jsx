@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, Form } from 'react-bootstrap';
 import { useNavigate, useLocation } from 'react-router-dom';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
-import axios from 'axios';
+import axiosInstance from '../Utils/axiosConfig'
 
 const SurveyDetailPage = () => {
   const navigate = useNavigate();
@@ -32,7 +32,7 @@ const SurveyDetailPage = () => {
   const fetchExistingResponses = async (surveyId) => {
     const userId = sessionStorage.getItem('userId'); // Get userId from sessionStorage
     try {
-      const response = await axios.get(`http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/SurveyResponseService/getUserResponses${surveyId}/${userId}`);
+      const response = await axiosInstance.get(`/SurveyResponseService/getUserResponses${surveyId}/${userId}`);
       const existingResponse = response.data;
 
       if (existingResponse && existingResponse.responses.length > 0) {
@@ -78,7 +78,7 @@ const SurveyDetailPage = () => {
     };
 
     try {
-      await axios.post('http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/SurveyResponseService/submitSurveyResponse', responsePayload);
+      await axiosInstance.post('/SurveyResponseService/submitSurveyResponse', responsePayload);
       console.log('Responses submitted:', responsePayload);
       setSubmissionSuccess(true); // Mark submission as successful
       setIsEditing(false); // Exit editing mode after submission

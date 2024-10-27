@@ -1,9 +1,9 @@
 // eslint-disable-next-line no-unused-vars
 import React, { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
-import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg'; // Ensure the correct path to your background image
+import axiosInstance from '../Utils/axiosConfig'
 
 const SurveyResponsesPage = () => {
   const [userResponses, setUserResponses] = useState([]);
@@ -17,7 +17,7 @@ const SurveyResponsesPage = () => {
   useEffect(() => {
     if (survey) {
       // Fetch user responses for the survey from the backend
-      axios.get(`http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/SurveyResponseService/getSurveyResponses/${survey.id}`)
+      axiosInstance.get(`/SurveyResponseService/getSurveyResponses/${survey.id}`)
         .then(response => {
           setUserResponses(response.data); // Set the responses in the state
         })

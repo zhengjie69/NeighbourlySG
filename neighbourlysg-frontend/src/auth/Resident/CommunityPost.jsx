@@ -5,7 +5,6 @@ import makeAnimated from 'react-select/animated';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Modal, Button, Form } from "react-bootstrap";
 import neighbourlySGbackground from "../../assets/neighbourlySGbackground.jpg";
-import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { IoMdSend } from "react-icons/io";
@@ -13,6 +12,7 @@ import { BiLike } from "react-icons/bi";
 import { FaRegComment } from "react-icons/fa";
 import { MdDeleteOutline } from "react-icons/md";
 import { FiEdit2 } from "react-icons/fi";
+import axiosInstance from '../Utils/axiosConfig'
 
 const animatedComponents = makeAnimated();
 
@@ -44,13 +44,12 @@ function CommunityPost() {
 
   const userId = sessionStorage.getItem("userId");
   const roleId = sessionStorage.getItem("roles");
-  const BASE_URL = "http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com";
 
   useEffect(() => {
     // fetch all posts
     const fetchPosts = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/api/PostService/`);
+        const response = await axiosInstance.get(`/PostService/`);
         if (response.status === 200) {
           setPosts(response.data);
         }
@@ -62,7 +61,7 @@ function CommunityPost() {
     const fetchProfile = async () => {
       try {
         // Fetch the user's profile details to get name
-        const response = await axios.get(`${BASE_URL}/api/ProfileService/profile/${userId}`);
+        const response = await axiosInstance.get(`/ProfileService/profile/${userId}`);
 
         if (response.status === 200) {
           const name = response.data.name;
@@ -89,7 +88,7 @@ function CommunityPost() {
         profileName: sessionStorage.getItem("name"),
       };
   
-      const res = await axios.post(`${BASE_URL}/api/PostService/${userId}`, newPost);
+      const res = await axiosInstance.post(`/PostService/${userId}`, newPost);
       if (res.status === 200 || res.status === 201) {
         const savedPost = res.data; 
         setPosts([savedPost, ...posts]);
@@ -106,7 +105,7 @@ function CommunityPost() {
   const handleLikePost = async (postId) => {  
     try {
       // get list of people who liked the post 
-      const response = await axios.get(`${BASE_URL}/api/LikeService/${postId}/likes/profiles`); 
+      const response = await axiosInstance.get(`/LikeService/${postId}/likes/profiles`); 
       const likedByProfiles = response.data.map(profile => profile.id);
       const hasLiked = likedByProfiles.includes(Number(userId));
   
@@ -118,14 +117,14 @@ function CommunityPost() {
           likedAt: new Date().toISOString()
         };
   
-        await axios.post(`${BASE_URL}/api/LikeService/${userId}/posts/${postId}`, likePost);
+        await axiosInstance.post(`/LikeService/${userId}/posts/${postId}`, likePost);
   
         const updatedPosts = posts.map((post) =>
           post.id === postId ? { ...post, likeCount: post.likeCount + 1, likedBy: [...(post.likedBy || []), Number(userId)] } : post
         );
         setPosts(updatedPosts);
       } else {
-        await axios.delete(`${BASE_URL}/api/LikeService/${userId}/posts/${postId}`);
+        await axiosInstance.delete(`/LikeService/${userId}/posts/${postId}`);
   
         const updatedPosts = posts.map((post) =>
           post.id === postId
@@ -157,7 +156,7 @@ function CommunityPost() {
           profileName: sessionStorage.getItem("name"),
         };
         
-        const response = await axios.post(`${BASE_URL}/api/PostService/${selectedPost.id}/comments/${userId}`, comment);
+        const response = await axiosInstance.post(`/PostService/${selectedPost.id}/comments/${userId}`, comment);
 
         if (response.status === 200 || response.status === 201) {
             const savedComment = response.data;
@@ -185,7 +184,7 @@ function CommunityPost() {
     setShowModal(true); // Open the modal
 
     try {
-      const response = await axios.get(`${BASE_URL}/api/PostService/${post.id}/comments`);
+      const response = await axiosInstance.get(`/PostService/${post.id}/comments`);
       if (response.status === 200) {
         // Assuming your response structure is an array of comments
         setSelectedPost((prevPost) => ({ ...prevPost, comments: response.data }));
@@ -210,7 +209,7 @@ function CommunityPost() {
     if (!selectedComment) return;
   
     try {
-      const response = await axios.delete(`${BASE_URL}/api/PostService/${selectedPost.id}/comments/${selectedComment.id}/${userId}`);
+      const response = await axiosInstance.delete(`/PostService/${selectedPost.id}/comments/${selectedComment.id}/${userId}`);
       if (response.status === 200 || response.status === 204) {
         const updatedPosts = posts.map(post =>
           post.id === selectedPost.id
@@ -242,7 +241,7 @@ function CommunityPost() {
       };
   
       // Update the comment
-      const response = await axios.put(`${BASE_URL}/api/PostService/${postId}/comments/${selectedComment.id}/${userId}`, updatedCommentData);
+      const response = await axiosInstance.put(`/PostService/${postId}/comments/${selectedComment.id}/${userId}`, updatedCommentData);
   
       if (response.status === 200) {
         // Update local state to reflect the edited comment
@@ -281,7 +280,7 @@ function CommunityPost() {
     if (postToDelete === null) return;
 
     try {
-      const response = await axios.delete(`${BASE_URL}/api/PostService/${postToDelete}/${userId}`);
+      const response = await axiosInstance.delete(`/PostService/${postToDelete}/${userId}`);
 
       if (response.status === 200 || response.status === 204) {
         const updatedPosts = posts.filter((post) => post.id !== postToDelete);
@@ -314,7 +313,7 @@ function CommunityPost() {
         tags: editedTags
       };
   
-      const res = await axios.put(`${BASE_URL}/api/PostService/${postId}/${userId}`, updatedPost);
+      const res = await axiosInstance.put(`/PostService/${postId}/${userId}`, updatedPost);
   
       if (res.status === 200 || res.status === 204) {
         const updatedPosts = posts.map(post => 

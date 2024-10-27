@@ -4,6 +4,7 @@ import { Form, Button, Alert, Modal } from "react-bootstrap";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import neighbourlySGbackground from "../../assets/neighbourlySGbackground.jpg";
+import axiosInstance from '../Utils/axiosConfig'
 
 const grcSmcOptions = [
   "Aljunied GRC",
@@ -111,8 +112,8 @@ function ProfileSettingsPage() {
       if (constituency) updatedData.constituency = constituency;
 
       // Only update the fields that are provided
-      const response = await axios.put(
-        `http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/ProfileService/updateProfile/${userId}`,
+      const response = await axiosInstance.put(
+        `/ProfileService/updateProfile/${userId}`,
         updatedData
       );
 
@@ -128,8 +129,8 @@ function ProfileSettingsPage() {
   const handleDeleteAccount = async () => {
     if (deleteConfirm === "delete account") {
       try {
-        const response = await axios.delete(
-          `http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/ProfileService/profile/${userId}`
+        const response = await axiosInstance.delete(
+          `/ProfileService/profile/${userId}`
         );
         if (response.status === 200) {
           alert("Your account has been deleted.");

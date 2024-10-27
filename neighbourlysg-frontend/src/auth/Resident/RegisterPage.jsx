@@ -2,11 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import axios from 'axios'; // Import axios
-import { Modal, Button } from 'react-bootstrap';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 import { Link } from 'react-router-dom';
-import { rsaEncrypt } from '../Utils/RSAUtil';
+import axiosInstance from '../Utils/axiosConfig'
 
 function RegisterPage() {
   const [name, setName] = useState('');
@@ -68,7 +66,7 @@ function RegisterPage() {
     try {
       // Encrypt the password using the RSA utility
       // const encryptedPassword = rsaEncrypt(password);
-      const response = await axios.post('http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/auth/register', {
+      const response = await axiosInstance.post('/auth/register', {
         name: name,
         email: email,
         password: password,  // Send the encrypted password

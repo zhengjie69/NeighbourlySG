@@ -3,9 +3,9 @@ import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Modal, Button, Form, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
-import axios from "axios";
 import neighbourlySGbackground from "../../assets/neighbourlySGbackground.jpg";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from '../Utils/axiosConfig'
 
 const SurveyShowcasePage = () => {
   const [surveys, setSurveys] = useState([]);
@@ -31,8 +31,8 @@ const SurveyShowcasePage = () => {
   useEffect(() => {
     const fetchSurveys = async () => {
       try {
-        const response = await axios.get(
-          "http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/SurveyService/getAllSurveys"
+        const response = await axiosInstance.get(
+          "/SurveyService/getAllSurveys"
         );
         setSurveys(response.data);
         console.log("Surveys:", response.data); // Log surveys to check if data is being fetched correctly
@@ -72,8 +72,8 @@ const SurveyShowcasePage = () => {
   // Handle Delete
   const handleDeleteSurvey = async () => {
     try {
-      await axios.delete(
-        `http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/SurveyService/survey/${surveyToDelete.id}`
+      await axiosInstance.delete(
+        `/SurveyService/survey/${surveyToDelete.id}`
       );
       setSurveys((prevSurveys) =>
         prevSurveys.filter((survey) => survey.id !== surveyToDelete.id)
@@ -112,8 +112,8 @@ const SurveyShowcasePage = () => {
     };
 
     try {
-      await axios.post(
-        "http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/SurveyResponseService/submitSurveyResponse",
+      await axiosInstance.post(
+        "/SurveyResponseService/submitSurveyResponse",
         responsePayload
       );
       console.log("Survey responses submitted:", responsePayload);

@@ -9,6 +9,7 @@ import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 import SGLogo from '../../assets/SGLogo.avif';
 import { Stomp } from '@stomp/stompjs'; // Import Stomp
 import SockJS from 'sockjs-client';
+import axiosInstance from '../Utils/axiosConfig'
 
 
 const grcSmcOptions = [
@@ -71,12 +72,12 @@ function ResidentEventPage() {
   const fetchUpcomingEvents = async () => {
     try {
       if (upcomingEventSearchLocation == "") {
-        const response = await axios.get('http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/EventService/getAllCurrentEvent/' + profileId + '/' + constituency);
+        const response = await axiosInstance.get('/EventService/getAllCurrentEvent/' + profileId + '/' + constituency);
         const upcomingEventsWithoutFilter = response.data;
         setUpcomingEvents(upcomingEventsWithoutFilter);
       }
       else {
-        const response = await axios.get('http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/EventService/getAllCurrentEvent/' + profileId + '/' + constituency + "?location=" + upcomingEventSearchLocation);
+        const response = await axiosInstance.get('/EventService/getAllCurrentEvent/' + profileId + '/' + constituency + "?location=" + upcomingEventSearchLocation);
         const upComingEventsWithFilter = response.data;
         setUpcomingEvents(upComingEventsWithFilter);
       }
@@ -87,8 +88,8 @@ function ResidentEventPage() {
 
   const fetchUserEvents = async () => {
     try {
-      const response = await axios.get(
-        'http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/EventService/getAllUserEvent/' + profileId
+      const response = await axiosInstance.get(
+        '/EventService/getAllUserEvent/' + profileId
       );
       if (response.status === 200 && response.data != null) {
         setUserEvents(response.data);
@@ -107,12 +108,12 @@ function ResidentEventPage() {
   const fetchPastEvents = async () => {
     try {
       if (pastEventSearchLocation == "") {
-        const response = await axios.get('http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/EventService/getAllPastEvent/' + profileId + '/' + constituency);
+        const response = await axiosInstance.get('/EventService/getAllPastEvent/' + profileId + '/' + constituency);
         const pastEventsWithoutFilter = response.data;
         setPastEvents(pastEventsWithoutFilter);
       }
       else {
-        const response = await axios.get('http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/EventService/getAllPastEvent/' + profileId + '/' + constituency + "?location=" + pastEventSearchLocation);
+        const response = await axiosInstance.get('/EventService/getAllPastEvent/' + profileId + '/' + constituency + "?location=" + pastEventSearchLocation);
         const pastEventsWithFilter = response.data;
         setPastEvents(pastEventsWithFilter);
       }
@@ -161,8 +162,8 @@ function ResidentEventPage() {
 
   const rsvpAsParticipant = async (profileId, eventId) => {
     try {
-      const response = await axios.post(
-        "http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/EventService/rsvpParticipant",
+      const response = await axiosInstance.post(
+        "/EventService/rsvpParticipant",
         {
           profileId,
           eventId,
@@ -182,7 +183,7 @@ function ResidentEventPage() {
 
   const deleteRsvpAsParticipant = async (profileId, eventId) => {
     try {
-      const response = await axios.post('http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/EventService/deleteRsvpAsParticipant', {
+      const response = await axiosInstance.post('/EventService/deleteRsvpAsParticipant', {
         profileId: profileId,
         eventId: eventId,
       });
@@ -213,8 +214,8 @@ function ResidentEventPage() {
   const handleCreateEvent = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(
-        `http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/EventService/createEvent/${profileId}`,
+      await axiosInstance.post(
+        `/EventService/createEvent/${profileId}`,
         newEvent
       );
       setSuccessMessage("Event created successfully!");
@@ -237,7 +238,7 @@ function ResidentEventPage() {
   const handleEditEvent = async (e) => {
     e.preventDefault();
     try {
-      await axios.put('http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/EventService/updateEvent/', editEvent);
+      await axiosInstance.put('/EventService/updateEvent/', editEvent);
       setSuccessMessage('Event updated successfully!');
       setErrorMessage(null);
       setShowEditModal(false);
@@ -254,7 +255,7 @@ function ResidentEventPage() {
   const handleDeleteEvent = async (e) => {
     e.preventDefault();
     try {
-      await axios.delete('http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/EventService/deleteEvent/' + editEvent.id);
+      await axiosInstance.delete('/EventService/deleteEvent/' + editEvent.id);
       setSuccessMessage('Event deleted successfully!');
       setErrorMessage(null);
       setShowEditModal(null);
