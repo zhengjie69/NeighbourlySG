@@ -221,16 +221,6 @@ const SurveyShowcasePage = () => {
                 </button>
               </div>
 
-              {/* Resident Role: Show "Respond to Survey" button */}
-              {isResident && (
-                <Button
-                  variant="success"
-                  onClick={() => handleShowModal(survey)}
-                  style={{ marginLeft: "15px" }} // No comments inside style
-                >
-                  Respond to Survey
-                </Button>
-              )}
 
               {/* Organizer Role: Show "View Responses," "Update Survey," and "Delete Survey" buttons */}
               {isOrganiserOrAdmin && (
