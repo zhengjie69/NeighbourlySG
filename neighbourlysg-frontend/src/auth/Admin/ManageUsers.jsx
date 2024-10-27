@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
-import SGLogo from '../../assets/SGLogo.avif';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import axiosInstance from '../Utils/axiosConfig'
 
 const ManageUsers = () => {
   const [profiles, setProfiles] = useState([]);
@@ -20,7 +18,7 @@ const ManageUsers = () => {
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/ProfileService/profiles');
+        const response = await axiosInstance.get('/ProfileService/profiles');
         if (response.status === 200) {
           setProfiles(response.data);
         }
@@ -36,13 +34,13 @@ const ManageUsers = () => {
     setSelectedProfileId(profileId);
     try {
       // get profile, precheck user role 
-      const response = await axios.get(`http://localhost:5000/api/ProfileService/profile/${profileId}`);
+      const response = await axiosInstance.get(`/ProfileService/profile/${profileId}`);
       if (response.status === 200) {
         const roles = response.data.roles || [];
         setSelectedRoles({
-          admin: roles.includes(3),
-          org: roles.includes(2),
-          user: roles.includes(1),
+          admin: roles.includes("ROLE_ADMIN"),
+          org: roles.includes("ROLE_ORGANISER"),
+          user: roles.includes("ROLE_USER"),
         });
         setIsModalOpen(true);
       }
@@ -70,7 +68,7 @@ const ManageUsers = () => {
     if (selectedRoles.user) updatedRoles.push(1); // User role
 
     try {
-      const response = await axios.put(`http://localhost:5000/api/ProfileService/assign-role`, {
+      const response = await axiosInstance.put(`/RoleService/roles`, {
         "userId": selectedProfileId,
         "roleIds": updatedRoles
       });
@@ -120,9 +118,9 @@ const ManageUsers = () => {
               </tr>
             </thead>
             <tbody>
-              {profiles.map((profile) => (
+              {profiles.map((profile, index) => (
                 <tr key={profile.id}>
-                  <th scope="row">{profile.id}</th>
+                  <th scope="row">{index + 1}</th>
                   <td>{profile.name}</td>
                   <td>{profile.email}</td>
                   <td>{profile.constituency}</td>

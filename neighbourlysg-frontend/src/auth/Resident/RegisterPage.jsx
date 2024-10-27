@@ -2,11 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import axios from 'axios'; // Import axios
-import { Modal, Button } from 'react-bootstrap';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 import { Link } from 'react-router-dom';
-import { rsaEncrypt } from '../Utils/RSAUtil';
+import axiosInstance from '../Utils/axiosConfig'
 
 function RegisterPage() {
   const [name, setName] = useState('');
@@ -68,7 +66,7 @@ function RegisterPage() {
     try {
       // Encrypt the password using the RSA utility
       // const encryptedPassword = rsaEncrypt(password);
-      const response = await axios.post('http://localhost:5000/api/auth/register', {
+      const response = await axiosInstance.post('/auth/register', {
         name: name,
         email: email,
         password: password,  // Send the encrypted password
@@ -82,6 +80,10 @@ function RegisterPage() {
       setMessage("Register successfully!");
       setIsError(false); // Clear error state
       setErrors({});
+      setShowSuccessModal(true); // Show success modal
+      setTimeout(() => {
+        navigate('/ResidentLogin'); // Redirect to login page after 3 seconds
+      }, 3000); // Delay in milliseconds
 
     } catch (error) {
       console.error('Registration error:', error);
@@ -100,8 +102,8 @@ function RegisterPage() {
     if (showSuccessModal) {
       const timer = setTimeout(() => {
         setShowSuccessModal(false);
-        navigate('/ResidentMainPage'); // Redirect to ResidentMainPage after 3 seconds
-      }, 3000); // 3 seconds
+        navigate('/ResidentLogin'); // Redirect to ResidentMainPage after 3 seconds
+      }, 1000); // 3 seconds
 
       return () => clearTimeout(timer); // Cleanup timer if component unmounts
     }
@@ -210,20 +212,6 @@ function RegisterPage() {
           </Link>
         </div>
       </div>
-      {/* Success Modal */}
-      <Modal show={showSuccessModal} onHide={() => setShowSuccessModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Success</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Your account has been created successfully! Redirecting to the main page...
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="primary" onClick={() => navigate('/ResidentMainPage')}>
-            Go to Main Page Now
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </div>
   );
 }

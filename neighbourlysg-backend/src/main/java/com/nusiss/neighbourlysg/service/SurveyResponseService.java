@@ -11,4 +11,6 @@ public interface SurveyResponseService {
     List<SurveyResponseDTO> getSurveyResponses(Long surveyId);
 
     SurveyResponseDTO getUserResponses(Long surveyId, Long userId);
+
+    void deleteUserResponses(Long surveyId);
 }

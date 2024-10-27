@@ -1,9 +1,10 @@
+// eslint-disable-next-line no-unused-vars
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, Form } from 'react-bootstrap';
 import { useNavigate, useLocation } from 'react-router-dom';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
-import axios from 'axios';
+import axiosInstance from '../Utils/axiosConfig'
 
 const SurveyDetailPage = () => {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ const SurveyDetailPage = () => {
   const fetchExistingResponses = async (surveyId) => {
     const userId = sessionStorage.getItem('userId'); // Get userId from sessionStorage
     try {
-      const response = await axios.get(`http://localhost:5000/api/SurveyResponseService/getUserResponses/${surveyId}/${userId}`);
+      const response = await axiosInstance.get(`/SurveyResponseService/getUserResponses/${surveyId}/${userId}`);
       const existingResponse = response.data;
 
       if (existingResponse && existingResponse.responses.length > 0) {
@@ -77,7 +78,7 @@ const SurveyDetailPage = () => {
     };
 
     try {
-      await axios.post('http://localhost:5000/api/SurveyResponseService/submitSurveyResponse', responsePayload);
+      await axiosInstance.post('/SurveyResponseService/submitSurveyResponse', responsePayload);
       console.log('Responses submitted:', responsePayload);
       setSubmissionSuccess(true); // Mark submission as successful
       setIsEditing(false); // Exit editing mode after submission
@@ -103,8 +104,32 @@ const SurveyDetailPage = () => {
         backgroundRepeat: 'no-repeat',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
         backdropFilter: 'blur(5px)',
+        position: 'relative',
       }}
     >
+      {/* Back Button positioned at the top-right */}
+      {/* <Button
+        onClick={() => navigate(-1)}
+        style={{
+          position: 'absolute',
+          top: '20px',
+          right: '20px',
+          zIndex: '1000',
+          backgroundColor: '#fff',
+          color: '#333',
+          borderRadius: '50%',
+          border: 'none',
+          width: '50px',
+          height: '50px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          boxShadow: '0px 2px 5px rgba(0,0,0,0.2)',
+        }}
+      >
+        ←
+      </Button> */}
+
       <div className="card p-5 mt-5 mb-4" style={{ width: '800px', boxShadow: '0 12px 24px rgba(0, 0, 0, 0.2)', borderRadius: '16px', backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
         <h3 style={{ fontWeight: '700', fontSize: '1.8rem', color: '#333' }}>{survey?.title}</h3>
         <p style={{ fontSize: '1rem', color: '#6c757d' }}>{survey?.description}</p>

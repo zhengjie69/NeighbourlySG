@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
-import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg'; // Ensure the correct path to your background image
+import axiosInstance from '../Utils/axiosConfig'
 
 const SurveyResponsesPage = () => {
   const [userResponses, setUserResponses] = useState([]);
@@ -16,7 +16,7 @@ const SurveyResponsesPage = () => {
   useEffect(() => {
     if (survey) {
       // Fetch user responses for the survey from the backend
-      axios.get(`http://localhost:5000/api/SurveyResponseService/getSurveyResponses/${survey.id}`)
+      axiosInstance.get(`/SurveyResponseService/getSurveyResponses/${survey.id}`)
         .then(response => {
           setUserResponses(response.data); // Set the responses in the state
         })
@@ -87,7 +87,26 @@ const SurveyResponsesPage = () => {
                   <h5><strong>Response {index + 1}:</strong></h5>
                   {response.responses.map((questionResponse, idx) => (
                     <div key={idx} style={{ marginLeft: '20px' }}>
-                      <p><strong>{questionResponse.questionText}:</strong> {questionResponse.answer}</p>
+                      <p>
+                        <strong>{questionResponse.questionText}:</strong> 
+                        {questionResponse.questionText === "Rating" ? (
+                          <div style={{ display: "flex", justifyContent: "space-between", maxWidth: "200px" }}>
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <span 
+                                key={star} 
+                                style={{ 
+                                  fontSize: "1.5rem", 
+                                  color: star <= questionResponse.answer ? "#ffc107" : "#e4e5e9" // Change color based on rating
+                                }}
+                              >
+                                ★
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          questionResponse.answer // Display the answer as text for other question types
+                        )}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -97,6 +116,7 @@ const SurveyResponsesPage = () => {
             <p>No responses yet.</p>
           )
         ) : (
+          // Question by question view
           // Question by question view
           userResponses.length > 0 ? (
             userResponses[0].responses.map((questionResponse, qIndex) => {
@@ -129,10 +149,30 @@ const SurveyResponsesPage = () => {
                       const matchingResponse = response.responses.find(
                         (r) => r.questionId === questionResponse.questionId
                       );
+
                       return (
                         <div key={rIndex} style={{ marginBottom: '5px', color: '#495057' }}>
                           {matchingResponse ? (
-                            <p><strong>Response {rIndex + 1}:</strong> {matchingResponse.answer}</p>
+                            <p>
+                              <strong>Response {rIndex + 1}:</strong> 
+                              {questionResponse.questionText === "Rating" ? (
+                                <div style={{ display: "flex", justifyContent: "space-between", maxWidth: "200px" }}>
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <span 
+                                      key={star} 
+                                      style={{ 
+                                        fontSize: "1.5rem", 
+                                        color: star <= matchingResponse.answer ? "#ffc107" : "#e4e5e9" // Change color based on rating
+                                      }}
+                                    >
+                                      ★
+                                    </span>
+                                  ))}
+                                </div>
+                              ) : (
+                                <span> {matchingResponse.answer}</span> // Display the answer as text for other question types
+                              )}
+                            </p>
                           ) : (
                             <p><strong>Response {rIndex + 1}:</strong> No response for this question.</p>
                           )}
@@ -146,6 +186,7 @@ const SurveyResponsesPage = () => {
           ) : (
             <p>No responses yet.</p>
           )
+
         )}
 
         {/* Back button */}

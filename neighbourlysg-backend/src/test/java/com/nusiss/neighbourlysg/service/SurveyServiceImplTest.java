@@ -32,6 +32,9 @@ public class SurveyServiceImplTest {
 	@Mock
 	private SurveyMapper surveyMapper;
 
+	@Mock
+	private SurveyResponseService surveyResponseService;
+
 	@InjectMocks
 	private SurveyServiceImpl surveyService;
 
@@ -74,14 +77,14 @@ public class SurveyServiceImplTest {
 		List<Survey> surveys = Arrays.asList(survey1, survey2);
 		List<SurveyDTO> surveyDTOs = Arrays.asList(new SurveyDTO(), new SurveyDTO());
 
-		when(surveyRepository.findAll()).thenReturn(surveys);
+		when(surveyRepository.findAllByOrderByIdDesc()).thenReturn(surveys);
 		when(surveyMapper.toDto(survey1)).thenReturn(surveyDTOs.get(0));
 		when(surveyMapper.toDto(survey2)).thenReturn(surveyDTOs.get(1));
 
 		List<SurveyDTO> result = surveyService.getAllSurveys();
 
 		assertEquals(2, result.size());
-		verify(surveyRepository).findAll();
+		verify(surveyRepository).findAllByOrderByIdDesc();
 	}
 
 	@Test
@@ -123,26 +126,36 @@ public class SurveyServiceImplTest {
 	}
 
 	@Test
-	public void testDeleteSurveyById_Success() {
+	public void testDeleteSurveyById_WhenSurveyExists() {
+		// Arrange
 		Long surveyId = 1L;
+		Survey survey = new Survey(); // Assuming Survey has a default constructor
+
 		when(surveyRepository.findById(surveyId)).thenReturn(Optional.of(survey));
 
+		// Act
 		surveyService.deleteSurveyById(surveyId);
 
-		verify(surveyRepository).delete(survey);
+		// Assert
+		verify(surveyResponseService, times(1)).deleteUserResponses(surveyId); // Ensure responses are deleted
+		verify(surveyRepository, times(1)).delete(survey); // Ensure the survey is deleted
 	}
 
 	@Test
-	public void testDeleteSurveyById_NotFound() {
-		Long surveyId = 1L;
+	public void testDeleteSurveyById_WhenSurveyDoesNotExist() {
+		// Arrange
+		Long surveyId = 2L;
+
 		when(surveyRepository.findById(surveyId)).thenReturn(Optional.empty());
 
+		// Act & Assert
 		SurveyNotFoundException exception = assertThrows(SurveyNotFoundException.class, () -> {
 			surveyService.deleteSurveyById(surveyId);
 		});
 
-		assertEquals(ErrorMessagesConstants.SURVEY_NOT_FOUND + surveyId, exception.getMessage());
-		verify(surveyRepository, never()).delete(any(Survey.class));
+		assertEquals(ErrorMessagesConstants.SURVEY_NOT_FOUND + surveyId, exception.getMessage()); // Verify exception message
+		verify(surveyResponseService, never()).deleteUserResponses(anyLong()); // Ensure responses are not deleted
+		verify(surveyRepository, never()).delete(any(Survey.class)); // Ensure survey is not deleted
 	}
 
 	@Test

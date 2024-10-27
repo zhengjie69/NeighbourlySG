@@ -25,23 +25,42 @@ public class SurveyController {
     }
 
     @PostMapping("/createSurvey")
+    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<SurveyDTO> createSurvey(@RequestBody SurveyDTO surveyDTO) {
-        return ResponseEntity.ok(surveyService.createSurvey(surveyDTO));
+        try {
+            return ResponseEntity.ok(surveyService.createSurvey(surveyDTO));
+        } catch (Exception e) {
+            // Handle other exceptions as needed
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     @GetMapping("/getAllSurveys")
+    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<List<SurveyDTO>> getAllSurveys() {
-        return ResponseEntity.ok(surveyService.getAllSurveys());
+        try {
+            return ResponseEntity.ok(surveyService.getAllSurveys());
+        } catch (Exception e) {
+            // Handle other exceptions as needed
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     @GetMapping("/getSurvey/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<SurveyDTO> getSurveyById(@PathVariable Long id) {
-        return surveyService.getSurveyById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        try {
+            return surveyService.getSurveyById(id)
+                    .map(ResponseEntity::ok)
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+        }  catch (Exception e) {
+            // Handle other exceptions as needed
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     @PutMapping("/updateSurvey")
+    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<SurveyDTO> updateSurvey(@RequestBody SurveyDTO updatedSurvey) {
 
         try {
@@ -55,10 +74,11 @@ public class SurveyController {
 
     // Delete Profile REST API
     @DeleteMapping("/survey/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<String> deleteProfile(@PathVariable("id") Long id) {
         try {
             surveyService.deleteSurveyById(id);
-            return ResponseEntity.ok("Profile deleted successfully!");
+            return ResponseEntity.ok("Survey deleted successfully!");
         } catch (SurveyNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (Exception e) {

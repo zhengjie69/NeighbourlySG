@@ -5,6 +5,7 @@ import com.nusiss.neighbourlysg.dto.RoleAssignmentDto;
 import com.nusiss.neighbourlysg.service.ProfileService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.nusiss.neighbourlysg.exception.ProfileNotFoundException;
 
@@ -24,6 +25,7 @@ public class ProfileController {
 
     // Get All Profiles/Users
     @GetMapping("/profiles")
+    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<List<ProfileDto>> getAllProfiles() {
         List<ProfileDto> profiles = profileService.getAllProfiles();
         return ResponseEntity.ok(profiles); // Return the list of profiles with 200 OK status
@@ -31,6 +33,7 @@ public class ProfileController {
 
     // Get Profile By Id REST API
     @GetMapping("/profile/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<ProfileDto> getProfileById(@PathVariable("id") Long id) {
 
         try {
@@ -45,6 +48,7 @@ public class ProfileController {
     }
 
     @PutMapping("/updateProfile/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<ProfileDto> updateProfile(
             @PathVariable("id") Long id,
             @RequestBody ProfileDto updatedProfile) {
@@ -61,6 +65,7 @@ public class ProfileController {
     }
 
     @PutMapping("/assign-role")
+    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<Object> assignRoleToUser(@RequestBody RoleAssignmentDto roleAssignmentDto) {
         try {
             ProfileDto updatedProfile = profileService.updateRoles(roleAssignmentDto.getUserId(),
@@ -77,6 +82,7 @@ public class ProfileController {
 
     // Delete Profile REST API
     @DeleteMapping("/profile/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<String> deleteProfile(@PathVariable("id") Long id) {
         try {
             profileService.deleteProfile(id);

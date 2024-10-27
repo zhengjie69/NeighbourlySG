@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Create an Axios instance
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:5000/api', // Adjust the base URL as needed
+  baseURL: `${import.meta.env.VITE_BASE_URL}/api`, // Adjust the base URL as needed
 });
 
 // Add a request interceptor
