@@ -101,7 +101,7 @@ public class SurveyControllerTest {
         ResponseEntity<String> response = surveyController.deleteProfile(surveyId);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("Profile deleted successfully!", response.getBody());
+        assertEquals("Survey deleted successfully!", response.getBody());
         verify(surveyService, times(1)).deleteSurveyById(surveyId);
     }
 
