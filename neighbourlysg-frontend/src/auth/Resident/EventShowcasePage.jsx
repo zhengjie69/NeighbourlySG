@@ -238,7 +238,7 @@ function ResidentEventPage() {
   const handleEditEvent = async (e) => {
     e.preventDefault();
     try {
-      await axiosInstance.put('/EventService/updateEvent/', editEvent);
+      await axiosInstance.put('/EventService/updateEvent', editEvent);
       setSuccessMessage('Event updated successfully!');
       setErrorMessage(null);
       setShowEditModal(false);
@@ -337,7 +337,7 @@ function ResidentEventPage() {
       }}
     >
       <div className="container mt-5 flex-grow-1">
-      <div
+        <div
           className="mb-4 d-flex justify-content-center"
           style={{ width: "100%" }}
         >
@@ -347,7 +347,7 @@ function ResidentEventPage() {
           >
             Community Events
           </h2>
-      </div>
+        </div>
 
         {/* Conditionally render Create Event Button only for organizer accounts */}
         {isOrganiserOrAdmin && (
