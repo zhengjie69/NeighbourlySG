@@ -128,7 +128,7 @@ function ResidentEventPage() {
     fetchUpcomingEvents();
     fetchPastEvents();
 
-    const socket = new SockJS('http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/ws'); // Ensure this URL is correct
+    const socket = new SockJS(`${import.meta.env.VITE_BASE_URL}/ws`); // Ensure this URL is correct
     const client = Stomp.over(socket);
 
     client.connect({}, (frame) => {
