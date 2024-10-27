@@ -352,7 +352,7 @@ const CreateSurveyPage = () => {
                           value={option}
                           onChange={(e) => handleOptionChange(question.id, idx, e.target.value)}
                         />
-                        {option.isNew && (
+                        
                         <OverlayTrigger
                           placement="top"
                           overlay={<Tooltip>Delete Option</Tooltip>}
@@ -364,7 +364,7 @@ const CreateSurveyPage = () => {
                             <FaTrash />
                           </Button>
                           </OverlayTrigger>
-                        )}
+                        
                       </InputGroup>
                     ))}
                     <Button variant="link" onClick={() => addOption(question.id)}>
