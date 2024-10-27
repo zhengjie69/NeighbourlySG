@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
-import SGLogo from '../../assets/SGLogo.avif';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import axiosInstance from '../Utils/axiosConfig'
 
 const ManageUsers = () => {
   const [profiles, setProfiles] = useState([]);
@@ -20,7 +18,7 @@ const ManageUsers = () => {
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
-        const response = await axios.get('http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/ProfileService/profiles');
+        const response = await axiosInstance.get('/ProfileService/profiles');
         if (response.status === 200) {
           setProfiles(response.data);
         }
@@ -36,7 +34,7 @@ const ManageUsers = () => {
     setSelectedProfileId(profileId);
     try {
       // get profile, precheck user role 
-      const response = await axios.get(`http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/ProfileService/profile/${profileId}`);
+      const response = await axiosInstance.get(`/ProfileService/profile/${profileId}`);
       if (response.status === 200) {
         const roles = response.data.roles || [];
         setSelectedRoles({
@@ -70,7 +68,7 @@ const ManageUsers = () => {
     if (selectedRoles.user) updatedRoles.push(1); // User role
 
     try {
-      const response = await axios.put(`http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/RoleService/roles`, {
+      const response = await axiosInstance.put(`/RoleService/roles`, {
         "userId": selectedProfileId,
         "roleIds": updatedRoles
       });
