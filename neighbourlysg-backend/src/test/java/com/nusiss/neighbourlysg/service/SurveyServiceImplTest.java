@@ -77,14 +77,14 @@ public class SurveyServiceImplTest {
 		List<Survey> surveys = Arrays.asList(survey1, survey2);
 		List<SurveyDTO> surveyDTOs = Arrays.asList(new SurveyDTO(), new SurveyDTO());
 
-		when(surveyRepository.findAll()).thenReturn(surveys);
+		when(surveyRepository.findAllByOrderByIdDesc()).thenReturn(surveys);
 		when(surveyMapper.toDto(survey1)).thenReturn(surveyDTOs.get(0));
 		when(surveyMapper.toDto(survey2)).thenReturn(surveyDTOs.get(1));
 
 		List<SurveyDTO> result = surveyService.getAllSurveys();
 
 		assertEquals(2, result.size());
-		verify(surveyRepository).findAll();
+		verify(surveyRepository).findAllByOrderByIdDesc();
 	}
 
 	@Test
