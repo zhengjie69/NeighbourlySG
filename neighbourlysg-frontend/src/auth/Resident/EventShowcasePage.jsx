@@ -9,7 +9,6 @@ import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 import SGLogo from '../../assets/SGLogo.avif';
 import { Stomp } from '@stomp/stompjs'; // Import Stomp
 import SockJS from 'sockjs-client';
-import axiosInstance from '../Utils/axiosConfig'
 
 
 const grcSmcOptions = [
@@ -41,38 +40,43 @@ function ResidentEventPage() {
   const [client, setClient] = useState(null);
   const [messages, setMessages] = useState([]);
   const [notificationMessage, setNotificationMessage] = useState('');
+  const userRoles = sessionStorage.getItem("roles") || "";
+  const isResident = userRoles.includes("ROLE_USER"); // Assuming 1 is Resident role ID
+  const isOrganiser = userRoles.includes("ROLE_ORGANISER");
+  const isAdmin = userRoles.includes("ROLE_ADMIN"); // Assuming 3 is Admin role ID
+  const isOrganiserOrAdmin = isOrganiser || isAdmin; // Combine organizer and admin access
 
   const profileId = sessionStorage.getItem('userId');
   const constituency = sessionStorage.getItem('constituency');
 
   const [newEvent, setNewEvent] = useState({
-    title: '',
-    location: '',
-    description: '',
-    date: '',
-    startTime: '',
-    endTime: '',
+    title: "",
+    location: "",
+    description: "",
+    date: "",
+    startTime: "",
+    endTime: "",
   });
 
   const [editEvent, setEditEvent] = useState({
-    id: '',
-    title: '',
-    location: '',
-    description: '',
-    date: '',
-    startTime: '',
-    endTime: '',
+    id: "",
+    title: "",
+    location: "",
+    description: "",
+    date: "",
+    startTime: "",
+    endTime: "",
   });
 
   const fetchUpcomingEvents = async () => {
     try {
       if (upcomingEventSearchLocation == "") {
-        const response = await axiosInstance.get('/EventService/getAllCurrentEvent/' + profileId + '/' + constituency);
+        const response = await axios.get('http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/EventService/getAllCurrentEvent/' + profileId + '/' + constituency);
         const upcomingEventsWithoutFilter = response.data;
         setUpcomingEvents(upcomingEventsWithoutFilter);
       }
       else {
-        const response = await axiosInstance.get('/EventService/getAllCurrentEvent/' + profileId + '/' + constituency + "?location=" + upcomingEventSearchLocation);
+        const response = await axios.get('http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/EventService/getAllCurrentEvent/' + profileId + '/' + constituency + "?location=" + upcomingEventSearchLocation);
         const upComingEventsWithFilter = response.data;
         setUpcomingEvents(upComingEventsWithFilter);
       }
@@ -83,24 +87,32 @@ function ResidentEventPage() {
 
   const fetchUserEvents = async () => {
     try {
-      // Example URL, adjust based on your actual API endpoint
-      const response = await axiosInstance.get('/EventService/getAllUserEvent/' + profileId);
-      const events = response.data;
-      setUserEvents(events);
+      const response = await axios.get(
+        'http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/EventService/getAllUserEvent/' + profileId
+      );
+      if (response.status === 200 && response.data != null) {
+        setUserEvents(response.data);
+      }
+      else {
+        setUserEvents(null);
+      }
     } catch (error) {
-      console.error('Error fetching user events:', error);
+      if (error.response && error.response.status === 400) {
+        setUserEvents(null);
+      }
+      console.error("Error fetching user events:", error);
     }
   };
 
   const fetchPastEvents = async () => {
     try {
       if (pastEventSearchLocation == "") {
-        const response = await axiosInstance.get('/EventService/getAllPastEvent/' + profileId + '/' + constituency);
+        const response = await axios.get('http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/EventService/getAllPastEvent/' + profileId + '/' + constituency);
         const pastEventsWithoutFilter = response.data;
         setPastEvents(pastEventsWithoutFilter);
       }
       else {
-        const response = await axiosInstance.get('/EventService/getAllPastEvent/' + profileId + '/' + constituency + "?location=" + pastEventSearchLocation);
+        const response = await axios.get('http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/EventService/getAllPastEvent/' + profileId + '/' + constituency + "?location=" + pastEventSearchLocation);
         const pastEventsWithFilter = response.data;
         setPastEvents(pastEventsWithFilter);
       }
@@ -115,7 +127,7 @@ function ResidentEventPage() {
     fetchUpcomingEvents();
     fetchPastEvents();
 
-    const socket = new SockJS(`${import.meta.env.VITE_BASE_URL}/ws`); // Ensure this URL is correct
+    const socket = new SockJS('http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/ws'); // Ensure this URL is correct
     const client = Stomp.over(socket);
 
     client.connect({}, (frame) => {
@@ -149,35 +161,28 @@ function ResidentEventPage() {
 
   const rsvpAsParticipant = async (profileId, eventId) => {
     try {
-      const response = await axiosInstance.post('/EventService/rsvpParticipant', {
-        profileId: profileId,
-        eventId: eventId,
-      });
-      const rsvpResponse = response.data;
-
-      handleCloseModal();
-
-      if (rsvpResponse == "RSVP is completed") {
-        setSuccessMessage('Successfully RSVP\'d to the event!');
+      const response = await axios.post(
+        "http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/EventService/rsvpParticipant",
+        {
+          profileId,
+          eventId,
+        }
+      );
+      if (response.data === "RSVP is completed") {
+        setSuccessMessage("Successfully RSVP'd to the event!");
         setErrorMessage(null);
+        fetchUpcomingEvents();
       }
-
-      fetchUpcomingEvents();
-
     } catch (error) {
-
-      handleCloseModal();
-
-      setErrorMessage('Error adding RSVP for this event. Are you already enrolled to the event?');
-      setSuccessMessage(null);
-
-      console.error('Error rsvping for this event:', error);
+      setErrorMessage("Error adding RSVP for this event.");
+      console.error("Error rsvping for this event:", error);
     }
+    setShowUpcomingModal(false);
   };
 
   const deleteRsvpAsParticipant = async (profileId, eventId) => {
     try {
-      const response = await axiosInstance.post('/EventService/deleteRsvpAsParticipant', {
+      const response = await axios.post('http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/EventService/deleteRsvpAsParticipant', {
         profileId: profileId,
         eventId: eventId,
       });
@@ -208,34 +213,31 @@ function ResidentEventPage() {
   const handleCreateEvent = async (e) => {
     e.preventDefault();
     try {
-      // Replace with your API endpoint
-      await axiosInstance.post('/EventService/createEvent/' + profileId, newEvent);
-      setSuccessMessage('Event created successfully!');
-      setErrorMessage(null);
-      setShowCreateEventModal(false);
-
+      await axios.post(
+        `http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/EventService/createEvent/${profileId}`,
+        newEvent
+      );
+      setSuccessMessage("Event created successfully!");
       setNewEvent({
-        title: '',
-        location: '',
-        description: '',
-        date: '',
-        startTime: '',
-        endTime: '',
+        title: "",
+        location: "",
+        description: "",
+        date: "",
+        startTime: "",
+        endTime: "",
       });
-
-      fetchUserEvents(); // Refresh the events list
-
+      fetchUserEvents();
     } catch (error) {
-      setErrorMessage('Error creating event. Please try again.');
-      setSuccessMessage(null);
-      console.error('Error creating event:', error);
+      setErrorMessage("Error creating event.");
+      console.error("Error creating event:", error);
     }
+    setShowCreateEventModal(false);
   };
 
   const handleEditEvent = async (e) => {
     e.preventDefault();
     try {
-      await axiosInstance.put('/EventService/updateEvent', editEvent);
+      await axios.put('http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/EventService/updateEvent/', editEvent);
       setSuccessMessage('Event updated successfully!');
       setErrorMessage(null);
       setShowEditModal(false);
@@ -252,7 +254,7 @@ function ResidentEventPage() {
   const handleDeleteEvent = async (e) => {
     e.preventDefault();
     try {
-      await axiosInstance.delete('/EventService/deleteEvent/' + editEvent.id);
+      await axios.delete('http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/EventService/deleteEvent/' + editEvent.id);
       setSuccessMessage('Event deleted successfully!');
       setErrorMessage(null);
       setShowEditModal(null);
@@ -264,6 +266,7 @@ function ResidentEventPage() {
       console.error('Error deleting event:', error);
     }
   }
+
 
   const handleSearchUpcomingEventChange = (event) => {
     setUpcomingEventSearchLocation(event.target.value);
@@ -327,27 +330,35 @@ function ResidentEventPage() {
       className="d-flex flex-column min-vh-100"
       style={{
         backgroundImage: `url(${neighbourlySGbackground})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
       }}
     >
       <div className="container mt-5 flex-grow-1">
-        <h2 className="mb-4 text-white">Community Events</h2>
+      <div
+          className="mb-4 d-flex justify-content-center"
+          style={{ width: "100%" }}
+        >
+          <h2
+            className="text-dark bg-white bg-opacity-75 p-2 rounded text-center"
+            style={{ display: "inline-block", width: "100%" }}
+          >
+            Community Events
+          </h2>
+      </div>
 
-        {/* Create Event Button */}
-        <div className="mb-4 row">
-          <div className="col-md-12 mt-3">
-            <button className="btn btn-primary" onClick={() => setShowCreateEventModal(true)}>
-              Create Event
-            </button>
+        {/* Conditionally render Create Event Button only for organizer accounts */}
+        {isOrganiserOrAdmin && (
+          <div className="mb-4">
+            <button className="btn btn-primary" onClick={() => setShowCreateEventModal(true)}>Create Event</button>
           </div>
-        </div>
+        )}
 
         {/* User's Events */}
         <div className="mb-5" style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', padding: '20px', borderRadius: '8px', overflowX: 'auto', whiteSpace: 'nowrap' }}>
           <h3 className="text-dark">Your Events</h3>
-          {userEvents.length > 0 ? (
+          {userEvents && userEvents.length > 0 ? (
             <div className="d-flex">
               {userEvents.map(event => (
                 <div key={event.id} className="card h-100 me-3" style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', flex: '0 0 auto', width: '300px' }} onClick={() => handleShowUserEventModal(event)}>
@@ -479,10 +490,10 @@ function ResidentEventPage() {
             <Button variant="secondary" onClick={handleCloseModal}>
               Close
             </Button>
-            <Button variant="danger" onClick={() => deleteRsvpAsParticipant(1, selectedEvent.id)}>
+            <Button variant="danger" onClick={() => deleteRsvpAsParticipant(profileId, selectedEvent.id)}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={() => rsvpAsParticipant(1, selectedEvent.id)}>
+            <Button variant="primary" onClick={() => rsvpAsParticipant(profileId, selectedEvent.id)}>
               RSVP
             </Button>
           </Modal.Footer>
@@ -727,7 +738,7 @@ function ResidentEventPage() {
 
       {/* Alert popup for WebSocket messages */}
       {showNotification && (
-        <Alert variant="info" className="fixed-top" style={{ margin: '20px', zIndex: '9999' }} onClose={() => setShowPopup(false)} dismissible>
+        <Alert variant="info" className="fixed-top" style={{ margin: '20px', zIndex: '9999' }} onClose={() => setNotification(false)} dismissible>
           {notificationMessage}
         </Alert>
       )}
@@ -741,7 +752,6 @@ function ResidentEventPage() {
 
       <footer className="bg-dark text-white text-center py-3 mt-auto">
         <p>NeighbourlySG &copy; 2024. All rights reserved.</p>
-        <p><Link to="/contact" className="text-white">Contact Support</Link></p>
       </footer>
     </div>
   );

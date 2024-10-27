@@ -1,9 +1,9 @@
+// eslint-disable-next-line no-unused-vars
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Button, Form, Card, InputGroup, FormControl } from "react-bootstrap";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";  // Import useNavigate
 import neighbourlySGbackground from "../../assets/neighbourlySGbackground.jpg";
-import axiosInstance from '../Utils/axiosConfig'
 
 const CreateSurveyPage = () => {
   const [surveyTitle, setSurveyTitle] = useState("");
@@ -16,12 +16,15 @@ const CreateSurveyPage = () => {
 
   const location = useLocation();
   const surveyId = location.state?.surveyId; // Get surveyId from state
+  const navigate = useNavigate();  // Initialize navigate
 
   // Function to fetch existing survey data based on surveyId
   const fetchSurvey = async (id) => {
-    const response = await axiosInstance.get(`/SurveyService/getSurvey/${id}`);
+    const response = await fetch(`http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/SurveyService/getSurvey/${id}`, {
+      method: 'GET',
+    });
 
-    if (response.data) {
+    if (response.ok) {
       const surveyData = await response.json();
       setSurveyTitle(surveyData.title);
       setSurveyDescription(surveyData.description);
@@ -80,18 +83,17 @@ const CreateSurveyPage = () => {
         })),
       };
 
-      let response;
-      if (surveyId) {
-        // If surveyId exists, it's an update, so use PUT
-        response = await axiosInstance.put(`/SurveyService/updateSurvey`, surveyData);
-      } else {
-        // If surveyId does not exist, it's a create, so use POST
-        response = await axiosInstance.post(`/SurveyService/createSurvey`, surveyData);
-      }
+      const response = await fetch(`http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/SurveyService/${surveyId ? 'updateSurvey' : 'createSurvey'}`, { 
+        // Check if it's an update or create
+        method: surveyId ? 'PUT' : 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(surveyData),
+    });
+    
 
-      
-
-      if (response.data) {
+      if (response.ok) {
         setMessage(surveyId ? "Survey updated successfully!" : "Survey created successfully!");
         setIsError(false);
         // Reset form
@@ -134,6 +136,29 @@ const CreateSurveyPage = () => {
         <h3 className="text-center mb-4" style={{ fontWeight: "700", fontSize: "1.8rem", color: "#333" }}>
           {surveyId ? "Update Survey" : "Create New Survey"}
         </h3>
+
+        {/* Back Button positioned at the top-right */}
+      {/* <Button
+        onClick={() => navigate(-1)}
+        style={{
+          position: 'absolute',
+          top: '20px',
+          right: '20px',
+          zIndex: '1000',
+          backgroundColor: '#fff',
+          color: '#333',
+          borderRadius: '50%',
+          border: 'none',
+          width: '50px',
+          height: '50px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          boxShadow: '0px 2px 5px rgba(0,0,0,0.2)',
+        }}
+      >
+        ←
+      </Button> */}
 
         <Form>
           <Form.Group className="mb-4">
@@ -231,11 +256,6 @@ const CreateSurveyPage = () => {
 
       <footer className="bg-dark text-white text-center py-3 mt-auto" style={{ position: "relative", bottom: 0, width: "100%" }}>
         <p>NeighbourlySG &copy; 2024. All rights reserved.</p>
-        <p>
-          <Link to="/contact" className="text-white">
-            Contact Support
-          </Link>
-        </p>
       </footer>
     </div>
   );

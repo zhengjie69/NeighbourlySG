@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
+import SGLogo from '../../assets/SGLogo.avif';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import axiosInstance from '../Utils/axiosConfig'
 
 const ManageUsers = () => {
   const [profiles, setProfiles] = useState([]);
@@ -18,7 +20,7 @@ const ManageUsers = () => {
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
-        const response = await axiosInstance.get('/ProfileService/profiles');
+        const response = await axios.get('http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/ProfileService/profiles');
         if (response.status === 200) {
           setProfiles(response.data);
         }
@@ -34,13 +36,13 @@ const ManageUsers = () => {
     setSelectedProfileId(profileId);
     try {
       // get profile, precheck user role 
-      const response = await axiosInstance.get(`/ProfileService/profile/${profileId}`);
+      const response = await axios.get(`http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/ProfileService/profile/${profileId}`);
       if (response.status === 200) {
         const roles = response.data.roles || [];
         setSelectedRoles({
-          admin: roles.includes(3),
-          org: roles.includes(2),
-          user: roles.includes(1),
+          admin: roles.includes("ROLE_ADMIN"),
+          org: roles.includes("ROLE_ORGANISER"),
+          user: roles.includes("ROLE_USER"),
         });
         setIsModalOpen(true);
       }
@@ -68,7 +70,7 @@ const ManageUsers = () => {
     if (selectedRoles.user) updatedRoles.push(1); // User role
 
     try {
-      const response = await axiosInstance.put(`/ProfileService/assign-role`, {
+      const response = await axios.put(`http://neighbourlysg.ap-southeast-1.elasticbeanstalk.com/api/RoleService/roles`, {
         "userId": selectedProfileId,
         "roleIds": updatedRoles
       });
