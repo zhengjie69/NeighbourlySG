@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Button, Form, Card, InputGroup, FormControl, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { FaTrash } from 'react-icons/fa';
-import { Link, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import neighbourlySGbackground from "../../assets/neighbourlySGbackground.jpg";
 import axiosInstance from '../Utils/axiosConfig'
 
@@ -18,9 +18,11 @@ const CreateSurveyPage = () => {
   const [isDescriptionValid, setIsDescriptionValid] = useState(true); // Track description validity
   const [isQuestionListValid, setIsQuestionListValid] = useState(true); // New state for question list validation
   const [questionErrors, setQuestionErrors] = useState({}); // Track errors for each question
+  const [isCreating, setIsCreating] = useState(true); // Track description validity
 
   const location = useLocation();
   const surveyId = location.state?.surveyId; // Get surveyId from state
+  const navigate = useNavigate();  // Initialize navigate
   
 
  // Function to fetch existing survey data based on surveyId
@@ -39,7 +41,9 @@ const CreateSurveyPage = () => {
           questionText: q.questionText,
           questionType: q.questionType,
           options: q.options || [],
+          isNew: false, // Mark as not new
         })));
+        setIsCreating(false);
       } else {
         console.error('Failed to fetch survey data.');
         setMessage("Failed to fetch survey data.");
@@ -81,19 +85,41 @@ const CreateSurveyPage = () => {
   const handleOptionChange = (questionId, optionIndex, value) => {
     setQuestions(questions.map(q => (q.id === questionId ? { ...q, options: q.options.map((opt, idx) => (idx === optionIndex ? value : opt)) } : q)));
   };
+  
+  
+  const removeOption = (questionId, optionIndex) => {
+    setQuestions(questions.map(q => 
+      q.id === questionId 
+        ? { 
+            ...q, 
+            options: q.options.filter((_, idx) => idx !== optionIndex)
+          } 
+        : q
+    ));
+  };
+  
+  
 
   const addQuestion = () => {
-    setQuestions([...questions, { id: questions.length + 1, questionText: "", questionType: "shortAnswer", options: [] }]);
+    setQuestions([
+      ...questions,
+      { id: questions.length + 1, questionText: "", questionType: "shortAnswer", options: [], isNew: true },
+    ]);
   };
+  
 
   const addOption = (questionId) => {
     setQuestions(questions.map(q => (q.id === questionId ? { ...q, options: [...q.options, ""] } : q)));
   };
+  
 
   const deleteQuestion = (id) => {
     setQuestions(questions.filter((q) => q.id !== id));
   };
 
+  
+
+  
   const handleSubmit = async () => {
     // Validation logic
     if (!surveyTitle.trim()) {
@@ -212,6 +238,28 @@ const CreateSurveyPage = () => {
         <h3 className="text-center mb-4" style={{ fontWeight: "700", fontSize: "1.8rem", color: "#333" }}>
           {surveyId ? "Update Survey" : "Create New Survey"}
         </h3>
+         {/* Back Button positioned at the top-right */}
+      {/* <Button
+        onClick={() => navigate(-1)}
+        style={{
+          position: 'absolute',
+          top: '20px',
+          right: '20px',
+          zIndex: '1000',
+          backgroundColor: '#fff',
+          color: '#333',
+          borderRadius: '50%',
+          border: 'none',
+          width: '50px',
+          height: '50px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          boxShadow: '0px 2px 5px rgba(0,0,0,0.2)',
+        }}
+      >
+        ←
+      </Button> */}
 
         <Form>
           <Form.Group className="mb-4">
@@ -254,15 +302,21 @@ const CreateSurveyPage = () => {
               <Card.Body>
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <Form.Label>Question {index + 1}</Form.Label>
-                <OverlayTrigger
-                  placement="top"
-                  overlay={<Tooltip>Delete Question</Tooltip>}
-                >
-                  <Button variant="outline-danger" className="ms-2" onClick={() => { deleteQuestion(question.id); }}>
+                {(question.isNew || isCreating) &&  (
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={<Tooltip>Delete Question</Tooltip>}
+                  >
+                    <Button
+                      variant="outline-danger"
+                      className="ms-2"
+                      onClick={() => { deleteQuestion(question.id); }}
+                    >
                       <FaTrash />
-                  </Button>
-                </OverlayTrigger>
-              </div>
+                    </Button>
+                  </OverlayTrigger>
+                )}
+               </div>
                 <Form.Group className="mb-3">
                   <InputGroup>
                     <FormControl
@@ -290,7 +344,7 @@ const CreateSurveyPage = () => {
 
                 {question.questionType === "multipleChoice" && (
                   <div className="mb-3">
-                    {question.options.map((option, idx) => (
+                   {question.options.map((option, idx) => (
                       <InputGroup className="mb-2" key={idx}>
                         <InputGroup.Text>{String.fromCharCode(65 + idx)}</InputGroup.Text>
                         <FormControl
@@ -298,6 +352,19 @@ const CreateSurveyPage = () => {
                           value={option}
                           onChange={(e) => handleOptionChange(question.id, idx, e.target.value)}
                         />
+                        
+                        <OverlayTrigger
+                          placement="top"
+                          overlay={<Tooltip>Delete Option</Tooltip>}
+                          >
+                          <Button 
+                            variant="outline-danger" 
+                            onClick={() => removeOption(question.id, idx)}
+                          >
+                            <FaTrash />
+                          </Button>
+                          </OverlayTrigger>
+                        
                       </InputGroup>
                     ))}
                     <Button variant="link" onClick={() => addOption(question.id)}>
@@ -346,11 +413,6 @@ const CreateSurveyPage = () => {
 
       <footer className="bg-dark text-white text-center py-3 mt-auto" style={{ position: "relative", bottom: 0, width: "100%" }}>
         <p>NeighbourlySG &copy; 2024. All rights reserved.</p>
-        <p>
-          <Link to="/contact" className="text-white">
-            Contact Support
-          </Link>
-        </p>
       </footer>
     </div>
   );

@@ -51,7 +51,7 @@ function ResidentLogin() {
     >
       <div className="card p-5" style={{ width: '400px', boxShadow: '0 12px 24px rgba(0, 0, 0, 0.15)', borderRadius: '12px', backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
         <div className="text-center">
-          <h3 className="mb-4" style={{ fontWeight: '600', fontSize: '1.8rem', color: '#343a40' }}>Resident Login</h3>
+          <h3 className="mb-4" style={{ fontWeight: '600', fontSize: '1.8rem', color: '#343a40' }}>Welcome to NeighbourlySG!</h3>
           <p style={{ fontSize: '1rem', color: '#6c757d', marginBottom: '30px' }}>
             Access community surveys, events, and more by logging in.
           </p>

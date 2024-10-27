@@ -1,16 +1,17 @@
 package com.nusiss.neighbourlysg.service.impl;
 
+import com.nusiss.neighbourlysg.config.ErrorMessagesConstants;
 import com.nusiss.neighbourlysg.dto.QuestionResponseDTO;
 import com.nusiss.neighbourlysg.dto.SurveyResponseDTO;
 import com.nusiss.neighbourlysg.entity.Question;
 import com.nusiss.neighbourlysg.entity.QuestionResponse;
 import com.nusiss.neighbourlysg.entity.Survey;
 import com.nusiss.neighbourlysg.entity.SurveyResponse;
+import com.nusiss.neighbourlysg.exception.SurveyResponseNotFoundException;
 import com.nusiss.neighbourlysg.mapper.SurveyResponseMapper;
 import com.nusiss.neighbourlysg.repository.SurveyRepository;
 import com.nusiss.neighbourlysg.repository.SurveyResponseRepository;
 import com.nusiss.neighbourlysg.service.SurveyResponseService;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -127,7 +128,12 @@ public class SurveyResponseServiceImpl implements SurveyResponseService {
        return dto;
     }
 
+    @Override
+    public void deleteUserResponses(Long surveyId) {
+        List<SurveyResponse> surveyResponseList = surveyResponseRepository.findBySurveyId(surveyId);
+        for(SurveyResponse surveyResponse: surveyResponseList){
+            surveyResponseRepository.delete(surveyResponse);
+        }
 
-
-
+    }
 }

@@ -8,6 +8,7 @@ import com.nusiss.neighbourlysg.entity.Survey;
 import com.nusiss.neighbourlysg.exception.SurveyNotFoundException;
 import com.nusiss.neighbourlysg.mapper.SurveyMapper;
 import com.nusiss.neighbourlysg.repository.SurveyRepository;
+import com.nusiss.neighbourlysg.service.SurveyResponseService;
 import com.nusiss.neighbourlysg.service.SurveyService;
 import org.springframework.stereotype.Service;
 
@@ -21,10 +22,12 @@ public class SurveyServiceImpl implements SurveyService {
 
     private final SurveyRepository surveyRepository;
     private final SurveyMapper surveyMapper;
+    private final SurveyResponseService surveyResponseService;
 
-    public SurveyServiceImpl(SurveyRepository surveyRepository, SurveyMapper surveyMapper) {
+    public SurveyServiceImpl(SurveyRepository surveyRepository, SurveyMapper surveyMapper,SurveyResponseService surveyResponseService) {
         this.surveyRepository = surveyRepository;
         this.surveyMapper = surveyMapper;
+        this.surveyResponseService = surveyResponseService;
     }
 
     @Override
@@ -42,7 +45,7 @@ public class SurveyServiceImpl implements SurveyService {
 
     @Override
     public List<SurveyDTO> getAllSurveys() {
-        return surveyRepository.findAll().stream()
+        return surveyRepository.findAllByOrderByIdDesc().stream()
                 .map(surveyMapper::toDto).toList();
     }
 
@@ -66,8 +69,12 @@ public class SurveyServiceImpl implements SurveyService {
 
     @Override
     public void deleteSurveyById(Long surveyId) {
+
         Survey survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new SurveyNotFoundException(ErrorMessagesConstants.SURVEY_NOT_FOUND + surveyId));
+
+        //delete related survey responses
+        surveyResponseService.deleteUserResponses(surveyId);
 
         surveyRepository.delete(survey); // Use delete() with the profile entity
     }

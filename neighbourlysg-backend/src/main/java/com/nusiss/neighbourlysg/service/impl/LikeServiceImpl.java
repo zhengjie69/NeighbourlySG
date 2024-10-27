@@ -5,7 +5,6 @@ import com.nusiss.neighbourlysg.dto.ProfileDto;
 import com.nusiss.neighbourlysg.entity.Like;
 import com.nusiss.neighbourlysg.entity.Post;
 import com.nusiss.neighbourlysg.entity.Profile;
-import com.nusiss.neighbourlysg.entity.Role;
 import com.nusiss.neighbourlysg.exception.PostAlreadyLikedByProfileException;
 import com.nusiss.neighbourlysg.exception.PostNotFoundException;
 import com.nusiss.neighbourlysg.exception.ProfileNotFoundException;
