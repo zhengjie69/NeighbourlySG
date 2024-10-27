@@ -1,5 +1,3 @@
-// ResidentMainPage.jsx
-// eslint-disable-next-line no-unused-vars
 import React, { useState, useEffect } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link } from 'react-router-dom';
@@ -9,31 +7,21 @@ import { ToastContainer, toast } from 'react-toastify';
 
 const ResidentMainPage = () => {
   const location = useLocation();
-  const sampleSurveys = [
-    { title: "Community Garden Feedback", description: "Share your thoughts on our new community garden initiative.", link: "/surveys" },
-    { title: "Safety in the Neighborhood", description: "Provide input on how we can improve safety in our area.", link: "/surveys" }
-  ];
+  const [userRoles, setUserRoles] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isOrganiser, setIsOrganiser] = useState(false);
+  const [isResident, setIsResident] = useState(false);
 
-  const sampleEvents = [
-    { title: "Neighborhood Cleanup", date: "August 15, 2024", description: "Join us for a community cleanup event.", link: "/events" },
-    { title: "Fall Festival", date: "September 10, 2024", description: "Celebrate the season with food, games, and fun!", link: "/events" }
-  ];
+  // Use useEffect to fetch roles after component mounts
+  useEffect(() => {
+    const roles = sessionStorage.getItem("roles") || "";
+    setUserRoles(roles);
+    setIsAdmin(roles.includes("ROLE_ADMIN"));       // Assuming "3" is the Admin role ID
+    setIsOrganiser(roles.includes("ROLE_ORGANISER"));   // Assuming "2" is the Organiser role ID
+    setIsResident(roles.includes("ROLE_USER"));    // Assuming "1" is the Resident role ID
+  }, []);
 
-  const samplePosts = [
-    { 
-      author: "Jane Doe", 
-      content: "Had a great time at the community park today. It's looking beautiful!", 
-      image: "https://via.placeholder.com/150",
-      link: "/posts"
-    },
-    { 
-      author: "John Smith", 
-      content: "Excited for the upcoming Fall Festival. Who else is going?", 
-      image: "",
-      link: "/posts"
-    },
-  ];
-
+  // Show toast message if available in the location state
   useEffect(() => {
     if (location.state?.message) {
       toast.success(location.state.message);
@@ -52,7 +40,6 @@ const ResidentMainPage = () => {
         flexDirection: 'column'
       }}
     >
-
       <ToastContainer/>
       {/* Overlay for better text visibility */}
       <div 
@@ -80,60 +67,107 @@ const ResidentMainPage = () => {
             <h2>Community Dashboard</h2>
             <p>Welcome to NeighbourlySG! Here’s what’s happening in your community:</p>
 
-            <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
-              <h4>Active Surveys</h4>
-              <p>Participate in ongoing community surveys to share your thoughts.</p>
-              {sampleSurveys.map((survey, index) => (
-                <Link to={survey.link} key={index} className="text-decoration-none text-dark">
-                  <div className="card mb-3" style={{ borderRadius: '10px', cursor: 'pointer' }}>
-                    <div className="card-body">
-                      <h5 className="card-title">{survey.title}</h5>
-                      <p className="card-text">{survey.description}</p>
-                    </div>
+            {/* Admin sees Manage User, Surveys, Events, Community Posts, and Profile */}
+            {isAdmin && (
+              <>
+                {/* Admin content */}
+                <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
+                  <h4>Active Surveys</h4>
+                  <p>Manage and participate in community surveys to share your thoughts.</p>
+                  <div className="d-flex justify-content-end">
+                    <Link to="/surveys" className="btn btn-primary">View More</Link>
                   </div>
-                </Link>
-              ))}
-              <div className="d-flex justify-content-end">
-                <Link to="/surveys" className="btn btn-primary">View More</Link> {/* Redirects to /surveys */}
-              </div>
-            </div>
+                </div>
 
-            <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
-              <h4>Upcoming Events</h4>
-              {sampleEvents.map((event, index) => (
-                <Link to={event.link} key={index} className="text-decoration-none text-dark">
-                  <div className="card mb-3" style={{ borderRadius: '10px', cursor: 'pointer' }}>
-                    <div className="card-body">
-                      <h5 className="card-title">{event.title}</h5>
-                      <h6 className="card-subtitle mb-2 text-muted">{event.date}</h6>
-                      <p className="card-text">{event.description}</p>
-                    </div>
+                <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
+                  <h4>Upcoming Events</h4>
+                  <p>Plan, manage, and RSVP to community events. Keep your community updated.</p>
+                  <div className="d-flex justify-content-end">
+                    <Link to="/events" className="btn btn-primary">View More</Link>
                   </div>
-                </Link>
-              ))}
-              <div className="d-flex justify-content-end">
-                <Link to="/events" className="btn btn-primary">View More</Link>
-              </div>
-            </div>
+                </div>
 
-            {/* Community News Feed with Clickable Containers */}
-            <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
-              <h4>Community News Feed</h4>
-              {samplePosts.map((post, index) => (
-                <Link to={post.link} key={index} className="text-decoration-none text-dark">
-                  <div className="card mb-3" style={{ borderRadius: '10px', padding: '15px', cursor: 'pointer' }}>
-                    <div className="card-body">
-                      <h5 className="card-title">{post.author}</h5>
-                      <p className="card-text">{post.content}</p>
-                      {post.image && <img src={post.image} alt="Post" className="img-fluid rounded mb-2" />}
-                    </div>
+                <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
+                  <h4>Community Posts</h4>
+                  <p>Discover the latest updates, posts, and discussions happening in your community. Share your thoughts, comment, and engage with your neighbors.</p>
+                  <div className="d-flex justify-content-end">
+                    <Link to="/posts" className="btn btn-primary">View More</Link>
                   </div>
-                </Link>
-              ))}
-              <div className="d-flex justify-content-end">
-                <Link to="/posts" className="btn btn-primary">View More</Link>
-              </div>
-            </div>
+                </div>
+                <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
+                  <h4>Profile</h4>
+                  <p>Manage your profile and account settings. Keep your details up to date.</p>
+                  <div className="d-flex justify-content-end">
+                    <Link to="/ProfileSettings" className="btn btn-primary">View More</Link>
+                  </div>
+                </div>
+                <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
+                  <h4>Manage User</h4>
+                  <p>Oversee and manage user profiles and account settings within the community platform.</p>
+                  <div className="d-flex justify-content-end">
+                    <Link to="/manageusers" className="btn btn-primary">View More</Link>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Resident sees Surveys, Events, Community Posts, Profile */}
+            {isResident && !isAdmin && (
+              <>
+                <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
+                  <h4>Active Surveys</h4>
+                  <p>Participate in ongoing community surveys to share your thoughts.</p>
+                  <div className="d-flex justify-content-end">
+                    <Link to="/surveys" className="btn btn-primary">View More</Link>
+                  </div>
+                </div>
+
+                <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
+                  <h4>Upcoming Events</h4>
+                  <p>Stay updated on future community gatherings and activities. RSVP to join and participate in your local events.</p>
+                  <div className="d-flex justify-content-end">
+                    <Link to="/events" className="btn btn-primary">View More</Link>
+                  </div>
+                </div>
+
+                <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
+                  <h4>Community Posts</h4>
+                  <p>Discover the latest updates, posts, and discussions happening in your community. Share your thoughts, comment, and engage with your neighbors.</p>
+                  <div className="d-flex justify-content-end">
+                    <Link to="/posts" className="btn btn-primary">View More</Link>
+                  </div>
+                </div>
+
+                <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
+                  <h4>Profile</h4>
+                  <p>Manage your profile and account settings. Keep your details up to date.</p>
+                  <div className="d-flex justify-content-end">
+                    <Link to="/ProfileSettings" className="btn btn-primary">View More</Link>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Organiser sees Surveys and Events */}
+            {isOrganiser && !isAdmin && (
+              <>
+                <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
+                  <h4>Active Surveys</h4>
+                  <p>Manage ongoing community surveys and view responses.</p>
+                  <div className="d-flex justify-content-end">
+                    <Link to="/surveys" className="btn btn-primary">View More</Link>
+                  </div>
+                </div>
+
+                <div className="card mb-4" style={{ backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '10px' }}>
+                  <h4>Upcoming Events</h4>
+                  <p>Plan and manage community events. Keep your community updated.</p>
+                  <div className="d-flex justify-content-end">
+                    <Link to="/events" className="btn btn-primary">View More</Link>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -141,7 +175,6 @@ const ResidentMainPage = () => {
       {/* Footer */}
       <footer className="bg-dark text-white text-center py-3 mt-5" style={{ zIndex: 2, position: 'relative', bottom: 0, width: '100%' }}>
         <p>NeighbourlySG &copy; 2024. All rights reserved.</p>
-        <p><Link to="/contact" className="text-white">Contact Support</Link></p>
       </footer>
     </div>
   );
