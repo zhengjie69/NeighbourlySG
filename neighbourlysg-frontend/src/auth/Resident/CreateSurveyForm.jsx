@@ -18,6 +18,7 @@ const CreateSurveyPage = () => {
   const [isDescriptionValid, setIsDescriptionValid] = useState(true); // Track description validity
   const [isQuestionListValid, setIsQuestionListValid] = useState(true); // New state for question list validation
   const [questionErrors, setQuestionErrors] = useState({}); // Track errors for each question
+  const [isCreating, setIsCreating] = useState(true); // Track description validity
 
   const location = useLocation();
   const surveyId = location.state?.surveyId; // Get surveyId from state
@@ -40,7 +41,9 @@ const CreateSurveyPage = () => {
           questionText: q.questionText,
           questionType: q.questionType,
           options: q.options || [],
+          isNew: false, // Mark as not new
         })));
+        setIsCreating(false);
       } else {
         console.error('Failed to fetch survey data.');
         setMessage("Failed to fetch survey data.");
@@ -82,19 +85,41 @@ const CreateSurveyPage = () => {
   const handleOptionChange = (questionId, optionIndex, value) => {
     setQuestions(questions.map(q => (q.id === questionId ? { ...q, options: q.options.map((opt, idx) => (idx === optionIndex ? value : opt)) } : q)));
   };
+  
+  
+  const removeOption = (questionId, optionIndex) => {
+    setQuestions(questions.map(q => 
+      q.id === questionId 
+        ? { 
+            ...q, 
+            options: q.options.filter((_, idx) => idx !== optionIndex)
+          } 
+        : q
+    ));
+  };
+  
+  
 
   const addQuestion = () => {
-    setQuestions([...questions, { id: questions.length + 1, questionText: "", questionType: "shortAnswer", options: [] }]);
+    setQuestions([
+      ...questions,
+      { id: questions.length + 1, questionText: "", questionType: "shortAnswer", options: [], isNew: true },
+    ]);
   };
+  
 
   const addOption = (questionId) => {
     setQuestions(questions.map(q => (q.id === questionId ? { ...q, options: [...q.options, ""] } : q)));
   };
+  
 
   const deleteQuestion = (id) => {
     setQuestions(questions.filter((q) => q.id !== id));
   };
 
+  
+
+  
   const handleSubmit = async () => {
     // Validation logic
     if (!surveyTitle.trim()) {
@@ -277,15 +302,21 @@ const CreateSurveyPage = () => {
               <Card.Body>
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <Form.Label>Question {index + 1}</Form.Label>
-                <OverlayTrigger
-                  placement="top"
-                  overlay={<Tooltip>Delete Question</Tooltip>}
-                >
-                  <Button variant="outline-danger" className="ms-2" onClick={() => { deleteQuestion(question.id); }}>
+                {(question.isNew || isCreating) &&  (
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={<Tooltip>Delete Question</Tooltip>}
+                  >
+                    <Button
+                      variant="outline-danger"
+                      className="ms-2"
+                      onClick={() => { deleteQuestion(question.id); }}
+                    >
                       <FaTrash />
-                  </Button>
-                </OverlayTrigger>
-              </div>
+                    </Button>
+                  </OverlayTrigger>
+                )}
+               </div>
                 <Form.Group className="mb-3">
                   <InputGroup>
                     <FormControl
@@ -313,7 +344,7 @@ const CreateSurveyPage = () => {
 
                 {question.questionType === "multipleChoice" && (
                   <div className="mb-3">
-                    {question.options.map((option, idx) => (
+                   {question.options.map((option, idx) => (
                       <InputGroup className="mb-2" key={idx}>
                         <InputGroup.Text>{String.fromCharCode(65 + idx)}</InputGroup.Text>
                         <FormControl
@@ -321,6 +352,19 @@ const CreateSurveyPage = () => {
                           value={option}
                           onChange={(e) => handleOptionChange(question.id, idx, e.target.value)}
                         />
+                        {option.isNew && (
+                        <OverlayTrigger
+                          placement="top"
+                          overlay={<Tooltip>Delete Option</Tooltip>}
+                          >
+                          <Button 
+                            variant="outline-danger" 
+                            onClick={() => removeOption(question.id, idx)}
+                          >
+                            <FaTrash />
+                          </Button>
+                          </OverlayTrigger>
+                        )}
                       </InputGroup>
                     ))}
                     <Button variant="link" onClick={() => addOption(question.id)}>
