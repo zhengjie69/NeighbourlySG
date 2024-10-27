@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Link } from 'react-router-dom';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
-import SGLogo from '../../assets/SGLogo.avif'; // Import the Singapore logo
 import { useLocation } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 

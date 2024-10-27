@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 import { Link } from 'react-router-dom';
-import axios from 'axios'; // Import axios for making HTTP requests
 import { useNavigate } from 'react-router-dom';
-import { rsaEncrypt } from '../Utils/RSAUtil';
+import axiosInstance from '../Utils/axiosConfig'
 
 function ResidentLogin() {
   const [email, setEmail] = useState('');
@@ -20,7 +19,7 @@ function ResidentLogin() {
     try {
       // // Encrypt the password using the RSA utility
       // const encryptedPassword = rsaEncrypt(password);
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
+      const response = await axiosInstance.post('/auth/login', {
         email: email,
         password: password,  // Send the encrypted password
       });
