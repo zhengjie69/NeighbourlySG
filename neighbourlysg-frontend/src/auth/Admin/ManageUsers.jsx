@@ -3,6 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import axiosInstance from '../Utils/axiosConfig'
 
 const ManageUsers = () => {
   const [profiles, setProfiles] = useState([]);
