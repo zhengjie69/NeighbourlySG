@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -153,5 +154,38 @@ public class SurveyResponseServiceImplTest {
         assertNotNull(result);
         assertNull(result.getUserId());
         verify(surveyResponseRepository, times(1)).findBySurveyIdAndUserId(surveyId, userId);
+    }
+
+    @Test
+    public void testDeleteUserResponses_WhenResponsesExist() {
+        // Arrange
+        Long surveyId = 1L;
+        SurveyResponse response1 = new SurveyResponse();
+        SurveyResponse response2 = new SurveyResponse();
+        List<SurveyResponse> responses = Arrays.asList(response1, response2);
+
+        when(surveyResponseRepository.findBySurveyId(surveyId)).thenReturn(responses);
+
+        // Act
+        surveyResponseService.deleteUserResponses(surveyId);
+
+        // Assert
+        verify(surveyResponseRepository, times(2)).delete(any(SurveyResponse.class)); // Verify delete was called twice
+        verify(surveyResponseRepository, times(1)).findBySurveyId(surveyId); // Verify find method was called
+    }
+
+    @Test
+    public void testDeleteUserResponses_WhenNoResponsesExist() {
+        // Arrange
+        Long surveyId = 2L;
+
+        when(surveyResponseRepository.findBySurveyId(surveyId)).thenReturn(Collections.emptyList());
+
+        // Act
+        surveyResponseService.deleteUserResponses(surveyId);
+
+        // Assert
+        verify(surveyResponseRepository, never()).delete(any(SurveyResponse.class)); // Verify delete was never called
+        verify(surveyResponseRepository, times(1)).findBySurveyId(surveyId); // Verify find method was called
     }
 }
