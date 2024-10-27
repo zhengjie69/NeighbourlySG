@@ -46,7 +46,7 @@ jobs:
       run: 
         chmod +x neighbourlysg-backend/mvnw
     - name: Clean and Install with Maven
-      run: ./neighbourlysg-backend/mvnw clean install --file neighbourlysg-backend/pom.xml
+      run: ./neighbourlysg-backend/mvnw clean install --file neighbourlysg-backend/pom.xml -Dspring.profiles.active=production
     - name: Build with Maven
       run: 
         ./neighbourlysg-backend/mvnw -B package --file neighbourlysg-backend/pom.xml
@@ -98,7 +98,7 @@ jobs:
       run: npm --prefix /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend install
 
     - name: Build Project
-      run: npm --prefix /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend run build
+      run: npm --prefix /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend run build -- --mode production
 
     - name: List build directory
       run: ls -R /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend/dist
