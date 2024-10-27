@@ -2,11 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import axios from 'axios'; // Import axios
-import { Modal, Button } from 'react-bootstrap';
 import neighbourlySGbackground from '../../assets/neighbourlySGbackground.jpg';
 import { Link } from 'react-router-dom';
-import { rsaEncrypt } from '../Utils/RSAUtil';
 import axiosInstance from '../Utils/axiosConfig'
 
 function RegisterPage() {
