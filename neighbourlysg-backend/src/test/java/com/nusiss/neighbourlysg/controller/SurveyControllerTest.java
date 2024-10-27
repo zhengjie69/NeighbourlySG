@@ -150,4 +150,63 @@ public class SurveyControllerTest {
         // Verify that the service method was called
         verify(surveyService, times(1)).deleteSurveyById(surveyId);
     }
+
+    @Test
+    void testCreateSurvey_ExceptionHandling() {
+        SurveyDTO surveyDTO = new SurveyDTO();
+        when(surveyService.createSurvey(surveyDTO)).thenThrow(new RuntimeException("Internal error"));
+
+        ResponseEntity<SurveyDTO> response = surveyController.createSurvey(surveyDTO);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertEquals(null, response.getBody());
+        verify(surveyService, times(1)).createSurvey(surveyDTO);
+    }
+
+    @Test
+    void testGetAllSurveys_ExceptionHandling() {
+        when(surveyService.getAllSurveys()).thenThrow(new RuntimeException("Internal error"));
+
+        ResponseEntity<List<SurveyDTO>> response = surveyController.getAllSurveys();
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertEquals(null, response.getBody());
+        verify(surveyService, times(1)).getAllSurveys();
+    }
+
+    @Test
+    void testGetSurveyById_ExceptionHandling() {
+        Long surveyId = 1L;
+        when(surveyService.getSurveyById(surveyId)).thenThrow(new RuntimeException("Internal error"));
+
+        ResponseEntity<SurveyDTO> response = surveyController.getSurveyById(surveyId);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertEquals(null, response.getBody());
+        verify(surveyService, times(1)).getSurveyById(surveyId);
+    }
+
+    @Test
+    void testUpdateSurvey_ExceptionHandling() {
+        SurveyDTO updatedSurvey = new SurveyDTO();
+        when(surveyService.updateSurvey(updatedSurvey)).thenThrow(new RuntimeException("Internal error"));
+
+        ResponseEntity<SurveyDTO> response = surveyController.updateSurvey(updatedSurvey);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertEquals(null, response.getBody());
+        verify(surveyService, times(1)).updateSurvey(updatedSurvey);
+    }
+
+    @Test
+    void testDeleteSurvey_ExceptionHandling() {
+        Long surveyId = 1L;
+        doThrow(new RuntimeException("Internal error")).when(surveyService).deleteSurveyById(surveyId);
+
+        ResponseEntity<String> response = surveyController.deleteProfile(surveyId);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertEquals(null, response.getBody());
+        verify(surveyService, times(1)).deleteSurveyById(surveyId);
+    }
 }
