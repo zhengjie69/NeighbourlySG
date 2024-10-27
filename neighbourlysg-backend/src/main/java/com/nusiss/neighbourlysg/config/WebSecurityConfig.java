@@ -71,6 +71,7 @@ public class WebSecurityConfig {
                             .requestMatchers("/api/**").permitAll()
                             .requestMatchers("/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui/**", "/webjars/**").permitAll()
                             .requestMatchers("/ws/**").permitAll() // Allow all WebSocket connections
+                            .requestMatchers("/health").permitAll() // Allow access to the health check endpoint
                             .anyRequest().authenticated()
             );
 
