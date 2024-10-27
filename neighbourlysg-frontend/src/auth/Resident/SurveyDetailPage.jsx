@@ -32,7 +32,7 @@ const SurveyDetailPage = () => {
   const fetchExistingResponses = async (surveyId) => {
     const userId = sessionStorage.getItem('userId'); // Get userId from sessionStorage
     try {
-      const response = await axiosInstance.get(`/SurveyResponseService/getUserResponses${surveyId}/${userId}`);
+      const response = await axiosInstance.get(`/SurveyResponseService/getUserResponses/${surveyId}/${userId}`);
       const existingResponse = response.data;
 
       if (existingResponse && existingResponse.responses.length > 0) {
