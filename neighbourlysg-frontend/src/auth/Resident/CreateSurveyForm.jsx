@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Button, Form, Card, InputGroup, FormControl } from "react-bootstrap";
+import { Button, Form, Card, InputGroup, FormControl, OverlayTrigger, Tooltip } from "react-bootstrap";
+import { FaTrash } from 'react-icons/fa';
 import { Link, useLocation } from "react-router-dom";
 import neighbourlySGbackground from "../../assets/neighbourlySGbackground.jpg";
 import axiosInstance from '../Utils/axiosConfig'
@@ -13,31 +14,44 @@ const CreateSurveyPage = () => {
   ]);
   const [message, setMessage] = useState('');
   const [isError, setIsError] = useState(false);
+  const [isTitleValid, setIsTitleValid] = useState(true); // Track title validity
+  const [isDescriptionValid, setIsDescriptionValid] = useState(true); // Track description validity
+  const [isQuestionListValid, setIsQuestionListValid] = useState(true); // New state for question list validation
+  const [questionErrors, setQuestionErrors] = useState({}); // Track errors for each question
 
   const location = useLocation();
   const surveyId = location.state?.surveyId; // Get surveyId from state
+  
 
-  // Function to fetch existing survey data based on surveyId
+ // Function to fetch existing survey data based on surveyId
   const fetchSurvey = async (id) => {
-    const response = await axiosInstance.get(`/SurveyService/getSurvey/${id}`);
+    try {
+      const response = await axiosInstance.get(`/SurveyService/getSurvey/${id}`);
 
-    if (response.data) {
-      const surveyData = await response.json();
-      setSurveyTitle(surveyData.title);
-      setSurveyDescription(surveyData.description);
-      // Map through questions while maintaining original IDs
-      setQuestions(surveyData.questions.map(q => ({
-        id: q.id,  // Maintain original question ID
-        questionText: q.questionText,
-        questionType: q.questionType,
-        options: q.options || [],
-      })));
-    } else {
-      console.error('Failed to fetch survey data.');
-      setMessage("Failed to fetch survey data.");
+      if (response.data) {
+        const surveyData = response.data;  // Directly access response.data with Axios
+        setSurveyTitle(surveyData.title);
+        setSurveyDescription(surveyData.description);
+        
+        // Map through questions while maintaining original IDs
+        setQuestions(surveyData.questions.map(q => ({
+          id: q.id,  // Maintain original question ID
+          questionText: q.questionText,
+          questionType: q.questionType,
+          options: q.options || [],
+        })));
+      } else {
+        console.error('Failed to fetch survey data.');
+        setMessage("Failed to fetch survey data.");
+        setIsError(true);
+      }
+    } catch (error) {
+      console.error('Error fetching survey:', error);
+      setMessage("An error occurred while fetching the survey.");
       setIsError(true);
     }
   };
+
 
   useEffect(() => {
     if (surveyId) {
@@ -46,8 +60,19 @@ const CreateSurveyPage = () => {
   }, [surveyId]);
 
   const handleQuestionTextChange = (id, text) => {
+
+    setIsQuestionListValid(true); // No valid questions
+    setIsError(false);
+
     setQuestions(questions.map(q => (q.id === id ? { ...q, questionText: text } : q)));
+  
+    // Clear the error for this specific question as soon as the user starts typing
+    setQuestionErrors(prevErrors => ({
+      ...prevErrors,
+      [id]: !text.trim() // If the text is empty or just spaces, set error to true, otherwise false
+    }));
   };
+  
 
   const handleQuestionTypeChange = (id, type) => {
     setQuestions(questions.map(q => (q.id === id ? { ...q, questionType: type, options: type === "multipleChoice" ? [""] : [] } : q)));
@@ -65,7 +90,60 @@ const CreateSurveyPage = () => {
     setQuestions(questions.map(q => (q.id === questionId ? { ...q, options: [...q.options, ""] } : q)));
   };
 
+  const deleteQuestion = (id) => {
+    setQuestions(questions.filter((q) => q.id !== id));
+  };
+
   const handleSubmit = async () => {
+    // Validation logic
+    if (!surveyTitle.trim()) {
+      setIsError(true);
+      setIsTitleValid(false); 
+      return;
+    }else {
+      setIsTitleValid(true); 
+    }
+
+    if (!surveyDescription.trim()) {
+      setIsDescriptionValid(false);
+      setIsError(true);
+      return;
+    }else {
+      setIsDescriptionValid(true); 
+    }
+
+    // Validation logic for questions
+    const questionErrorsTemp = {};
+    let isAnyQuestionFilled = false; // Flag to check if at least one question has text
+    questions.forEach(q => {
+      if (!q.questionText.trim()) {
+        questionErrorsTemp[q.id] = true;// Mark question as invalid if empty
+        setIsError(true); 
+      } else {
+        isAnyQuestionFilled = true; // Mark that at least one question is filled
+      }
+    });
+
+    // Set validation for question list
+    if (!isAnyQuestionFilled) {
+      setIsQuestionListValid(false); // No valid questions
+      setIsError(true);
+      // Check if there are any question errors
+      if (Object.keys(questionErrorsTemp).length > 0) {
+        setQuestionErrors(questionErrorsTemp); // Set the question errors
+        return; // Stop submission if there are question errors
+      }
+      return;
+    } else {
+      setIsQuestionListValid(true); // At least one question is valid
+    }
+
+    // Check if there are any question errors
+  if (Object.keys(questionErrorsTemp).length > 0) {
+    setQuestionErrors(questionErrorsTemp); // Set the question errors
+    return; // Stop submission if there are question errors
+  }
+
     try {
       const surveyData = {
         id: surveyId, // Include the ID for update
@@ -141,8 +219,17 @@ const CreateSurveyPage = () => {
             <FormControl
               placeholder="Enter survey title"
               value={surveyTitle}
-              onChange={(e) => setSurveyTitle(e.target.value)}
+              onChange={(e) => {
+                setSurveyTitle(e.target.value);
+                setIsTitleValid(true); // Set title validity to true
+              }}
+              style={{ borderColor: isTitleValid ? "" : "red" }} // Conditional styling
             />
+            {!isTitleValid && (
+              <div style={{ color: "red", fontSize: "0.875rem" }}>
+                Survey title is required.
+              </div>
+            )}
           </Form.Group>
 
           <Form.Group className="mb-4">
@@ -152,20 +239,37 @@ const CreateSurveyPage = () => {
               rows={3}
               placeholder="Enter survey description"
               value={surveyDescription}
-              onChange={(e) => setSurveyDescription(e.target.value)}
+              onChange={(e) => {setSurveyDescription(e.target.value); setIsDescriptionValid(true);}}
+              style={{ borderColor: isDescriptionValid ? "" : "red" }} // Conditional styling
             />
+            {!isDescriptionValid && (
+              <div style={{ color: "red", fontSize: "0.875rem" }}>
+                Survey description is required.
+              </div>
+            )}
           </Form.Group>
 
           {questions.map((question, index) => (
             <Card key={question.id} className="mb-3">
               <Card.Body>
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <Form.Label>Question {index + 1}</Form.Label>
+                <OverlayTrigger
+                  placement="top"
+                  overlay={<Tooltip>Delete Question</Tooltip>}
+                >
+                  <Button variant="outline-danger" className="ms-2" onClick={() => { deleteQuestion(question.id); }}>
+                      <FaTrash />
+                  </Button>
+                </OverlayTrigger>
+              </div>
                 <Form.Group className="mb-3">
-                  <Form.Label>Question {index + 1}</Form.Label>
                   <InputGroup>
                     <FormControl
-                      placeholder="Enter your question here"
+                      placeholder="Enter question"
                       value={question.questionText}
                       onChange={(e) => handleQuestionTextChange(question.id, e.target.value)}
+                      style={{ borderColor: questionErrors[question.id] ? "red" : "" }} // Red border for invalid input
                     />
                     <Form.Select
                       value={question.questionType}
@@ -177,6 +281,11 @@ const CreateSurveyPage = () => {
                       <option value="rating">Rating (1-5)</option>
                     </Form.Select>
                   </InputGroup>
+                  {questionErrors[question.id] && (
+                    <div style={{ color: "red", fontSize: "0.875rem" }}>
+                      The question is required.
+                    </div>
+                  )}
                 </Form.Group>
 
                 {question.questionType === "multipleChoice" && (
@@ -212,6 +321,12 @@ const CreateSurveyPage = () => {
               </Card.Body>
             </Card>
           ))}
+
+          {!isQuestionListValid && (
+            <div style={{ color: "red", fontSize: "0.875rem", marginBottom: "1rem" }}>
+              At least one question is required.
+            </div>
+          )}
 
           <Button variant="secondary" className="mb-3" onClick={addQuestion}>
             + Add Question
