@@ -118,9 +118,9 @@ const ManageUsers = () => {
               </tr>
             </thead>
             <tbody>
-              {profiles.map((profile) => (
+              {profiles.map((profile, index) => (
                 <tr key={profile.id}>
-                  <th scope="row">{profile.id}</th>
+                  <th scope="row">{index + 1}</th>
                   <td>{profile.name}</td>
                   <td>{profile.email}</td>
                   <td>{profile.constituency}</td>
