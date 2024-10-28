@@ -446,7 +446,7 @@ function CommunityPost() {
                   </>
                 )}
 
-                {roleId === "ROLE_ADMIN" && (
+                {roleId.includes("ROLE_ADMIN") && (
                   <Button variant="btn btn-theme" onClick={() => confirmDeletePost(post.id)} 
                   style={{ position: "absolute", top: "10px", right: "10px" }}
                   >
@@ -470,7 +470,8 @@ function CommunityPost() {
               <div className="card">
                 <div className="card-body">
                   <h5 className="card-title">{selectedPost.profileName}</h5>
-                  <p>{selectedPost.content}
+                  <p>{selectedPost.content}</p>
+                  <p>
                   {selectedPost.tags.map((tag) => (
                     <span key={tag} className="badge bg-secondary me-1">{tag}</span>
                   ))} 
@@ -528,7 +529,7 @@ function CommunityPost() {
                   </>
                   )}
 
-                {roleId === "ROLE_ADMIN" && (
+                {roleId.includes("ROLE_ADMIN") && (
                   <Button variant="btn btn-theme" onClick={() => confirmDeleteComment(comment)} 
                     style={{ 
                       position: "absolute", 
