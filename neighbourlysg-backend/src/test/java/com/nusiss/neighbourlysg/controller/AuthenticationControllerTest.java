@@ -1,64 +1,101 @@
 package com.nusiss.neighbourlysg.controller;
 
-import com.nusiss.neighbourlysg.NeighbourlysgBackendApplication;
+import com.nusiss.neighbourlysg.dto.JwtResponse;
 import com.nusiss.neighbourlysg.dto.LoginRequestDTO;
-import com.nusiss.neighbourlysg.repository.ProfileRepository;
+import com.nusiss.neighbourlysg.dto.ProfileDto;
+import com.nusiss.neighbourlysg.security.jwt.JwtUtils;
+import com.nusiss.neighbourlysg.service.impl.UserDetailsImpl;
 import com.nusiss.neighbourlysg.service.ProfileService;
-import com.nusiss.neighbourlysg.util.MasterDTOTestUtil;
-import com.nusiss.neighbourlysg.util.MasterEntityTestUtil;
-import com.nusiss.neighbourlysg.util.TestUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.Optional;
+import javax.management.relation.RoleNotFoundException;
+import java.util.Collections;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.*;
 
-@SpringBootTest(classes = NeighbourlysgBackendApplication.class)
 class AuthenticationControllerTest {
-    @Mock
-    ProfileService profileService;
-    @Mock
-    ProfileRepository profileRepository;
 
-    private MockMvc mockMvc;
-
+    @InjectMocks
     private AuthenticationController authenticationController;
 
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
+    @Mock
+    private AuthenticationManager authenticationManager;
 
-    @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
+    @Mock
+    private JwtUtils jwtUtils;
+
+    @Mock
+    private ProfileService profileService;
+
+    private Authentication authentication;
+
     @BeforeEach
-    void setup() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
-        authenticationController = new AuthenticationController(profileService);
-        this.mockMvc = MockMvcBuilders.standaloneSetup(authenticationController)
-                .setCustomArgumentResolvers(pageableArgumentResolver)
-                .setConversionService(TestUtil.createFormattingConversionService())
-                .setMessageConverters(jacksonMessageConverter)
-                .build();
+        UserDetailsImpl userDetails = new UserDetailsImpl(1L, "testuser", "test@example.com",
+               "password",Collections.emptyList() );
+        authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(userDetails);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     @Test
-    void loginTest() throws Exception {
-        LoginRequestDTO loginRequestDTO=MasterDTOTestUtil.createLoginRequestDTO();
-        Mockito.when(profileRepository.findByEmail(Mockito.any())).thenReturn(Optional.of(MasterEntityTestUtil.createProfileEntity()));
+    void testLoginSuccess() {
+        LoginRequestDTO loginRequest = new LoginRequestDTO("test@example.com", "password");
 
-        byte[] data = TestUtil.convertObjectToJsonBytes(loginRequestDTO);
+        ProfileDto profileDto = new ProfileDto();
+        profileDto.setConstituency("testConstituency");
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenReturn(authentication);
+        when(jwtUtils.generateJwtToken(authentication)).thenReturn("mockJwtToken");
+        when(profileService.getProfileById(any(Long.class))).thenReturn(profileDto);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/login")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8).content(data)).andExpect(status().isOk());
+        ResponseEntity<JwtResponse> response = authenticationController.login(loginRequest);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        JwtResponse jwtResponse = response.getBody();
+        assert jwtResponse != null;
+        assertEquals("mockJwtToken", jwtResponse.getAccessToken());
+        assertEquals(1L, jwtResponse.getId());
+        assertEquals("testConstituency", jwtResponse.getConstituency());
+        assertEquals("testuser", jwtResponse.getUsername());
+        assertEquals("test@example.com", jwtResponse.getEmail());
+
+    }
+
+    @Test
+    void testCreateProfileSuccess() throws Exception {
+        ProfileDto profileDto = new ProfileDto();
+        // set profileDto properties as needed
+        when(profileService.createProfile(any(ProfileDto.class))).thenReturn(profileDto);
+
+        ResponseEntity<ProfileDto> response = authenticationController.createProfile(profileDto);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(profileDto, response.getBody());
+    }
+
+    @Test
+    void testCreateProfileRoleNotFound() throws Exception {
+        ProfileDto profileDto = new ProfileDto();
+        // set profileDto properties as needed
+        when(profileService.createProfile(any(ProfileDto.class))).thenThrow(new RoleNotFoundException("Role not found"));
+
+        ResponseEntity<ProfileDto> response = authenticationController.createProfile(profileDto);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNull(response.getBody());
     }
 }

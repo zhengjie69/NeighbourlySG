@@ -1,14 +1,15 @@
 package com.nusiss.neighbourlysg.util;
 
-import com.nusiss.neighbourlysg.dto.EventDto;
-import com.nusiss.neighbourlysg.dto.LoginRequestDTO;
-import com.nusiss.neighbourlysg.dto.ProfileDto;
-import com.nusiss.neighbourlysg.dto.QuestionDTO;
-import com.nusiss.neighbourlysg.dto.RoleDto;
-import com.nusiss.neighbourlysg.dto.SurveyDTO;
+import com.nusiss.neighbourlysg.common.RoleConstants;
+import com.nusiss.neighbourlysg.dto.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public final class MasterDTOTestUtil {
 
@@ -24,9 +25,23 @@ public final class MasterDTOTestUtil {
         profile.setConstituency("con");
         profile.setEmail("email");
         profile.setId(1L);
-        profile.setRoles(Arrays.asList(1));
         profile.setName("name");
         profile.setPassword("password");
+        return profile;
+    }
+
+    public static ProfileDto createProfileDTOWithRoles() {
+        ProfileDto profile = new ProfileDto();
+        profile.setConstituency("con");
+        profile.setEmail("email");
+        profile.setId(1L);
+        profile.setName("name");
+        profile.setPassword("password");
+        Set<String> roles = new HashSet<>();
+        roles.add(RoleConstants.ROLE_USER);
+        roles.add(RoleConstants.ROLE_ORGANISER);
+        roles.add(RoleConstants.ROLE_ADMIN);
+        profile.setRoles(roles);
         return profile;
     }
 
@@ -66,6 +81,33 @@ public final class MasterDTOTestUtil {
         questionDTO.setQuestionType("type");
         questionDTO.setOptions(Arrays.asList("option"));
         return questionDTO;
+    }
+
+    public static PostDto createPostDTO() {
+        PostDto postDto = new PostDto();
+        postDto.setId(1L);
+        postDto.setContent("Content");
+        postDto.setProfileId(1L);
+        postDto.setLikeCount(0);
+        postDto.setCreationDate(LocalDateTime.now()); // Set a default creation date
+
+        // Create and set comments
+        List<CommentDto> comments = new ArrayList<>();
+        CommentDto commentDto = new CommentDto();
+        commentDto.setId(1L);
+        commentDto.setContent("This is a comment");
+        commentDto.setProfileId(1L);
+        commentDto.setCreationDate(LocalDateTime.now());
+        comments.add(commentDto);
+        postDto.setComments(comments);
+
+        // Create and set tags
+        List<String> tags = new ArrayList<>();
+        tags.add("Tag1");
+        tags.add("Tag2");
+        postDto.setTags(tags);
+
+        return postDto;
     }
 
 }

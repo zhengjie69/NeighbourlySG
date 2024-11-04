@@ -115,23 +115,28 @@ class EventControllerTest {
     @Test
     void testGetAllCurrentEvent() throws Exception {
         Long profileId = 1L;
+        String constituency = "testConstituency";
+        String location = "test location";
         List<EventDto> events = List.of(new EventDto()); // populate as needed
 
-        when(eventService.getAllCurrentEvent(profileId)).thenReturn(events);
+        when(eventService.getAllCurrentEvent(profileId, constituency, location)).thenReturn(events);
 
-        mockMvc.perform(get("/api/EventService/getAllCurrentEvent/{profileId}", profileId))
+        mockMvc.perform(get("/api/EventService/getAllCurrentEvent/{profileId}/{constituency}",
+                        profileId, constituency).param("location", location))
                 .andExpect(status().isOk());
     }
 
     @Test
     void testGetAllCurrentEvent_ExceptionThrown() {
         Long profileId = 1L;
+        String constituency = "testConstituency";
+        String location = "test location";
 
         // Configure mock to throw an exception
-        when(eventService.getAllCurrentEvent(profileId)).thenReturn(Collections.emptyList());
+        when(eventService.getAllCurrentEvent(profileId, constituency, location)).thenReturn(Collections.emptyList());
 
         // Call the controller method
-        ResponseEntity<List<EventDto>> response = eventController.getAllCurrentEvent(profileId);
+        ResponseEntity<List<EventDto>> response = eventController.getAllCurrentEvent(profileId, constituency, location);
 
         // Verify the response
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -140,23 +145,27 @@ class EventControllerTest {
     @Test
     void testGetAllPastEvent() throws Exception {
         Long profileId = 1L;
+        String constituency = "testConstituency";
+        String location = "test location";
         List<EventDto> events = List.of(new EventDto()); // populate as needed
 
-        when(eventService.getAllPastEvent(profileId)).thenReturn(events);
+        when(eventService.getAllPastEvent(profileId, constituency, location)).thenReturn(events);
 
-        mockMvc.perform(get("/api/EventService/getAllPastEvent/{profileId}", profileId))
+        mockMvc.perform(get("/api/EventService/getAllPastEvent/{profileId}/{constituency}",
+                        profileId, constituency).param("location", location))
                 .andExpect(status().isOk());
     }
 
     @Test
     void testGetAllPastEvent_ExceptionThrown() {
         Long profileId = 1L;
-
+        String constituency = "testConstituency";
+        String location = "test location";
         // Configure mock to throw an exception
-        when(eventService.getAllPastEvent(profileId)).thenReturn(Collections.emptyList());
+        when(eventService.getAllPastEvent(profileId, constituency, location)).thenReturn(Collections.emptyList());
 
         // Call the controller method
-        ResponseEntity<List<EventDto>> response = eventController.getAllPastEvent(profileId);
+        ResponseEntity<List<EventDto>> response = eventController.getAllPastEvent(profileId, constituency, location);
 
         // Verify the response
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());

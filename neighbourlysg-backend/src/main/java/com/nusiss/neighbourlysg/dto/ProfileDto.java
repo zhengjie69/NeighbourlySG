@@ -1,11 +1,12 @@
 package com.nusiss.neighbourlysg.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -13,11 +14,13 @@ import java.util.List;
 @AllArgsConstructor
 public class ProfileDto {
 	private Long id;
+	private String username;
     private String name;
     private String email;
-    private String password;
     private String constituency;
-	private List<Integer> roles;
+	private Set<String> roles;
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+	private String password;
 
 	public Long getId() {
 		return id;
@@ -25,6 +28,15 @@ public class ProfileDto {
 	public void setId(Long id) {
 		this.id = id;
 	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -50,11 +62,11 @@ public class ProfileDto {
 		this.constituency = constituency;
 	}
 
-	public List<Integer> getRoles() {
+	public Set<String> getRoles() {
 		return roles;
 	}
 
-	public void setRoles(List<Integer> roles) {
+	public void setRoles(Set<String> roles) {
 		this.roles = roles;
 	}
 }

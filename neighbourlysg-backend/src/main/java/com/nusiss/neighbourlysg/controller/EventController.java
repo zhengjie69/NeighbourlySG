@@ -5,6 +5,7 @@ import com.nusiss.neighbourlysg.dto.EventParticipantDto;
 import com.nusiss.neighbourlysg.service.EventService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class EventController {
     }
 
     @PostMapping("/createEvent/{profileId}")
+    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<String> createEvent(
             @PathVariable("profileId") Long profileId,
             @RequestBody EventDto eventDto) {
@@ -32,6 +34,7 @@ public class EventController {
     }
 
     @GetMapping("/getAllUserEvent/{profileId}")
+    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<List<EventDto>> getAllUserEvent(
             @PathVariable("profileId") Long profileId) {
             List<EventDto> event = eventService.getAllUserEvent(profileId);
@@ -42,10 +45,12 @@ public class EventController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
 
-    @GetMapping("/getAllCurrentEvent/{profileId}")
+    @GetMapping("/getAllCurrentEvent/{profileId}/{constituency}")
+    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<List<EventDto>> getAllCurrentEvent(
-            @PathVariable("profileId") Long profileId) {
-            List<EventDto> event = eventService.getAllCurrentEvent(profileId);
+            @PathVariable("profileId") Long profileId, @PathVariable(value = "constituency") String constituency,
+            @RequestParam(value = "location", required = false) String location) {
+            List<EventDto> event = eventService.getAllCurrentEvent(profileId, constituency, location);
             if(!event.isEmpty())
                 return ResponseEntity.ok(event);
             else
@@ -53,10 +58,12 @@ public class EventController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
 
-    @GetMapping("/getAllPastEvent/{profileId}")
+    @GetMapping("/getAllPastEvent/{profileId}/{constituency}")
+    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<List<EventDto>> getAllPastEvent(
-            @PathVariable("profileId") Long profileId) {
-            List<EventDto> event = eventService.getAllPastEvent(profileId);
+            @PathVariable("profileId") Long profileId, @PathVariable(value = "constituency") String constituency,
+            @RequestParam(value = "location", required = false) String location) {
+            List<EventDto> event = eventService.getAllPastEvent(profileId, constituency, location);
             if(!event.isEmpty())
                 return ResponseEntity.ok(event);
             else
@@ -65,6 +72,7 @@ public class EventController {
     }
 
     @DeleteMapping("/deleteEvent/{eventId}")
+    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<String> deleteEvent(@PathVariable("eventId") Long eventId) {
         try {
             eventService.deleteEvent(eventId);
@@ -76,6 +84,7 @@ public class EventController {
     }
 
     @PutMapping("/updateEvent")
+    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<EventDto> updateEvent(@RequestBody EventDto updatedEvent) {
             EventDto eventDto = eventService.updateEvent(updatedEvent);
             if(eventDto != null)
@@ -85,6 +94,7 @@ public class EventController {
     }
 
     @PostMapping("/rsvpParticipant")
+    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<String> rsvpParticipant(@RequestBody EventParticipantDto rsvpPersonnel) {
         try {
             long rsvpCount = eventService.rsvpParticipant(rsvpPersonnel);
@@ -98,6 +108,7 @@ public class EventController {
     }
 
     @PostMapping("/deleteRsvpAsParticipant")
+    @PreAuthorize("hasRole('USER') or hasRole('ORGANISER') or hasRole('ADMIN')")
     public ResponseEntity<String> deleteRsvpAsParticipant(@RequestBody EventParticipantDto rsvpToBeRemoved) {
         try {
             boolean deleteStatus = eventService.deleteRsvpAsParticipant(rsvpToBeRemoved);
@@ -109,4 +120,5 @@ public class EventController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
 }

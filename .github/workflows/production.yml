@@ -1,0 +1,113 @@
+# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Production
+
+on:
+  push:
+    branches: [ "main", "feature/ci-cd", "feature/dev_main_integration" ]
+  pull_request:
+    branches: [ "main", "feature/ci-cd", "feature/dev_main_integration" ]
+
+jobs:
+  BuildBackEnd:
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          # The MySQL docker container requires these environment variables to be set
+          # so we can create and migrate the test database.
+          # See: https://hub.docker.com/_/mysql
+          MYSQL_DATABASE: neighbourlysg
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        ports:
+          # Opens port 3306 on service container and host
+          # https://docs.github.com/en/actions/using-containerized-services/about-service-containers
+          - 3306:3306
+          # Before continuing, verify the mysql container is reachable from the ubuntu host
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 22
+      uses: actions/setup-java@v3
+      with:
+        java-version: '22'
+        distribution: 'temurin'
+        cache: maven
+    - name: Set execute permission for Maven Wrapper
+      run: 
+        chmod +x neighbourlysg-backend/mvnw
+    - name: Clean and Install with Maven
+      run: ./neighbourlysg-backend/mvnw clean install --file neighbourlysg-backend/pom.xml -Dspring.profiles.active=production
+    - name: Build with Maven
+      run: 
+        ./neighbourlysg-backend/mvnw -B package --file neighbourlysg-backend/pom.xml
+    - name: Upload JAR
+      uses: actions/upload-artifact@v3
+      with:
+        name: artifact
+        path: neighbourlysg-backend/target/neighbourlysg-backend-0.0.1-SNAPSHOT.jar
+        
+  # Deploy's job
+  DeployBackEnd:
+    # Depends on build's job
+    needs: BuildBackEnd
+    name: Deploy to Elastic Beanstalk
+    # Will run steps on latest version of ubuntu
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download JAR
+        # Download the artifact which was uploaded in the Build Archive's job
+        uses: actions/download-artifact@v3
+        with:
+          name: artifact
+      # Deploy the artifact (JAR) into AWS Beanstalk
+      - name: Deploy to EB
+        uses: einaregilsson/beanstalk-deploy@v13
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }} # This is referred from Github Secrets
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # This is referred from Github Secrets
+          use_existing_version_if_available: true
+          application_name: Neighbourlysg # Application name we created in Elastic Beanstalk
+          environment_name: Neighbourlysg-env # Environment name we created in Elastic Beanstalk
+          version_label: ${{ github.SHA }}
+          region: ap-southeast-1 # VERY IMPORTANT: AWS Region where initially Application was created in AWS EBS. We created in us-east-1 which is N-Virginia
+          deployment_package: neighbourlysg-backend-0.0.1-SNAPSHOT.jar # Download artifacts from previous job
+
+  BuildFrontEnd:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.5.1'
+
+    - name: Change directory to frontend
+      run: cd /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend
+
+    - name: Install dependencies
+      run: npm --prefix /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend install
+
+    - name: Build Project
+      run: npm --prefix /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend run build -- --mode production
+
+    - name: List build directory
+      run: ls -R /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend/dist
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GIT_HUB_TOKEN }}
+        publish_dir: /home/runner/work/NeighbourlySG/NeighbourlySG/neighbourlysg-frontend/dist  # Ensure this matches your build output directory
+        publish_branch: gh-pages
+    
+
